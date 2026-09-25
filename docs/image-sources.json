@@ -1,0 +1,130 @@
+[
+  {
+    "file": "00-IMG_1080.jpg",
+    "url": "https://static.tildacdn.ink/tild6362-3833-4664-a635-396238356631/IMG_1080.jpg",
+    "bytes": 399850,
+    "output": "assets/images/training.webp",
+    "width": 1920,
+    "height": 1177
+  },
+  {
+    "file": "01-IMG_2026.jpg",
+    "url": "https://static.tildacdn.ink/tild6633-6633-4761-b231-386132353338/IMG_2026.jpg",
+    "bytes": 885321,
+    "output": "assets/images/finish.webp",
+    "width": 1200,
+    "height": 1200
+  },
+  {
+    "file": "03-IMG_3198.jpg",
+    "url": "https://static.tildacdn.ink/tild3132-6534-4135-b766-643534373436/IMG_3198.jpg",
+    "bytes": 86583,
+    "output": "assets/images/open-water.webp",
+    "width": 625,
+    "height": 625
+  },
+  {
+    "file": "04-IMG_7795.jpg",
+    "url": "https://static.tildacdn.ink/tild3338-6665-4238-b635-626332653032/IMG_7795.jpg",
+    "bytes": 702078,
+    "output": "assets/images/cycling.webp",
+    "width": 1200,
+    "height": 1200
+  },
+  {
+    "file": "05-IMG_1078_2.jpg",
+    "url": "https://static.tildacdn.ink/tild3436-6635-4964-a137-386336336633/IMG_1078_2.jpg",
+    "bytes": 308314,
+    "output": "assets/images/run-session.webp",
+    "width": 1200,
+    "height": 900
+  },
+  {
+    "file": "06-photo_2025-10-22_154.jpeg",
+    "url": "https://static.tildacdn.ink/tild3030-6664-4532-a130-343662666165/photo_2025-10-22_154.jpeg",
+    "bytes": 101520,
+    "output": "assets/images/swimming.webp",
+    "width": 1080,
+    "height": 720
+  },
+  {
+    "file": "07-IMG_0867.jpg",
+    "url": "https://static.tildacdn.ink/tild3734-6331-4935-a164-326661633863/IMG_0867.jpg",
+    "bytes": 636083,
+    "output": "assets/images/team.webp",
+    "width": 1200,
+    "height": 900
+  },
+  {
+    "file": "08-IMG_3324.jpg",
+    "url": "https://static.tildacdn.ink/tild6432-6362-4533-b830-656638626639/IMG_3324.jpg",
+    "bytes": 250904,
+    "output": "assets/images/training-plan.webp",
+    "width": 1200,
+    "height": 900
+  },
+  {
+    "file": "09-IMG_4689.jpg",
+    "url": "https://static.tildacdn.ink/tild3034-3964-4565-a339-653561663532/IMG_4689.jpg",
+    "bytes": 273675,
+    "output": "assets/images/coaching.webp",
+    "width": 960,
+    "height": 720
+  },
+  {
+    "file": "10-IMG_3397-3.jpg",
+    "url": "https://static.tildacdn.ink/tild6331-6135-4636-a163-333633366331/IMG_3397-3.jpg",
+    "bytes": 767298,
+    "output": "assets/images/race-support.webp",
+    "width": 1200,
+    "height": 959
+  },
+  {
+    "file": "11-photo_2025-10-22_135.jpeg",
+    "url": "https://static.tildacdn.ink/tild3239-3062-4231-a130-376236663465/photo_2025-10-22_135.jpeg",
+    "bytes": 101889,
+    "output": "assets/images/camp.webp",
+    "width": 1080,
+    "height": 720
+  },
+  {
+    "file": "12-552018502_1852794550.jpg",
+    "url": "https://static.tildacdn.ink/tild6631-6561-4763-a334-316337333762/552018502_1852794550.jpg",
+    "bytes": 30410,
+    "output": "assets/images/alexander.webp",
+    "width": 366,
+    "height": 400
+  },
+  {
+    "file": "13-568927542_1854181289.jpg",
+    "url": "https://static.tildacdn.ink/tild6632-6639-4032-b530-663063363437/568927542_1854181289.jpg",
+    "bytes": 21330,
+    "output": "assets/images/evgenia.webp",
+    "width": 400,
+    "height": 400
+  },
+  {
+    "file": "14-photo_2025-11-07_122.jpeg",
+    "url": "https://static.tildacdn.ink/tild3466-6237-4965-b733-313334623935/photo_2025-11-07_122.jpeg",
+    "bytes": 31308,
+    "output": "assets/images/dmitry.webp",
+    "width": 400,
+    "height": 400
+  },
+  {
+    "file": "15-photo_2025-11-07_122.jpeg",
+    "url": "https://static.tildacdn.ink/tild6566-3630-4735-b965-326436386661/photo_2025-11-07_122.jpeg",
+    "bytes": 26421,
+    "output": "assets/images/denis.webp",
+    "width": 400,
+    "height": 400
+  },
+  {
+    "file": "e0d34dc1dd68b78a.jpg",
+    "source_page": "https://www.instagram.com/ekatyulya/p/DdO95ROtGKI/",
+    "output": "assets/images/nice-medal.webp",
+    "width": 900,
+    "height": 1200,
+    "note": "Photograph from the public post, viewed through the user-authorized Chrome tab. No profile, message or commenter data copied."
+  }
+]

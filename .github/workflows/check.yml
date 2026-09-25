@@ -1,0 +1,22 @@
+name: Static checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check HTML and local assets
+        run: python3 scripts/check_static.py
+      - name: Check JavaScript syntax
+        run: node --check script.js
+      - name: Check whitespace
+        run: git show --format= --check HEAD
