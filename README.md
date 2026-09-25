@@ -12,7 +12,7 @@
 - `styles.css` — оформление и адаптивность; основные цвета и отступы в `:root`.
 - `script.js` — мобильное меню. Остальной сайт работает без JavaScript.
 - `assets/images/` — локальные WebP-фотографии Кати и её спортсменов.
-- `assets/fonts/` — Golos Text и Oswald с лицензиями OFL.
+- `assets/fonts/` — локальные Roboto Flex и Onest с лицензиями OFL; файлы прежних шрифтов сохранены для сравнения.
 - `docs/content-sources.md` — источники контента и редакционные решения.
 - `docs/image-sources.json` — соответствие фотографий оригиналам.
 
