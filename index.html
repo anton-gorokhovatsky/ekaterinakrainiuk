@@ -3,18 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101216">
+  <meta name="theme-color" content="#f4f3ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)">
+  <script src="theme.js"></script>
   <title>Екатерина Крайнюк — тренер по триатлону, бегу и плаванию</title>
   <meta name="description" content="Индивидуальная подготовка к стартам по бегу, плаванию, велоспорту и триатлону. Тренировки с Екатериной Крайнюк в Москве и онлайн по всему миру.">
   <link rel="canonical" href="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ru_RU">
-  <meta property="og:title" content="Екатерина Крайнюк — спорт в вашей жизни">
+  <meta property="og:site_name" content="Екатерина Крайнюк">
+  <meta property="og:title" content="Екатерина Крайнюк — тренер по триатлону">
   <meta property="og:description" content="Тренер по циклическим видам спорта. Москва и онлайн по всему миру.">
   <meta property="og:url" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/">
+  <meta property="og:image" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/assets/images/share-card-v1.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Екатерина Крайнюк — тренер по триатлону и циклическим видам спорта. Крупное имя на тёмном фоне и фотография Кати на стадионе.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Екатерина Крайнюк — тренер по триатлону">
+  <meta name="twitter:description" content="Тренер по циклическим видам спорта. Москва и онлайн по всему миру.">
+  <meta name="twitter:image" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/assets/images/share-card-v1.png">
+  <meta name="twitter:image:alt" content="Екатерина Крайнюк — тренер по триатлону и циклическим видам спорта. Крупное имя на тёмном фоне и фотография Кати на стадионе.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='4' fill='%23e9ff64'/%3E%3Cpath d='M14 16h15v6H20v7h8v6h-8v7h9v6H14zm22 0h6v13l9-13h7L47 32l11 16h-7l-9-13v13h-6z' fill='%23101216'/%3E%3C/svg%3E">
   <link rel="preload" href="assets/fonts/robotoflex-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="themes.css">
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
 </head>
@@ -29,6 +43,14 @@
       <a href="#approach">Подход</a>
       <a href="#results">Отзывы</a>
       <a class="nav-contact" href="#contact">Связаться <span aria-hidden="true">↓</span></a>
+      <div class="theme-control" hidden>
+        <label for="theme-choice">Тема</label>
+        <select id="theme-choice" name="theme">
+          <option value="system">Как в системе</option>
+          <option value="light">Светлая</option>
+          <option value="dark">Тёмная</option>
+        </select>
+      </div>
     </nav>
   </header>
   <main id="main">

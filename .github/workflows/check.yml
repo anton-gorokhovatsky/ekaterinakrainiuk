@@ -17,6 +17,10 @@ jobs:
       - name: Check HTML and local assets
         run: python3 scripts/check_static.py
       - name: Check JavaScript syntax
-        run: node --check script.js
+        run: |
+          node --check script.js
+          node --check theme.js
+      - name: Check theme behavior
+        run: node --test scripts/theme.test.cjs
       - name: Check whitespace
         run: git show --format= --check HEAD

@@ -1,0 +1,40 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f3ee;
+  --surface: #e9e9e2;
+  --ink: #101216;
+  --muted: #5b6067;
+  --accent: #526400;
+  --line: #c9ccc2;
+  --accent-fill: #e9ff64;
+  --button-ink: #101216;
+  --button-hover: #d9ef4c;
+  --control-line: #787e70;
+}
+
+/* System appearance also works when JavaScript is unavailable. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #101216;
+    --surface: #191c21;
+    --ink: #e9ebef;
+    --muted: #a5a9b0;
+    --accent: #e9ff64;
+    --line: #393d43;
+    --button-hover: #f5ffae;
+    --control-line: #70767e;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #101216;
+  --surface: #191c21;
+  --ink: #e9ebef;
+  --muted: #a5a9b0;
+  --accent: #e9ff64;
+  --line: #393d43;
+  --button-hover: #f5ffae;
+  --control-line: #70767e;
+}

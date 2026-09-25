@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import re
+import struct
 import sys
 import xml.etree.ElementTree as ET
 
@@ -21,6 +22,8 @@ class Page(HTMLParser):
         self.lang = None
         self.title = False
         self.viewport = False
+        self.meta = {}
+        self.canonical = None
 
     def handle_starttag(self, tag, pairs):
         attrs = dict(pairs)
@@ -32,6 +35,10 @@ class Page(HTMLParser):
             self.title = True
         if tag == 'meta' and attrs.get('name') == 'viewport':
             self.viewport = True
+        if tag == 'meta':
+            self.meta[attrs.get('property') or attrs.get('name')] = attrs.get('content', '')
+        if tag == 'link' and attrs.get('rel') == 'canonical':
+            self.canonical = attrs.get('href')
         if attrs.get('id'):
             if attrs['id'] in self.ids:
                 errors.append(f'{self.path.name}: duplicate id {attrs["id"]}')
@@ -76,6 +83,31 @@ for path in ROOT.glob('*.html'):
     for fragment in page.fragments:
         if fragment not in page.ids:
             errors.append(f'{path.name}: broken fragment #{fragment}')
+    if path.name == 'index.html':
+        for key in ('description', 'og:title', 'og:description', 'og:site_name', 'og:locale',
+                    'og:image:alt', 'twitter:title', 'twitter:description', 'twitter:image:alt'):
+            if not page.meta.get(key):
+                errors.append(f'index.html: missing {key}')
+        base = 'https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/'
+        if page.canonical != base or page.meta.get('og:url') != base:
+            errors.append('index.html: canonical and og:url must match the public site')
+        if page.meta.get('og:type') != 'website' or page.meta.get('twitter:card') != 'summary_large_image':
+            errors.append('index.html: check Open Graph and Twitter card types')
+        image_url = page.meta.get('og:image', '')
+        if not image_url.startswith(base) or page.meta.get('twitter:image') != image_url:
+            errors.append('index.html: share images must use the same absolute public URL')
+        else:
+            image = ROOT / image_url.removeprefix(base)
+            if not image.is_file():
+                errors.append('index.html: share image is missing')
+            else:
+                data = image.read_bytes()
+                if data[:8] != b'\x89PNG\r\n\x1a\n' or page.meta.get('og:image:type') != 'image/png':
+                    errors.append('index.html: share image must be a PNG with matching MIME type')
+                else:
+                    dimensions = tuple(map(str, struct.unpack('>II', data[16:24])))
+                    if dimensions != (page.meta.get('og:image:width'), page.meta.get('og:image:height')):
+                        errors.append('index.html: declared share image dimensions do not match the file')
 
 for value in re.findall(r'url\(["\']?([^"\')]+)', (ROOT / 'styles.css').read_text()):
     if not (ROOT / value).is_file():
@@ -87,4 +119,4 @@ if not (ROOT / '.nojekyll').exists():
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print('Static checks passed: HTML, anchors, local assets, image dimensions, sitemap, Pages marker.')
+print('Static checks passed: HTML, anchors, local assets, share metadata and image, sitemap, Pages marker.')
