@@ -20,7 +20,9 @@ jobs:
         run: |
           node --check script.js
           node --check theme.js
-      - name: Check theme behavior
-        run: node --test scripts/theme.test.cjs
+          node --check tarot.js
+          node --check daylight.js
+      - name: Check theme, tarot and weather behavior
+        run: node --test scripts/*.test.cjs
       - name: Check whitespace
         run: git show --format= --check HEAD

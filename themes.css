@@ -13,6 +13,8 @@
   --contact-bg: #e9ff64;
   --contact-ink: #101216;
   --contact-muted: #3f472b;
+  --rose: #ffb8d2;
+  --paper: #f4f3ee;
 }
 
 /* System appearance also works when JavaScript is unavailable. */

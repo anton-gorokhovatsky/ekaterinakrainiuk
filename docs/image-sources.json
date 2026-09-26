@@ -126,5 +126,65 @@
     "width": 900,
     "height": 1200,
     "note": "Photograph from the public post, viewed through the user-authorized Chrome tab. No profile, message or commenter data copied."
+  },
+  {
+    "url": "https://www.instagram.com/ekatyulya/p/Ddd7_vONYMt/",
+    "output": "assets/images/nice-run.webp",
+    "width": 1200,
+    "height": 1600,
+    "bytes": 193948,
+    "caption": "После пробежки в Ницце",
+    "acquired": "2026-09-26",
+    "method": "Rendered Instagram photograph exported through browser pageAssets; local WebP conversion. No embedded feed."
+  },
+  {
+    "url": "https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=1",
+    "output": "assets/images/nice-marina.webp",
+    "width": 1200,
+    "height": 1600,
+    "bytes": 324996,
+    "caption": "Велосипед в порту Ниццы",
+    "acquired": "2026-09-26",
+    "method": "Rendered Instagram photograph exported through browser pageAssets; local WebP conversion. No embedded feed."
+  },
+  {
+    "url": "https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=2",
+    "output": "assets/images/nice-friends.webp",
+    "width": 1200,
+    "height": 1600,
+    "bytes": 225302,
+    "caption": "Велопрогулка с подругой",
+    "acquired": "2026-09-26",
+    "method": "Rendered Instagram photograph exported through browser pageAssets; local WebP conversion. No embedded feed."
+  },
+  {
+    "url": "https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=3",
+    "output": "assets/images/nice-coffee.webp",
+    "width": 1200,
+    "height": 1600,
+    "bytes": 95916,
+    "caption": "Кофе и пан о шоколя",
+    "acquired": "2026-09-26",
+    "method": "Rendered Instagram photograph exported through browser pageAssets; local WebP conversion. No embedded feed."
+  },
+  {
+    "url": "https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=5",
+    "output": "assets/images/col-de-turini.webp",
+    "width": 1200,
+    "height": 1600,
+    "bytes": 567792,
+    "caption": "Велосипед на Col de Turini",
+    "acquired": "2026-09-26",
+    "method": "Rendered Instagram photograph exported through browser pageAssets; local WebP conversion. No embedded feed."
+  },
+  {
+    "url": "https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=6",
+    "output": "assets/images/antibes-portrait.webp",
+    "width": 1200,
+    "height": 1600,
+    "bytes": 147968,
+    "caption": "Портрет в Антибе; в подписи указана @maria_byka",
+    "acquired": "2026-09-26",
+    "method": "Rendered Instagram photograph exported through browser pageAssets; local WebP conversion. No embedded feed."
   }
 ]

@@ -59,7 +59,7 @@ a, button, summary, select { -webkit-tap-highlight-color: transparent; touch-act
 img { display: block; max-width: 100%; height: auto; }
 figure, p, h1, h2, h3 { margin: 0; }
 h1, h2, h3 { font-weight: 600; }
-h2 { font-family: var(--display); font-size: var(--heading-size); font-weight: 800; font-variation-settings: "wdth" 110, "wght" 780, "opsz" 64; line-height: 1.08; letter-spacing: .005em; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: var(--heading-size); font-weight: 800; font-variation-settings: "wdth" 114, "wght" 820, "opsz" 72; line-height: 1.08; letter-spacing: .005em; text-wrap: balance; }
 h3 { line-height: 1.25; letter-spacing: -.025em; }
 p { text-wrap: pretty; }
 section, figure, article, section div { min-width: 0; }
@@ -81,27 +81,38 @@ a:focus-visible, button:focus-visible, summary:focus-visible, select:focus-visib
 .theme-control { display: flex; flex-direction: column; gap: .1rem; flex-shrink: 0; }
 .theme-control label { color: var(--muted); font-size: var(--label-size); line-height: 1.3; }
 .theme-control select { min-height: 2.1rem; max-width: 100%; border: 0; border-bottom: 1px solid var(--control-line); border-radius: 0; padding: .25rem .2rem .25rem 0; color: var(--ink); background: var(--bg); cursor: pointer; font-size: .875rem; }
-.hero { padding: 1.7rem var(--pad) 0; max-width: 1800px; margin: auto; }
-.hero-top { display: flex; justify-content: space-between; gap: 1rem; font-size: var(--label-size); line-height: 1.5; color: var(--muted); }
-.hero h1 { margin: 2.4rem 0 2rem; font: 800 clamp(2rem, 11.9vw, 13.2rem)/1.06 var(--display); letter-spacing: .012em; text-transform: uppercase; }
-.hero-first-name, .hero-last-name { display: block; white-space: nowrap; }
-.hero-last-name { padding-top: .11em; }
-.hero-stage { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(17rem, 1fr); gap: clamp(1.8rem, 4vw, 4.5rem); align-items: start; }
-.hero-photo { position: relative; }
-.hero-photo > img { width: 100%; aspect-ratio: 1.85; object-fit: cover; object-position: 56% 50%; }
-.hero-photo figcaption { padding: .75rem 0; color: var(--muted); font-size: var(--label-size); }
-.hero-intro { padding-top: .5rem; }
-.hero-intro > p { font-size: clamp(1.12rem, 1.9vw, 1.8rem); line-height: 1.35; letter-spacing: -.025em; max-width: 23ch; }
 .button { display: inline-flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 3.25rem; padding: .95rem 1.25rem; font-size: .875rem; line-height: 1.4; font-weight: 600; transition: background 180ms ease, color 180ms ease; }
 .button-accent { color: var(--button-ink); background: var(--accent-fill); }
 .button-accent:hover { background: var(--button-hover); }
 .button span { font: 400 1.3rem/1 var(--body); }
-.hero-intro .button { margin-top: 1.65rem; width: 100%; }
-.hero-credentials { margin-top: 1.6rem; display: grid; gap: .3rem; color: var(--muted); font-size: .8rem; }
-.hero-credentials b { color: var(--ink); font-weight: 400; }
-.hero-down { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding: .8rem 0; margin-top: 1.4rem; font-size: .8rem; color: var(--muted); }
-.hero-down:hover { color: var(--accent); }
-.disciplines { display: flex; flex-wrap: wrap; gap: .5rem 2rem; margin-top: 2.75rem; padding: 1.25rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); justify-content: space-between; font-size: clamp(.8rem, 1.3vw, 1.125rem); font-weight: 600; }
+/* A portrait-led sports poster: the face and the smile stay unobstructed. */
+.hero { padding: 1.5rem var(--pad) 0; max-width: 1800px; margin: auto; }
+.hero-top { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: 1.25rem; font-size: var(--label-size); color: var(--muted); }
+.hero-poster { position: relative; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); background: var(--rose); color: #101216; }
+.hero-copy { padding: clamp(1.5rem, 3vw, 3.5rem); display: flex; flex-direction: column; align-items: start; }
+.hero-role { font-size: .75rem; margin-bottom: clamp(2rem, 4vw, 4.5rem); }
+.hero h1 { margin: 0 0 2.25rem; font: 800 clamp(2rem, 6.15vw, 7rem)/1.09 var(--display); font-variation-settings: "wdth" 132, "wght" 850, "opsz" 100; letter-spacing: .008em; text-transform: uppercase; }
+.hero-first-name, .hero-last-name { display: block; white-space: nowrap; }
+.hero-last-name { padding-top: .09em; }
+.hero-intro { width: 100%; margin-top: auto; }
+.hero-intro > p:first-child { font-size: clamp(1.4rem, 2.3vw, 2.5rem); line-height: 1.2; letter-spacing: -.025em; }
+.hero-intro .hero-description { font-size: .95rem; max-width: 32ch; margin-top: 1.25rem; line-height: 1.5; }
+.hero-intro .button { margin-top: 1.75rem; min-width: min(100%, 19rem); }
+.button-hero { color: #f4f3ee; background: #101216; }
+.button-hero:hover { background: #343039; }
+.hero a:focus-visible { outline-color: #101216; }
+.hero-credentials { display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-size: .75rem; margin-top: 1.5rem; }
+.hero-credentials b { font-weight: 500; }
+.hero-photo { position: relative; min-height: 100%; }
+.hero-photo > img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; object-position: 50% 35%; }
+.hero-photo figcaption { position: absolute; right: 1rem; bottom: 1rem; color: #101216; background: var(--paper); padding: .5rem .7rem; font-size: .7rem; transform: rotate(-3deg); }
+.hero-sticker { position: absolute; z-index: 1; left: -4.5rem; bottom: 3.5rem; width: 9rem; height: 9rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .25rem; text-align: center; font-size: .75rem; font-weight: 600; line-height: 1.25; transform: rotate(10deg); transition: transform 240ms ease; }
+.hero-sticker::before { content: ""; position: absolute; z-index: -1; inset: 0; background: var(--accent-fill); clip-path: polygon(50% 0%,58% 10%,69% 4%,74% 17%,88% 15%,88% 29%,100% 35%,94% 48%,100% 61%,88% 68%,88% 83%,74% 82%,68% 96%,57% 90%,48% 100%,40% 90%,27% 96%,22% 82%,8% 83%,10% 68%,0% 60%,7% 48%,0% 35%,13% 28%,12% 14%,27% 17%,31% 3%,42% 10%); }
+.hero-sticker:hover { transform: rotate(-5deg) scale(1.06); }
+.sticker-spark { font: 1.65rem/1 var(--body); }
+.disciplines { position: relative; display: flex; justify-content: space-around; gap: 1rem; padding: 1.2rem 1rem; margin: 1.5rem 0 0; background: var(--accent-fill); color: #101216; font: 800 clamp(.875rem, 2.4vw, 2.65rem)/1 var(--display); font-variation-settings: "wdth" 110, "wght" 820, "opsz" 72; text-transform: uppercase; transform: rotate(-1.4deg); }
+.disciplines span + span::before { content: "✳"; font: .7em/1 var(--body); display: inline-block; margin-right: clamp(.5rem, 2.5vw, 3rem); vertical-align: .1em; }
+
 .section { padding: var(--space) var(--pad); max-width: 1800px; margin-inline: auto; }
 .eyebrow, .section-label { font: 500 var(--label-size)/1.5 var(--body); text-transform: uppercase; letter-spacing: .055em; }
 .eyebrow { color: var(--muted); }
@@ -217,7 +228,7 @@ tbody { font: 400 1.1rem/1.5 var(--body); }
 .design-credit:hover { color: var(--accent); }
 
 /* One role per typeface; optical sizing already tightens the display face. */
-.brand-mark, .hero h1 { font-variation-settings: "wdth" 132, "wght" 850, "opsz" 100; }
+.brand-mark { font-variation-settings: "wdth" 132, "wght" 850, "opsz" 100; }
 .facts strong, .race-time strong { font-variation-settings: "wdth" 110, "wght" 780, "opsz" 64; }
 .contact .section-label { color: var(--contact-muted); }
 .contact-opening .lead { margin-top: 1.5rem; max-width: 27ch; font-size: clamp(1.125rem, 1.7vw, 1.5rem); }
@@ -231,17 +242,106 @@ tbody { font: 400 1.1rem/1.5 var(--body); }
 .footer-top { display: inline-flex; align-items: center; gap: .75rem; padding-block: .65rem; }
 .footer-top:hover { text-decoration: underline; text-underline-offset: .3em; }
 
-@media (min-width: 1600px) {
-  .hero { padding-top: 2.5rem; }
-  .hero h1 { margin-top: 3.5rem; }
-}
+/* The live sky has its own palette; it never overrides the chosen page theme. */
+.hero-poster { background: var(--daylight-paper, var(--rose)); transition: background-color 1s ease; }
+.daylight { position: relative; border-bottom: 1px solid var(--line); }
+.daylight summary { cursor: pointer; display: flex; align-items: center; gap: .75rem; padding: 1rem 0; font-size: .75rem; list-style: none; }
+.daylight summary::-webkit-details-marker { display: none; }
+.daylight-mark { color: var(--accent); font-size: 1.35rem; line-height: 1; }
+.daylight summary [data-weather-summary] { color: var(--muted); margin-left: auto; text-align: right; }
+.daylight-expand { font-size: 1.2rem; transition: transform 180ms; }
+.daylight[open] .daylight-expand { transform: rotate(45deg); }
+.daylight-panel { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); padding: 1rem 0 2rem; }
+.daylight-copy { max-width: 32rem; }
+.daylight-title { font: 700 clamp(1.5rem, 2.8vw, 2.5rem)/1.2 var(--display); margin: 1rem 0; }
+.daylight-copy > p:last-child { max-width: 42ch; color: var(--muted); font-size: .875rem; }
+.daylight-scene { align-self: center; padding: 1rem 1.5rem; background: var(--sky-color, var(--surface)); border: 1px solid var(--line); }
+.daylight-scene svg { display: block; width: 100%; max-width: 26rem; margin: auto; overflow: visible; color: var(--ink); }
+[data-sun-position] { visibility: hidden; }
+[data-weather-ready] [data-sun-position] { visibility: visible; }
+.sun-path { fill: none; stroke: currentColor; stroke-width: 1; stroke-dasharray: 2 5; opacity: .4; }
+.sun-horizon { fill: none; stroke: currentColor; opacity: .5; }
+.sun-disc { fill: var(--accent-fill); stroke: #101216; stroke-width: 1.5; }
+.sun-rays { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.daylight-times { display: flex; justify-content: space-between; gap: 1rem; font-size: .75rem; }
+.weather-detail { font-size: .8rem; margin-top: 1rem; color: var(--muted); }
+.weather-source { display: inline-block; font-size: .65rem; color: var(--muted); text-decoration: underline; text-underline-offset: .2em; margin-top: .5rem; }
+.daylight[data-night] .sun-disc { fill: var(--paper); }
+.daylight[data-night] .sun-rays { display: none; }
+.race-note { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: stretch; gap: 4rem; }
+.race-note-copy { align-self: center; }
+.race-note blockquote { margin: 0; }
+.race-note blockquote p { font-size: clamp(1.6rem, 3vw, 3rem); line-height: 1.25; letter-spacing: -.025em; }
+.strava-note { padding: clamp(1.5rem, 3vw, 3rem); color: #101216; background: #ffccb0; }
+.strava-note-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; font-size: .7rem; margin-bottom: 1.5rem; }
+.strava-note h3 { font-size: 1.25rem; }
+.strava-time { font: 800 clamp(3rem, 7vw, 6rem)/1.1 var(--display); font-variation-settings: "wdth" 120, "wght" 820, "opsz" 72; font-variant-numeric: tabular-nums; margin-block: .5rem; }
+.strava-stats { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-size: .875rem; }
+.strava-quote { margin: 1.5rem 0 1rem; font-size: .875rem; }
+.strava-note a:hover { color: #101216; text-decoration: underline; }
+.strava-note a:focus-visible { outline-color: #101216; }
+.strava-profile { display: block; width: fit-content; margin-top: .75rem; padding-block: .4rem; font-size: .75rem; }
+.approach-opening figure { max-width: none; }
+.life { padding-top: 0; }
+.life .section-label a { text-transform: none; letter-spacing: 0; }
+.life .section-label a:hover { text-decoration: underline; }
+.life-gallery { display: grid; grid-template-columns: 1.4fr .75fr 1fr; grid-template-rows: 1fr 1fr; align-items: start; gap: 1.5rem; }
+.life-gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform 350ms ease; }
+.life-gallery a { display: block; overflow: hidden; }
+.life-gallery a:hover img { transform: scale(1.025); }
+.life-gallery figcaption { font-size: .75rem; margin-top: .6rem; color: var(--muted); }
+.life-friends { grid-row: 1/3; transform: rotate(-2deg); margin-top: 2rem; }
+.life-friends img { aspect-ratio: .75; }
+.life-coffee { grid-column: 2; }
+.life-coffee img, .life-mountain img { aspect-ratio: 1.1; }
+.life-mountain { grid-column: 2; grid-row: 2; }
+.life-portrait { grid-column: 3; grid-row: 1/3; margin-top: 5rem; transform: rotate(2deg); }
+.life-portrait img { aspect-ratio: .63; object-position: 68% center; }
+.life-follow { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 2rem; font-size: .75rem; color: var(--muted); }
+.site-footer { padding: 0; }
+.footer-meta { margin-inline: var(--pad); }
+.tarot { padding: clamp(4rem, 7vw, 7rem) var(--pad); background: var(--rose); color: #101216; overflow: clip; }
+.tarot-header { display: grid; grid-template-columns: 1.3fr 1fr; gap: var(--gap); align-items: end; }
+.tarot .eyebrow { color: #51424b; display: block; margin-bottom: 2rem; }
+.tarot h2 { font-size: clamp(3rem, 8vw, 8rem); line-height: .96; text-transform: uppercase; }
+.tarot-intro > p:first-child { font-size: clamp(1.3rem, 2.2vw, 2rem); line-height: 1.3; letter-spacing: -.025em; }
+.tarot-intro > p:last-child { font-size: .875rem; max-width: 33ch; margin-top: 1.25rem; min-height: 3em; }
+.tarot-spread { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 3.3vw, 3.5rem); max-width: 70rem; margin: 4.5rem auto 3rem; padding-inline: 1rem; }
+.tarot-card { position: relative; min-width: 0; perspective: 1400px; transform: rotate(-5deg); }
+.tarot-card-2 { transform: translateY(-1rem) rotate(2deg); }
+.tarot-card-3 { transform: rotate(6deg); }
+.tarot-card-inner { display: grid; height: 100%; transform-style: preserve-3d; transition: transform 550ms cubic-bezier(.2,.65,.2,1); }
+.tarot-front, .tarot-back { grid-area: 1/1; padding: 1.5rem; min-height: 27rem; border: 1px solid #101216; border-radius: .5rem; background: var(--paper); backface-visibility: hidden; position: relative; display: flex; align-items: center; flex-direction: column; text-align: center; }
+.tarot-front::before, .tarot-back::before { content: ""; position: absolute; inset: .5rem; border: 1px solid #101216; border-radius: .2rem; pointer-events: none; opacity: .4; }
+.tarot-number { display: block; font-size: .65rem; text-transform: uppercase; letter-spacing: .04em; }
+.tarot-front svg, .tarot-back svg { display: block; width: min(100%, 12rem); margin: 1rem auto; flex: 0 0 auto; }
+.tarot-front h3 { font: 750 clamp(1.2rem, 2vw, 1.75rem)/1.1 var(--display); font-variation-settings: "wdth" 105, "wght" 780, "opsz" 48; letter-spacing: 0; margin-top: auto; }
+.tarot-description { font-size: .8rem; line-height: 1.5; margin-top: .75rem; max-width: 28ch; min-height: 4.5em; }
+.tarot-back { display: none; justify-content: center; background: #101216; color: var(--rose); }
+.tarot-back::before { border-color: currentColor; }
+.tarot-back .tarot-number { position: absolute; top: 1.5rem; }
+.tarot-back-title { font: 650 clamp(1.2rem, 2vw, 1.7rem)/1.2 var(--display); max-width: 100%; overflow-wrap: normal; text-wrap: balance; }
+.tarot-tap { margin-top: 1rem; font-size: .7rem; opacity: .7; }
+.tarot-card-2 .tarot-back { color: var(--accent-fill); }
+.tarot-card-3 .tarot-back { color: var(--paper); }
+.tarot-ready .tarot-back { display: flex; }
+.tarot-ready .tarot-front { transform: rotateY(180deg); }
+.tarot-ready .is-revealed .tarot-card-inner { transform: rotateY(180deg); }
+.tarot-card-toggle { position: absolute; inset: 0; width: 100%; border: 0; border-radius: .5rem; padding: 0; color: transparent; font-size: 0; cursor: pointer; background: transparent; }
+.tarot-swipe { display: none; }
+.tarot-card-toggle:focus-visible { outline: 3px solid #101216; outline-offset: 5px; }
+.tarot-card:has(.tarot-card-toggle:hover) .tarot-back::before { opacity: 1; }
+.tarot-actions { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem; }
+.tarot-deal { border: 1px solid #101216; color: var(--paper); background: #101216; cursor: pointer; gap: 3rem; min-width: 17rem; }
+.tarot-deal > span { font: inherit; }
+.tarot-deal:hover { background: #393039; }
+.tarot-deal[aria-disabled] { opacity: .7; cursor: wait; }
+.tarot-deal:focus-visible { outline-color: #101216; }
+.tarot-actions > p { font-size: .75rem; color: #51424b; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
 @media (max-width: 1050px) {
   .brand-name { display: none; }
-  .hero h1 { margin-top: 2rem; }
-  .hero-stage { grid-template-columns: minmax(0, 1.8fr) minmax(15rem, 1fr); gap: 1.8rem; }
-  .hero-photo > img { aspect-ratio: 1.38; }
-  .hero-intro > p { font-size: 1.2rem; }
-  .hero-credentials { margin-top: 1.2rem; }
   .about-grid { grid-template-columns: 1fr 3fr; }
   .story-copy { column-count: 1; max-width: 58ch; }
   .race-note { gap: 3rem; }
@@ -268,20 +368,6 @@ tbody { font: 400 1.1rem/1.5 var(--body); }
   .theme-control { flex-direction: row; align-items: center; justify-content: space-between; margin-top: .5rem; padding-top: 1rem; border-top: 1px solid var(--line); gap: 1rem; }
   .theme-control label { font-size: .85rem; }
   .theme-control select { min-height: 2.75rem; background: var(--surface); font-size: 1rem; }
-  .hero { padding-top: 1.25rem; }
-  .hero-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); font-size: var(--label-size); }
-  .hero-top > span:first-child { max-width: 23ch; }
-  .hero-top > span:last-child { justify-self: end; max-width: 20ch; text-align: right; }
-  .hero h1 { margin: 2rem 0 1.25rem; }
-  .hero-stage { display: flex; flex-direction: column; gap: 1.5rem; }
-  .hero-photo { width: 100%; }
-  .hero-photo > img { aspect-ratio: 1.35; object-position: 57% 50%; }
-  .hero-intro { width: 100%; padding: 0; display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 1rem 1.5rem; }
-  .hero-intro > p { max-width: 30ch; grid-column: 1/-1; font-size: 1.35rem; }
-  .hero-intro .button { margin: 0; align-self: center; }
-  .hero-credentials { margin: 0; align-self: center; font-size: .8rem; }
-  .hero-down { grid-column: 1/-1; margin-top: .4rem; }
-  .disciplines { margin-top: 1.75rem; gap: .75rem 1rem; font-size: .8rem; }
   .about-grid { display: flex; flex-direction: column; gap: 2rem; }
   .about-aside { display: contents; }
   .about-aside > .eyebrow { order: 0; }
@@ -345,17 +431,7 @@ tbody { font: 400 1.1rem/1.5 var(--body); }
   .footer-identity { grid-column: 1/-1; }
   .footer-top { justify-self: end; }
 }
-@media (min-width: 481px) and (max-width: 760px) {
-  .hero-photo > img { aspect-ratio: 1.75; }
-}
 @media (max-width: 480px) {
-  .hero h1 { font-size: 11.4vw; }
-  .hero-intro { grid-template-columns: 1fr; gap: 1rem; }
-  .hero-intro > p { font-size: 1.25rem; }
-  .hero-intro .button { width: auto; justify-self: start; }
-  .hero-credentials { display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
-  .hero-down { display: none; }
-  .disciplines { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem 1rem; font-size: .875rem; }
   .race-note { display: grid; grid-template-columns: 1fr; }
   .race-note-photo { max-width: 17rem; width: 73%; }
   .race-note-copy { padding-left: 0; }
@@ -383,6 +459,74 @@ tbody { font: 400 1.1rem/1.5 var(--body); }
   .testimonial blockquote p { font-size: 1.15rem; }
   .testimonial-wide blockquote p { font-size: 1.5rem; }
 }
+@media (max-width: 760px) {
+  .hero { padding-top: 1rem; }
+  .hero-top { font-size: .7rem; gap: 1rem; }
+  .hero-top > span { max-width: 20ch; }
+  .hero-top > span:last-child { text-align: right; }
+  .hero-poster { display: flex; flex-direction: column; }
+  .hero-copy { display: contents; }
+  .hero-role { order: 0; margin: 0; padding: 1.25rem 1.25rem 1rem; font-size: .7rem; }
+  .hero h1 { order: 1; padding-inline: 1.25rem; margin: 0 0 1.25rem; font-size: 10.3vw; }
+  .hero-photo { order: 2; margin: 0 1.25rem; min-height: 0; }
+  .hero-photo > img { position: static; width: 100%; height: auto; aspect-ratio: 1; object-position: center 32%; }
+  .hero-photo figcaption { bottom: .75rem; left: .75rem; right: auto; font-size: .625rem; }
+  .hero-sticker { left: auto; right: -.7rem; bottom: 1.5rem; width: 6.5rem; height: 6.5rem; font-size: .6rem; }
+  .hero-intro { order: 3; padding: 1.75rem 1.25rem; }
+  .hero-intro > p:first-child { font-size: clamp(1.65rem, 5vw, 2.25rem); }
+  .hero-intro .hero-description { max-width: 40ch; }
+  .hero-intro .button { width: 100%; }
+  .hero-credentials { font-size: .7rem; }
+  .disciplines { flex-wrap: wrap; justify-content: center; padding: 1rem; gap: .65rem 1.25rem; font-size: clamp(.875rem, 2.75vw, 1.4rem); }
+  .disciplines span + span::before { display: none; }
+}
+
+@media (max-width: 1050px) {
+  .tarot-front, .tarot-back { padding: 1.25rem; min-height: 24rem; }
+  .tarot-front svg, .tarot-back svg { width: min(100%, 9rem); }
+  .tarot-spread { gap: 1.5rem; padding: 0; }
+}
+@media (max-width: 760px) {
+  .daylight summary { flex-wrap: wrap; column-gap: .5rem; }
+  .daylight summary [data-weather-summary] { flex-basis: 100%; order: 4; text-align: left; margin-left: 1.85rem; font-size: .7rem; }
+  .daylight-expand { margin-left: auto; }
+  .daylight-panel { grid-template-columns: 1fr; gap: 1.5rem; }
+  .daylight-scene { padding: 1rem; }
+  .race-note { grid-template-columns: 1fr; gap: 2rem; }
+  .race-note-copy > p { max-width: 44ch; }
+  .strava-time { font-size: clamp(3.5rem, 14vw, 6rem); }
+  .life-gallery { grid-template-columns: 1.15fr 1fr; grid-template-rows: auto auto; gap: 1.5rem 1rem; }
+  .life-friends { grid-row: 1; grid-column: 1; margin-top: 0; }
+  .life-coffee { grid-column: 2; grid-row: 1; margin-top: 2rem; }
+  .life-mountain { grid-column: 1; grid-row: 2; }
+  .life-portrait { grid-column: 2; grid-row: 2; margin-top: -1.5rem; }
+  .life-gallery img { aspect-ratio: .75; }
+  .life-coffee img, .life-mountain img { aspect-ratio: 1; }
+  .life-follow { flex-direction: column; gap: .75rem; align-items: start; }
+  .tarot-header { grid-template-columns: 1fr; gap: 2rem; }
+  .tarot .eyebrow { margin-bottom: 1.5rem; }
+  .tarot h2 { font-size: clamp(3.25rem, 13vw, 6rem); }
+  .tarot-intro > p:first-child { font-size: 1.25rem; }
+  .tarot-intro > p:last-child { max-width: 36ch; min-height: 0; }
+  .tarot-spread { grid-template-columns: 1fr; max-width: 22rem; margin-block: 2.5rem; padding-inline: .5rem; }
+  .tarot-ready .tarot-spread { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(78vw, 20rem); gap: 1.4rem; max-width: none; margin: 1rem calc(-1 * var(--pad)) 1.5rem; padding: 1.5rem var(--pad); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--pad); scrollbar-width: thin; scrollbar-color: #51424b transparent; }
+  .tarot-card { scroll-snap-align: center; }
+  .tarot-ready .tarot-swipe { display: block; margin-top: 1.5rem; font-size: .7rem; color: #51424b; }
+  .tarot-card, .tarot-card-2, .tarot-card-3 { transform: rotate(-2deg); }
+  .tarot-card-2 { transform: rotate(2deg); }
+  .tarot-front, .tarot-back { min-height: 25rem; }
+  .tarot-front svg, .tarot-back svg { width: 11rem; }
+  .tarot-front h3 { font-size: 1.65rem; }
+  .tarot-back-title { max-width: 14ch; font-size: 1.65rem; }
+  .tarot-actions { gap: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tarot-ready .tarot-front, .tarot-ready .is-revealed .tarot-card-inner { transform: none; }
+  .tarot-ready .tarot-front { visibility: hidden; }
+  .tarot-ready .is-revealed .tarot-front { visibility: visible; }
+  .tarot-ready .is-revealed .tarot-back { visibility: hidden; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }

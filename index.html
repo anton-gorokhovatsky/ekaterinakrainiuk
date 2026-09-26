@@ -15,22 +15,24 @@
   <meta property="og:title" content="Екатерина Крайнюк — тренер по триатлону">
   <meta property="og:description" content="Тренер по циклическим видам спорта. Москва и онлайн по всему миру.">
   <meta property="og:url" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/">
-  <meta property="og:image" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/assets/images/share-card-v2.png">
+  <meta property="og:image" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/assets/images/share-card-v3.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Екатерина Крайнюк — тренер по триатлону и циклическим видам спорта. Крупное имя на тёмном фоне и фотография Кати на стадионе.">
+  <meta property="og:image:alt" content="Екатерина Крайнюк — тренер по триатлону и циклическим видам спорта. Крупное имя на розовом фоне и улыбающаяся Катя с медалью в Ницце.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Екатерина Крайнюк — тренер по триатлону">
   <meta name="twitter:description" content="Тренер по циклическим видам спорта. Москва и онлайн по всему миру.">
-  <meta name="twitter:image" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/assets/images/share-card-v2.png">
-  <meta name="twitter:image:alt" content="Екатерина Крайнюк — тренер по триатлону и циклическим видам спорта. Крупное имя на тёмном фоне и фотография Кати на стадионе.">
+  <meta name="twitter:image" content="https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/assets/images/share-card-v3.png">
+  <meta name="twitter:image:alt" content="Екатерина Крайнюк — тренер по триатлону и циклическим видам спорта. Крупное имя на розовом фоне и улыбающаяся Катя с медалью в Ницце.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='4' fill='%23e9ff64'/%3E%3Cpath d='M14 16h15v6H20v7h8v6h-8v7h9v6H14zm22 0h6v13l9-13h7L47 32l11 16h-7l-9-13v13h-6z' fill='%23101216'/%3E%3C/svg%3E">
   <link rel="preload" href="assets/fonts/robotoflex-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css">
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
+  <script src="tarot.js" defer></script>
+  <script src="daylight.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -55,20 +57,31 @@
   </header>
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-top"><span>Тренирую. Тренируюсь. На вашей стороне.</span><span>Москва · Онлайн по всему миру</span></div>
-      <h1 id="hero-title"><span class="hero-first-name">Екатерина</span> <span class="hero-last-name">Крайнюк</span></h1>
-      <div class="hero-stage">
-        <figure class="hero-photo">
-          <img src="assets/images/training.webp" srcset="assets/images/training-960.webp 960w, assets/images/training.webp 1920w" sizes="(max-width: 760px) 100vw, 72vw" width="1920" height="1177" alt="Екатерина на стадионе во время тренировки: спортсмены бегут, а тренер наблюдает за их техникой" fetchpriority="high">
-          <figcaption>Всё начинается с обычной тренировки</figcaption>
-        </figure>
-        <div class="hero-intro">
-          <p>Помогаю готовиться к стартам и вписывать спорт в вашу жизнь.</p>
-          <a class="button button-accent" href="https://t.me/ekatyulya">Обсудить тренировки <span aria-hidden="true">↗</span></a>
-          <div class="hero-credentials"><span>Тренирую с <b>2019</b> года</span><span><b>12+</b> лет в циклическом спорте</span></div>
-          <a class="hero-down" href="#about">Познакомимся <span aria-hidden="true">↓</span></a>
+      <div class="hero-top"><span>Триатлон и всё, что вокруг</span><span>Москва · Онлайн по всему миру</span></div>
+      <div class="hero-poster">
+        <div class="hero-copy">
+          <p class="hero-role">Тренер. Спортсменка. На вашей стороне.</p>
+          <h1 id="hero-title"><span class="hero-first-name">Екатерина</span> <span class="hero-last-name">Крайнюк</span></h1>
+          <div class="hero-intro">
+            <p>К своему старту.<br>С удовольствием.</p>
+            <p class="hero-description">Помогаю готовиться к стартам и вписывать спорт в вашу жизнь.</p>
+            <a class="button button-hero" href="https://t.me/ekatyulya">Обсудить тренировки <span aria-hidden="true">↗</span></a>
+            <div class="hero-credentials"><span>Тренирую с <b>2019</b> года</span><span><b>12+</b> лет в циклическом спорте</span></div>
+          </div>
         </div>
+        <figure class="hero-photo">
+          <img src="assets/images/nice-medal.webp" width="900" height="1200" alt="Катя улыбается после финиша в Ницце и показывает медаль чемпионата мира IRONMAN 70.3" fetchpriority="high">
+          <figcaption>Ницца, 2026. Хочется ещё!</figcaption>
+        <a class="hero-sticker" href="#tarot"><span class="sticker-spark" aria-hidden="true">✳</span><span>А что там<br>у вас по картам?</span><span aria-hidden="true">↓</span></a>
+        </figure>
       </div>
+      <details class="daylight" id="daylight">
+        <summary><span class="daylight-mark" aria-hidden="true">✳</span><span>За окном в Москве</span><span data-weather-summary>Место наших тренировок</span><span class="daylight-expand" aria-hidden="true">+</span></summary>
+        <div class="daylight-panel">
+          <div class="daylight-copy"><span class="eyebrow">Свой ритм у каждого дня</span><p class="daylight-title" data-daylight-title>Планы меняются.<br>Движение остаётся.</p><p>Свет здесь следует за московским днём. Город очных тренировок — Москва, онлайн — где удобно вам.</p></div>
+          <div class="daylight-scene"><svg viewBox="0 0 400 180" aria-hidden="true"><path d="M30 150 Q200 -100 370 150" class="sun-path"/><path d="M20 151h360" class="sun-horizon"/><g data-sun-position transform="translate(200 25)"><circle r="17" class="sun-disc"/><path d="M0-26v-7m0 59v7m-26-33h-7m59 0h7m-51-18-5-5m41 41 5 5m-41 0 5-5m36-36-5 5" class="sun-rays"/></g></svg><div class="daylight-times"><span data-sunrise>Рассвет</span><span data-daylight-clock>Москва</span><span data-sunset>Закат</span></div><p class="weather-detail" data-weather-detail>Москва — город наших очных тренировок.</p><a class="weather-source" href="https://open-meteo.com/">Погода: Open-Meteo <span aria-hidden="true">↗</span></a></div>
+        </div>
+      </details>
       <div class="disciplines" aria-label="Направления тренировок"><span>Плавание</span><span>Велоспорт</span><span>Бег</span><span>Триатлон</span></div>
     </section>
 
@@ -86,13 +99,13 @@
         </div>
       </div>
       <div class="photo-story">
-        <figure class="photo-finish"><img src="assets/images/finish.webp" width="1200" height="1200" loading="lazy" decoding="async" alt="Екатерина на финише Ironstar Zavidovo 2024"><figcaption>На старте и на финише <span>Ironstar · Завидово, 2024</span></figcaption></figure>
+        <figure class="photo-finish"><img src="assets/images/nice-marina.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="Катя с велосипедом в солнечном порту Ниццы"><figcaption>Дорога к морю <span>Ницца, 2026</span></figcaption></figure>
         <figure class="photo-water"><img src="assets/images/open-water.webp" width="625" height="625" loading="lazy" decoding="async" alt="Екатерина улыбается во время заплыва на открытой воде"><figcaption>В воде</figcaption></figure>
-        <figure class="photo-bike"><img src="assets/images/cycling.webp" width="1200" height="1200" loading="lazy" decoding="async" alt="Екатерина с велосипедом на гонке Tour Transalp"><figcaption>На двух колёсах <span>Tour Transalp</span></figcaption></figure>
+        <figure class="photo-bike"><img src="assets/images/nice-run.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="Катя после пробежки на набережной в Ницце"><figcaption>И побегать, и погулять <span>Ницца, 2026</span></figcaption></figure>
       </div>
-      <aside class="race-note" aria-labelledby="race-note-title">
-        <a class="race-note-photo" href="https://www.instagram.com/ekatyulya/p/DdO95ROtGKI/" aria-label="Фотография и рассказ Кати о чемпионате мира в Instagram"><img src="assets/images/nice-medal.webp" width="900" height="1200" loading="lazy" decoding="async" alt="Екатерина с медалью чемпионата мира IRONMAN 70.3 в Ницце"></a>
-        <div class="race-note-copy"><span class="eyebrow">Из моего дневника · Ницца, 2026</span><h3 id="race-note-title">«Последние 3 километра улыбалась так, что было видно из космоса».</h3><p>Мой второй чемпионат мира по триатлону и первый в серии IRONMAN.</p><div class="race-time"><strong>5:44:03</strong><span>На финише<br>IRONMAN 70.3</span></div><a class="text-link" href="https://www.instagram.com/ekatyulya/reel/DdUi0mQNSmX/">Как прошёл чемпионат <span aria-hidden="true">↗</span></a></div>
+      <aside class="race-note" aria-label="Из спортивного дневника">
+        <div class="race-note-copy"><span class="eyebrow">Ницца · Чемпионат мира, 2026</span><blockquote><p>«Последние 3 километра улыбалась так, что было видно из космоса».</p></blockquote><p>Мой второй чемпионат мира по триатлону и первый в серии IRONMAN. На финише — 5:44:03.</p><a class="text-link" href="https://www.instagram.com/ekatyulya/reel/DdUi0mQNSmX/">Как прошёл чемпионат <span aria-hidden="true">↗</span></a></div>
+        <article class="strava-note"><div class="strava-note-top"><span>Из моего Strava</span><time datetime="2026-09-26">26.09.2026</time></div><h3>ММ 10</h3><div class="strava-time">42:33</div><p class="strava-stats">10,00 км <span>Темп 4:15/км</span></p><p class="strava-quote">«Одна из самых красивых в коллекцию!»</p><a class="text-link" href="https://www.strava.com/activities/20332347814">Посмотреть этот старт <span aria-hidden="true">↗</span></a><a class="strava-profile" href="https://www.strava.com/athletes/26974925">Все тренировки в Strava <span aria-hidden="true">↗</span></a></article>
       </aside>
     </section>
 
@@ -132,7 +145,7 @@
     </section>
 
     <section class="approach section" id="approach" aria-labelledby="approach-title">
-      <div class="approach-opening"><span class="eyebrow">Мой подход</span><h2 id="approach-title">Вписываем спорт в жизнь.<br>А не наоборот.</h2><figure><img src="assets/images/run-session.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Работа над техникой бега вместе с тренером"><figcaption>Процесс важен не меньше результата</figcaption></figure></div>
+      <div class="approach-opening"><span class="eyebrow">Мой подход</span><h2 id="approach-title">Вписываем спорт в жизнь.<br>А не наоборот.</h2><figure><img src="assets/images/training.webp" width="1920" height="1177" loading="lazy" decoding="async" alt="Катя ведёт тренировку на стадионе, спортсмены пробегают рядом"><figcaption>Процесс важен не меньше результата</figcaption></figure></div>
       <div class="principles">
         <article><span class="principle-number">Баланс</span><h3>У плана есть место для вашей жизни.</h3><p>Работа, семья, отдых — всё это учитываю в подготовке. Составляю план под вашу неделю и меняю его, когда меняются обстоятельства.</p></article>
         <article><span class="principle-number">Поддержка</span><h3>Рядом не только планом, но и словом.</h3><p>Мне можно и нужно задавать вопросы. О подготовке, выборе старта, технике и уходе за велосипедом — отвечу и помогу разобраться.</p></article>
@@ -140,6 +153,18 @@
         <article><span class="principle-number">Постепенность</span><h3>От простого к сложному.</h3><p>Регулярность, последовательность и плавная прогрессия. Строю подготовку с понятной структурой и опираюсь на собственный опыт спортсмена.</p></article>
       </div>
       <div class="education"><span class="eyebrow">Продолжаю учиться</span><p>Прошла профессиональную переподготовку, училась у Игоря Сысоева, Натальи Скворчевской и Юрия Сдобникова. Регулярно посещаю семинары и применяю новые знания на практике.</p></div>
+    </section>
+
+    <section class="life section" aria-labelledby="life-title">
+      <div class="section-label"><span>Жизнь между стартами</span><a href="https://www.instagram.com/ekatyulya/">@ekatyulya <span aria-hidden="true">↗</span></a></div>
+      <div class="section-heading"><h2 id="life-title">Ради этого<br>тоже.</h2><p>Новые дороги, море, люди рядом и кофе после длинной поездки. Спорт открывает столько всего за пределами финиша.</p></div>
+      <div class="life-gallery">
+        <figure class="life-friends"><a href="https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=2"><img src="assets/images/nice-friends.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="Катя улыбается во время велопрогулки, позади едет подруга"></a><figcaption>В хорошей компании</figcaption></figure>
+        <figure class="life-coffee"><a href="https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=3"><img src="assets/images/nice-coffee.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="Кофе и пан о шоколя на столике французского кафе"></a><figcaption>С остановкой на кофе</figcaption></figure>
+        <figure class="life-mountain"><a href="https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=5"><img src="assets/images/col-de-turini.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="Розовый велосипед Кати у таблички перевала Col de Turini"></a><figcaption>За новым перевалом</figcaption></figure>
+        <figure class="life-portrait"><a href="https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/?img_index=6"><img src="assets/images/antibes-portrait.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="Катя в велоформе смотрит на яхты в порту Антиба"></a><figcaption>И просто за красотой</figcaption></figure>
+      </div>
+      <div class="life-follow"><span>Ницца и окрестности · Сентябрь 2026</span><a class="text-link" href="https://www.instagram.com/ekatyulya/p/DdnXiX2DYZE/">Три недели в одной карусели <span aria-hidden="true">↗</span></a></div>
     </section>
 
     <section class="results section" id="results" aria-labelledby="results-title">
@@ -173,6 +198,35 @@
     </section>
   </main>
   <footer class="site-footer">
+    <section class="tarot" id="tarot" aria-labelledby="tarot-title">
+      <div class="tarot-header"><div><span class="eyebrow">Бюро спортивных предсказаний</span><h2 id="tarot-title">Карты<br>на старт.</h2></div><div class="tarot-intro"><p>А вдруг впереди<br>что-то классное?</p><p data-tarot-instruction>Один из возможных раскладов на ваш следующий старт.</p></div></div>
+      <p class="tarot-swipe">Листайте карты и открывайте по одной <span aria-hidden="true">→</span></p>
+      <div class="tarot-spread">
+          <article class="tarot-card tarot-card-1">
+            <div class="tarot-card-inner">
+              <div class="tarot-back" aria-hidden="true"><span class="tarot-number">I</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#star"/></svg><span class="tarot-back-title">Дисциплина</span><span class="tarot-tap">Открыть карту</span></div>
+              <div class="tarot-front" id="tarot-face-1"><span class="tarot-number">I / Дисциплина</span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="assets/illustrations/tarot.svg#medal"/></svg><h3>Триатлон</h3><p class="tarot-description">Зачем выбирать что-то одно?</p></div>
+            </div>
+            <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-1" hidden>Открыть карту «Дисциплина»</button>
+          </article>
+          <article class="tarot-card tarot-card-2">
+            <div class="tarot-card-inner">
+              <div class="tarot-back" aria-hidden="true"><span class="tarot-number">II</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#star"/></svg><span class="tarot-back-title">Формат старта</span><span class="tarot-tap">Открыть карту</span></div>
+              <div class="tarot-front" id="tarot-face-2"><span class="tarot-number">II / Формат старта</span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="assets/illustrations/tarot.svg#mountain"/></svg><h3>Половинка</h3><p class="tarot-description">Кажется, намечается что-то интересное.</p></div>
+            </div>
+            <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-2" hidden>Открыть карту «Формат старта»</button>
+          </article>
+          <article class="tarot-card tarot-card-3">
+            <div class="tarot-card-inner">
+              <div class="tarot-back" aria-hidden="true"><span class="tarot-number">III</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#star"/></svg><span class="tarot-back-title">Знак на финише</span><span class="tarot-tap">Открыть карту</span></div>
+              <div class="tarot-front" id="tarot-face-3"><span class="tarot-number">III / Знак на финише</span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="assets/illustrations/tarot.svg#sun"/></svg><h3>Солнце</h3><p class="tarot-description">На финише вы будете сиять ярче собственной медали. Фотограф, приготовьтесь.</p></div>
+            </div>
+            <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-3" hidden>Открыть карту «Знак на финише»</button>
+          </article>
+      </div>
+      <div class="tarot-actions"><button class="button tarot-deal" type="button" data-tarot-deal hidden><span>Открыть расклад</span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7h4c4 0 4 10 8 10h4m-4-4 4 4-4 4M4 17h4c4 0 4-10 8-10h4m-4-4 4 4-4 4"/></svg></button><p>Карты — ради забавы.<br>Подготовка — по плану.</p></div>
+      <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-tarot-status></p>
+    </section>
     <div class="footer-meta">
       <div class="footer-identity"><a href="#top">Екатерина Крайнюк</a><span>Плавание · Велоспорт · Бег · Триатлон</span></div>
       <a class="design-credit" href="https://anton-gorokhovatsky.github.io/design/">Дизайн и разработка</a>
