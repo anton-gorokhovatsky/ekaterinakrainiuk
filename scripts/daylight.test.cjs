@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { readWeather, conditions, weatherIcon } = require('../daylight.js');
+const { readWeather, daylightWindow, conditions, weatherIcon } = require('../daylight.js');
 const noon = Date.parse('2026-09-26T09:00:00Z');
 const sample = (now = noon) => ({
   current: { time: now / 1000, temperature_2m: 14.6, wind_speed_10m: 1.8, weather_code: 3 },
@@ -31,6 +31,19 @@ test('sun arc is bounded and night has its own state', () => {
   assert.equal(readWeather(sample(early), early).night, true);
   assert.equal(readWeather(sample(late), late).progress, 1);
   assert.equal(readWeather(sample(late), late).phase, 'night');
+});
+test('daylight countdown switches to the next sunrise at sunset', () => {
+  const early = Date.parse('2026-09-26T02:00:00Z');
+  assert.deepEqual(daylightWindow(readWeather(sample(early), early), early), { label: 'До рассвета', value: '1 ч 00 мин' });
+  assert.deepEqual(daylightWindow(readWeather(sample(), noon), noon), { label: 'До заката', value: '6 ч 00 мин' });
+  const lastMinute = Date.parse('2026-09-26T14:59:30Z');
+  assert.equal(daylightWindow(readWeather(sample(lastMinute), lastMinute), lastMinute).value, '1 мин');
+  const sunset = Date.parse('2026-09-26T15:00:00Z');
+  const twoDays = sample(sunset);
+  twoDays.daily.sunrise.push(Date.parse('2026-09-27T03:00:00Z') / 1000);
+  assert.deepEqual(daylightWindow(readWeather(twoDays, sunset), sunset), { label: 'До рассвета', value: '12 ч 00 мин' });
+  assert.deepEqual(daylightWindow(readWeather(sample(sunset), sunset), sunset), { label: 'Световой день', value: 'Завершён' });
+  assert.deepEqual(daylightWindow(null), { label: 'Световой день', value: 'Нет данных' });
 });
 test('weather words distinguish sun, rain, snow and storms', () => {
   assert.equal(conditions(0), 'ясно');

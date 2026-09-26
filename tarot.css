@@ -5,22 +5,21 @@
 .tarot-intro > p:first-child { font-size: clamp(1.3rem, 2.2vw, 2rem); line-height: 1.3; letter-spacing: -.025em; }
 .tarot-intro > p:last-child { font-size: .875rem; max-width: 33ch; margin-top: 1.25rem; min-height: 3em; }
 .tarot-spread { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 3.3vw, 3.5rem); max-width: 70rem; margin: 4.5rem auto 3rem; padding-inline: 1rem; }
-.tarot-card { position: relative; min-width: 0; perspective: 1400px; transform: rotate(-5deg); }
+.tarot-card { --card-corner: 1.5rem; --card-inset: .5rem; --caption-corner: .5rem; position: relative; min-width: 0; perspective: 1400px; transform: rotate(-5deg); }
 .tarot-card-2 { transform: translateY(-1rem) rotate(2deg); }
 .tarot-card-3 { transform: rotate(6deg); }
 .tarot-card-inner { display: grid; height: 100%; transform-style: preserve-3d; transition: transform 550ms cubic-bezier(.2,.65,.2,1); }
-.tarot-front, .tarot-back { grid-area: 1/1; padding: 1.5rem; min-height: 27rem; border: 1px solid #101216; border-radius: .5rem; background: var(--paper); backface-visibility: hidden; position: relative; display: flex; align-items: center; flex-direction: column; text-align: center; }
-.tarot-front::before { content: ""; position: absolute; inset: .5rem; border: 1px solid #101216; border-radius: .2rem; pointer-events: none; opacity: .4; }
+.tarot-front, .tarot-back { --smooth-corner: var(--card-corner); grid-area: 1/1; padding: 1.5rem; min-height: 27rem; border-radius: var(--smooth-corner); corner-shape: squircle; background: var(--paper); backface-visibility: hidden; position: relative; display: flex; align-items: center; flex-direction: column; text-align: center; }
 .tarot-number { display: block; font-size: .65rem; text-transform: uppercase; letter-spacing: .04em; }
 .tarot-front svg { display: block; width: min(100%, 12rem); margin: 1rem auto; flex: 0 0 auto; }
 .tarot-front h3 { font: 750 clamp(1.2rem, 2vw, 1.75rem)/1.1 var(--display); font-variation-settings: "wdth" 105, "wght" 780, "opsz" 48; letter-spacing: 0; margin-top: auto; }
 .tarot-description { font-size: .8rem; line-height: 1.5; margin-top: .75rem; max-width: 28ch; min-height: 4.5em; }
-.tarot-back { display: none; justify-content: end; align-items: stretch; padding: .65rem; overflow: hidden; border-color: transparent; background: #101216; color: var(--ink); text-align: left; }
+.tarot-back { display: none; justify-content: end; align-items: stretch; padding: var(--card-inset); overflow: hidden; background: #101216; color: var(--ink); text-align: left; }
 .tarot-back-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .tarot-card-1 .tarot-back-photo { object-position: 57% center; }
 .tarot-card-2 .tarot-back-photo { object-position: center 60%; }
 .tarot-card-3 .tarot-back-photo { object-position: 52% center; }
-.tarot-back-caption { position: relative; padding: 1rem 1.15rem; border-radius: .25rem; background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+.tarot-back-caption { --smooth-corner: var(--caption-corner); position: relative; padding: 1rem 1.15rem; border-radius: var(--smooth-corner); corner-shape: squircle; background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
 .tarot-back-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
 .tarot-back .tarot-number { font: 500 .8rem/1 var(--body); }
 .tarot-back-heading svg { display: block; width: 2.75rem; height: 2.75rem; }
@@ -29,7 +28,7 @@
 .tarot-ready .tarot-back { display: flex; }
 .tarot-ready .tarot-front { transform: rotateY(180deg); }
 .tarot-ready .is-revealed .tarot-card-inner { transform: rotateY(180deg); }
-.tarot-card-toggle { position: absolute; inset: 0; width: 100%; border: 0; border-radius: .5rem; padding: 0; color: transparent; font-size: 0; cursor: pointer; background: transparent; }
+.tarot-card-toggle { position: absolute; inset: 0; width: 100%; border: 0; border-radius: var(--card-corner); corner-shape: squircle; padding: 0; color: transparent; font-size: 0; cursor: pointer; background: transparent; }
 .tarot-swipe { display: none; }
 .tarot-card-toggle:focus-visible { outline: 3px solid #101216; outline-offset: 5px; }
 .tarot-card:has(.tarot-card-toggle:hover) .tarot-tap { text-decoration: underline; text-underline-offset: .25em; }
@@ -41,6 +40,25 @@
 .tarot-deal:focus-visible { outline-color: #101216; }
 .tarot-actions > p { font-size: .75rem; color: #51424b; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* Smooth corners without JS, including browsers without corner-shape.
+   Four fixed-size corners and two strips keep the curves undistorted as cards resize.
+   The mask belongs on each face, never on the preserve-3d flip container. */
+@supports not (corner-shape: squircle) {
+  .tarot-front, .tarot-back, .tarot-back-caption {
+    border-radius: 0;
+    --corner-tile: calc(2 * var(--smooth-corner));
+    mask:
+      url("assets/illustrations/smooth-corner.svg") top left / var(--corner-tile) var(--corner-tile) no-repeat,
+      url("assets/illustrations/smooth-corner.svg") top right / var(--corner-tile) var(--corner-tile) no-repeat,
+      url("assets/illustrations/smooth-corner.svg") bottom right / var(--corner-tile) var(--corner-tile) no-repeat,
+      url("assets/illustrations/smooth-corner.svg") bottom left / var(--corner-tile) var(--corner-tile) no-repeat,
+      linear-gradient(#000 0 0) center / calc(100% - var(--corner-tile)) 100% no-repeat,
+      linear-gradient(#000 0 0) center / 100% calc(100% - var(--corner-tile)) no-repeat;
+  }
+  /* Keep the keyboard outline outside the mask and fully visible. */
+  .tarot-card-toggle { border-radius: 0; }
+}
 
 @media (max-width: 1050px) {
   .tarot-front, .tarot-back { min-height: 24rem; }

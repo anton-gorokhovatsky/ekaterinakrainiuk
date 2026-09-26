@@ -15,9 +15,19 @@
     const sunset = data.daily.sunset?.[index] * 1000;
     if (!Number.isFinite(sunrise) || !Number.isFinite(sunset) || sunset <= sunrise) return null;
     const progress = Math.max(0, Math.min(1, (now - sunrise) / (sunset - sunrise)));
-    const night = now < sunrise || now > sunset;
+    const night = now < sunrise || now >= sunset;
+    const nextSunrise = data.daily.sunrise.map(time => time * 1000).find(time => Number.isFinite(time) && time > now);
     const phase = night ? 'night' : progress < .12 ? 'morning' : progress > .85 ? 'evening' : 'day';
-    return { temperature: Math.round(current.temperature_2m), wind: current.wind_speed_10m, code: current.weather_code, observed: current.time * 1000, sunrise, sunset, progress, phase, night };
+    return { temperature: Math.round(current.temperature_2m), wind: current.wind_speed_10m, code: current.weather_code, observed: current.time * 1000, sunrise, sunset, nextSunrise, progress, phase, night };
+  }
+  function daylightWindow(current, now = Date.now()) {
+    if (!current) return { label: 'Световой день', value: 'Нет данных' };
+    const target = current.night ? current.nextSunrise : current.sunset;
+    if (!Number.isFinite(target) || target <= now) return { label: 'Световой день', value: 'Завершён' };
+    const minutes = Math.ceil((target - now) / 60000);
+    const hours = Math.floor(minutes / 60);
+    const value = hours ? `${hours} ч ${String(minutes % 60).padStart(2, '0')} мин` : `${minutes} мин`;
+    return { label: current.night ? 'До рассвета' : 'До заката', value };
   }
   function conditions(code) {
     if (code === 0) return 'ясно';
@@ -35,14 +45,13 @@
     const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
     return icons[conditions(code)] || 'cloud';
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, conditions, weatherIcon };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#daylight');
   if (!root) return;
   const get = name => root.querySelector(`[data-${name}]`);
   const environment = root;
   const palette = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
-  const titles = { morning: 'Москва просыпается.', day: 'День в самом разгаре.', evening: 'Ловим вечерний свет.', night: 'В Москве уже ночь.' };
   let weather = null;
   let unavailable = false;
   let pending = false;
@@ -52,6 +61,10 @@
     const current = weather && readWeather(weather, now);
     root.toggleAttribute('data-weather-ready', Boolean(current));
     get('daylight-clock').textContent = clock.format(now);
+    const light = daylightWindow(current, now);
+    get('daylight-label').textContent = light.label;
+    get('daylight-remaining').textContent = light.value;
+    get('next-sunrise').textContent = current?.night && Number.isFinite(current.nextSunrise) ? `Солнце взойдёт в ${clock.format(current.nextSunrise)}.` : '';
     if (!current) {
       get('weather-icon').setAttribute('href', 'assets/illustrations/weather.svg#cloud');
       get('weather-summary').textContent = `${clock.format(now)} · московское время`;
@@ -61,17 +74,15 @@
       get('weather-temperature').textContent = '—';
       get('weather-condition').textContent = unavailable || weather ? 'Нет свежих данных' : 'Загружаем погоду';
       root.removeAttribute('data-night');
-      get('daylight-title').textContent = 'У каждого дня — свой ритм.';
       if (weather) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
       environment.style.removeProperty('--daylight-paper');
       return;
     }
     get('sun-position').style.visibility = '';
-    get('sun-position').setAttribute('transform', `translate(${30 + 340 * current.progress} ${150 - 500 * current.progress * (1 - current.progress)})`);
+    get('sun-position').setAttribute('transform', `translate(${16 + 368 * current.progress} ${70 - 184 * current.progress * (1 - current.progress)})`);
     root.toggleAttribute('data-night', current.night);
     get('weather-icon').setAttribute('href', `assets/illustrations/weather.svg#${weatherIcon(current.code, current.night)}`);
     environment.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
-    get('daylight-title').textContent = titles[current.phase];
     get('sunrise').textContent = clock.format(current.sunrise);
     get('sunset').textContent = clock.format(current.sunset);
     const temp = `${current.temperature > 0 ? '+' : current.temperature < 0 ? '−' : ''}${Math.abs(current.temperature)}°`;

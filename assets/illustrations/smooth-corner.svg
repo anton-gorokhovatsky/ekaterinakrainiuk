@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Two cubic segments per corner: zero curvature at the straight edges,
+       matching first and second derivatives at the diagonal join. -->
+  <path fill="#000" d="M100 0C136 0 168 0 184 16C200 32 200 64 200 100C200 136 200 168 184 184C168 200 136 200 100 200C64 200 32 200 16 184C0 168 0 136 0 100C0 64 0 32 16 16C32 0 64 0 100 0Z"/>
+</svg>

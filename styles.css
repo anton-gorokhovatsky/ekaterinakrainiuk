@@ -287,13 +287,16 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .review-full { margin-top: 1rem; }
 .review-full summary { color: var(--muted); font-size: .75rem; padding: .5rem 0; text-decoration: underline; text-underline-offset: .25em; }
 .review-full p { font-size: .8rem; margin-top: 1rem; }
-.result-details { margin-top: 3rem; }
-.result-details > summary { padding: 1.25rem 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 1rem; }
-.result-feature { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; padding-block: 2rem; }
-.result-person { display: flex; align-items: center; gap: 1.5rem; }
-.result-person img { width: 38%; aspect-ratio: 1; object-fit: cover; }
-.result-person h3 { font-size: 1.5rem; margin: .75rem 0; }
-.result-person p { font-size: .8rem; color: var(--muted); }
+.result-details { margin-top: 3rem; max-width: 60rem; }
+.result-details > summary { padding: 1rem 0; display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto 1.1rem; align-items: center; gap: 1.5rem; }
+.result-entry-photo { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 50%; }
+.result-entry-copy strong { display: block; font-size: 1.125rem; font-weight: 600; }
+.result-entry-copy > span { display: block; font-size: .75rem; color: var(--muted); margin-top: .3rem; }
+.result-entry-times { display: flex; align-items: end; gap: 1rem; font: 700 clamp(1.35rem, 2.5vw, 2rem)/1.1 var(--display); font-variation-settings: "wdth" 85, "wght" 700, "opsz" 48; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.result-entry-times small { display: block; margin-bottom: .35rem; font: 400 .65rem/1.3 var(--body); color: var(--muted); }
+.result-entry-arrow { font: 400 1.4rem/1.3 var(--body); color: var(--muted); }
+.result-details > summary:hover .result-entry-copy strong { text-decoration: underline; text-underline-offset: .2em; }
+.result-feature { padding: 1.5rem 0 .5rem 6.5rem; }
 .table-scroll { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; min-width: 17rem; table-layout: fixed; }
 caption { text-align: left; padding-bottom: 1rem; font-size: .875rem; }
@@ -317,29 +320,29 @@ tbody { font-variant-numeric: tabular-nums; }
 .daylight summary { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 0; font-size: .75rem; }
 .daylight-mark { width: 1.5rem; height: 1.5rem; flex: 0 0 auto; }
 [data-weather-summary] { margin-left: auto; color: var(--muted); }
-.daylight-panel { display: grid; grid-template-columns: 1fr 1.1fr; gap: 1.75rem var(--gap); align-items: center; padding: clamp(1.5rem, 3vw, 3rem); margin-bottom: 2rem; background: var(--daylight-paper, #d9e6eb); color: #101216; }
+.daylight-panel { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 2rem var(--gap); align-items: start; padding: clamp(1.5rem, 3vw, 3rem); margin-bottom: 2rem; background: var(--daylight-paper, #d9e6eb); color: #101216; }
 .daylight-panel .eyebrow { color: #454e58; }
-.weather-reading { display: flex; align-items: center; gap: 1.5rem; margin-top: 1rem; }
-.weather-temperature { font: 850 clamp(3.5rem, 6vw, 6rem)/1 var(--display); font-variation-settings: "wdth" 85, "wght" 850, "opsz" 100; letter-spacing: -.02em; }
-.weather-condition { display: block; font-size: 1rem; }
-[data-daylight-clock] { display: block; margin-top: .15rem; font-size: .8rem; font-variant-numeric: tabular-nums; color: #454e58; }
-.daylight-title { font-size: clamp(1.1rem, 1.8vw, 1.5rem); line-height: 1.25; margin-block: 1rem .65rem; }
-.daylight-copy > p:last-child { font-size: .8rem; color: #454e58; }
-.daylight-scene { width: 100%; max-width: 30rem; justify-self: end; }
-.daylight-scene > .eyebrow { display: block; text-align: center; margin-bottom: .5rem; }
-.daylight-scene svg { display: block; width: 100%; }
+.weather-reading { display: flex; align-items: center; gap: 1.5rem; min-height: 6.5rem; margin-block: .75rem 1.25rem; }
+.weather-temperature { font: 850 clamp(4rem, 6vw, 6rem)/1 var(--display); font-variation-settings: "wdth" 85, "wght" 850, "opsz" 100; letter-spacing: -.02em; }
+.weather-condition { display: block; max-width: 14ch; font-size: .95rem; line-height: 1.4; }
+[data-daylight-clock] { margin-left: .75rem; font-variant-numeric: tabular-nums; }
+.weather-detail { max-width: 34ch; font-size: .75rem; color: #454e58; }
+.weather-source { display: inline-block; margin-top: .75rem; padding-block: .35rem; font-size: .65rem; color: #454e58; text-decoration: underline; text-underline-offset: .2em; }
+.daylight-scene { width: 100%; max-width: 36rem; justify-self: end; }
+.daylight-remaining { display: flex; align-items: center; min-height: 6.5rem; margin-top: .75rem; font: 750 clamp(2rem, 4.2vw, 4.5rem)/1.1 var(--display); font-variation-settings: "wdth" 85, "wght" 750, "opsz" 72; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.daylight-scene .daylight-arc { display: block; width: 100%; height: auto; overflow: visible; }
 [data-sun-position] { visibility: hidden; }
 [data-weather-ready] [data-sun-position] { visibility: visible; }
-.sun-path { fill: none; stroke: currentColor; stroke-dasharray: 2 5; opacity: .4; }
-.sun-horizon, .sun-rays { fill: none; stroke: currentColor; }
-.sun-disc { fill: var(--acid); stroke: #101216; }
+.sun-path { fill: none; stroke: currentColor; stroke-width: 1.5; opacity: .25; }
+.sun-rays { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.sun-disc { fill: var(--acid); stroke: #101216; stroke-width: 1.5; }
 .daylight[data-night] [data-sun-position] { opacity: 0; }
-.daylight[data-night] .sun-rays { display: none; }
-.daylight-times { display: flex; justify-content: space-between; gap: 1rem; margin-top: -.3rem; padding-inline: 10%; font-size: .7rem; color: #454e58; }
+.daylight-times { display: flex; justify-content: space-between; gap: 1rem; padding-inline: 4%; font-size: .7rem; color: #454e58; }
 .daylight-times > span:last-child { text-align: right; }
-.daylight-times strong { display: block; margin-top: .15rem; color: #101216; font-size: 1rem; font-weight: 500; font-variant-numeric: tabular-nums; }
-.weather-meta { grid-column: 1/-1; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .75rem 2rem; color: #454e58; font-size: .7rem; }
-.weather-source { display: inline-block; text-decoration: underline; text-underline-offset: .2em; }
+.daylight-times strong { margin-left: .5rem; color: #101216; font-weight: 500; font-variant-numeric: tabular-nums; }
+.daylight-night { display: none; margin-top: 1.25rem; font-size: .8rem; color: #454e58; }
+.daylight[data-night] .daylight-arc, .daylight[data-night] .daylight-times { display: none; }
+.daylight[data-night] .daylight-night { display: block; }
 .footer-meta { margin-inline: var(--pad); padding: 2rem 0; display: grid; grid-template-columns: 1fr auto auto; gap: 2rem; align-items: center; color: var(--muted); font-size: .75rem; }
 .footer-identity { display: grid; gap: .2rem; }
 .footer-identity > a { color: var(--ink); font-size: .85rem; }
@@ -448,11 +451,12 @@ tbody { font-variant-numeric: tabular-nums; }
   .results-head { margin-bottom: 2rem; gap: 1rem; }
   .results-head h2 { font-size: 12vw; }
   .results-head p { width: 100%; }
-  .result-details > summary { font-size: .9rem; }
-  .result-feature { grid-template-columns: 1fr; gap: 2rem; padding-top: 1rem; }
-  .result-person { gap: 1rem; }
-  .result-person h3 { font-size: 1.35rem; }
-  .result-person img { width: 35%; }
+  .result-details > summary { grid-template-columns: 3.5rem minmax(0, 1fr) 1.1rem; gap: 1rem; }
+  .result-details > summary .disclosure { grid-column: 3; grid-row: 1; }
+  .result-entry-copy strong { font-size: 1rem; }
+  .result-entry-copy > span { font-size: .7rem; }
+  .result-entry-times { grid-column: 1/-1; font-size: 1.6rem; margin-top: .25rem; }
+  .result-feature { padding: 1rem 0 .5rem; }
   .contact { grid-template-columns: 1fr; gap: 2rem; padding-block: 3rem 1.5rem; }
   .contact h2 { font-size: 13.4vw; margin-top: 1.5rem; }
   .contact-channels { max-width: none; }
@@ -463,8 +467,8 @@ tbody { font-variant-numeric: tabular-nums; }
   .daylight-expand { margin-left: auto; }
   .daylight-panel { grid-template-columns: 1fr; gap: 2rem; padding: 1.25rem; }
   .daylight-scene { max-width: none; }
-  .weather-reading { gap: 1rem; }
-  .weather-meta { gap: .6rem; }
+  .weather-reading { gap: 1rem; min-height: 0; margin-block: .75rem 1rem; }
+  .daylight-remaining { min-height: 0; font-size: clamp(1.75rem, 8.5vw, 3rem); margin-block: .75rem .5rem; }
   .footer-meta { grid-template-columns: 1fr auto; gap: 1.5rem 1rem; font-size: .7rem; }
   .footer-identity { grid-column: 1/-1; }
 }
