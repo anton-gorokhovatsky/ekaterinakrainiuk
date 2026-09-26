@@ -1,3 +1,11 @@
+@font-face {
+  font-family: Ambidexter;
+  src: url("assets/fonts/ambidexter-regular.woff2") format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 .tarot { padding: var(--section-space-cards) var(--pad) var(--space-12); background: var(--rose); color: #101216; overflow: clip; }
 .tarot-header { display: grid; grid-template-columns: 1.3fr 1fr; gap: var(--gap); align-items: end; }
 .tarot .eyebrow { color: #51424b; display: block; margin-bottom: var(--space-8); }
@@ -23,9 +31,9 @@
 .tarot-back-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .tarot-back .tarot-number { font: 500 var(--text-label)/1.4 var(--body); letter-spacing: .02em; }
 .tarot-back-heading svg { display: block; width: 1.75rem; height: 1.75rem; stroke-width: 1.5; flex: 0 0 auto; }
-/* One poster profile for all three cards; the outlined prefix echoes the opening. */
-.tarot-back-title { display: block; font: 700 clamp(2.5rem, 3.8vw, 3.75rem)/1.05 var(--display); text-transform: uppercase; letter-spacing: 0; }
-.tarot-back-title > span { display: block; font-size: .55em; line-height: 1; margin-bottom: .1em; color: transparent; -webkit-text-stroke: 1px var(--ink); }
+/* The expressive face is reserved for three short words; every label stays in Golos. */
+.tarot-back-title { display: block; font: 400 clamp(3.5rem, 5.2vw, 5rem)/1 Ambidexter, "Golos Text", sans-serif; font-synthesis: none; text-transform: none; letter-spacing: 0; }
+.tarot-back-title > span { display: block; font: 400 .875rem/1.4 var(--body); margin-block: .25rem .3rem; color: var(--ink); }
 .tarot-tap { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); font: 500 var(--text-label)/1.4 var(--body); color: var(--glass-muted); }
 .tarot-tap svg { width: 2rem; height: 2rem; padding: var(--space-1); stroke-width: 1.5; flex: 0 0 auto; color: #101216; background: var(--acid); border-radius: 50%; transition: transform 240ms var(--ease-enter); }
 .tarot-ready .tarot-back { display: flex; }
@@ -95,7 +103,7 @@
   .tarot-front, .tarot-back { min-height: 25rem; }
   .tarot-front svg { width: 10rem; }
   .tarot-front h3 { font-size: 1.65rem; }
-  .tarot-back-title { font-size: clamp(2.5rem, 12vw, 3.5rem); }
+  .tarot-back-title { font-size: clamp(3.5rem, 17vw, 4.5rem); }
   .tarot-actions { flex-direction: column; align-items: stretch; gap: var(--space-6); padding: 0; }
   .tarot-actions > p { order: 1; }
   .tarot-deal { min-width: 0; width: 100%; }
