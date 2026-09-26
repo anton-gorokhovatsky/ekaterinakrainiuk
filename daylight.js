@@ -36,7 +36,7 @@
   const root = document.querySelector('#daylight');
   if (!root) return;
   const get = name => root.querySelector(`[data-${name}]`);
-  const hero = document.querySelector('.hero');
+  const environment = root;
   const palette = { morning: '#ffcfaa', day: '#ffb8d2', evening: '#edb6d7', night: '#c2b6e8' };
   const titles = { morning: 'Москва просыпается.', day: 'День в самом разгаре.', evening: 'Ловим вечерний свет.', night: 'У Москвы — пауза.' };
   let weather = null;
@@ -55,13 +55,13 @@
       root.removeAttribute('data-night');
       get('daylight-title').textContent = 'У каждого дня — свой ритм.';
       if (weather) get('weather-detail').textContent = 'Свежая погода сейчас недоступна. Время — московское.';
-      hero.style.removeProperty('--daylight-paper');
+      environment.style.removeProperty('--daylight-paper');
       return;
     }
     get('sun-position').style.visibility = '';
     get('sun-position').setAttribute('transform', `translate(${30 + 340 * current.progress} ${150 - 500 * current.progress * (1 - current.progress)})`);
     root.toggleAttribute('data-night', current.night);
-    hero.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
+    environment.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
     get('daylight-title').textContent = titles[current.phase];
     get('sunrise').textContent = `Рассвет ${clock.format(current.sunrise)}`;
     get('sunset').textContent = `Закат ${clock.format(current.sunset)}`;

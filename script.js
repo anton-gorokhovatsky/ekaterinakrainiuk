@@ -40,3 +40,20 @@ if (menuButton && navigation) {
   document.documentElement.classList.add('js');
   menuButton.hidden = false;
 }
+
+// A photo opens its native story. Direct links and browser history do the same.
+const openRoute = (hash, focus = false) => {
+  if (!hash || !/^#[a-z-]+$/.test(hash)) return;
+  const route = document.getElementById(hash.slice(1));
+  if (!route?.matches('details.route')) return;
+  route.open = true;
+  if (focus) route.querySelector('summary').focus({ preventScroll: true });
+};
+document.querySelectorAll('[data-route-link]').forEach(link => {
+  link.addEventListener('click', event => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    openRoute(link.hash, true);
+  });
+});
+window.addEventListener('hashchange', () => openRoute(window.location.hash));
+openRoute(window.location.hash);
