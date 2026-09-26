@@ -75,3 +75,53 @@ document.querySelectorAll('[data-route-link]').forEach(link => {
 });
 window.addEventListener('hashchange', () => openRoute(window.location.hash));
 openRoute(window.location.hash);
+
+// A quiet photo preview in the spare column; disclosures remain the source of truth.
+const trainingHeading = document.querySelector('.training-heading');
+if (trainingHeading) {
+  const previewLayout = window.matchMedia('(min-width: 1001px) and (hover: hover) and (pointer: fine)');
+  const preview = document.createElement('div');
+  preview.className = 'training-preview';
+  preview.setAttribute('aria-hidden', 'true');
+  const image = document.createElement('img');
+  image.alt = '';
+  image.width = 1200;
+  image.height = 900;
+  preview.append(image);
+  trainingHeading.append(preview);
+  let hovered = null;
+  let focused = null;
+  let shown = null;
+  let revision = 0;
+
+  const updatePreview = async () => {
+    const summary = hovered || focused;
+    const target = previewLayout.matches && summary && !summary.parentElement.open ? summary : null;
+    if (target === shown) return;
+    shown = target;
+    const request = ++revision;
+    preview.classList.remove('is-visible');
+    if (!target) return;
+    const source = target.parentElement.querySelector('.service-body img');
+    if (!source) return;
+    const photo = new Image();
+    photo.src = source.currentSrc || source.src;
+    try { await photo.decode(); } catch { return; }
+    if (request !== revision) return;
+    image.src = photo.src;
+    preview.classList.add('is-visible');
+  };
+
+  document.querySelectorAll('.service > summary').forEach(summary => {
+    summary.addEventListener('pointerenter', () => { hovered = summary; updatePreview(); });
+    summary.addEventListener('pointerleave', () => { hovered = null; updatePreview(); });
+    summary.addEventListener('focus', () => {
+      focused = summary.matches(':focus-visible') ? summary : null;
+      if (focused) hovered = null;
+      updatePreview();
+    });
+    summary.addEventListener('blur', () => { focused = null; updatePreview(); });
+    summary.parentElement.addEventListener('toggle', updatePreview);
+  });
+  previewLayout.addEventListener('change', () => { hovered = null; focused = null; updatePreview(); });
+}

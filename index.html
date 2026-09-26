@@ -324,28 +324,35 @@
 </section>
 
     <section class="contact" id="contact" aria-labelledby="contact-title" tabindex="-1">
-<span class="eyebrow">Начнём с разговора</span>
-<h2 id="contact-title">Обсудим<br>ваши планы?</h2>
-<div class="contact-bottom">
-<p>Расскажите, что вам хочется попробовать и к чему прийти. Обсудим ваш опыт, время на тренировки и подходящий формат.</p>
-<a class="contact-main" href="https://t.me/ekatyulya"><span class="link-label">Написать Кате</span> <span aria-hidden="true">↗</span>
-</a>
-</div>
-<div class="contact-links">
-<a href="tel:+79251718691">+7 925 171‑86‑91</a>
-<a href="https://wa.me/79251718691">WhatsApp <span aria-hidden="true">↗</span>
-</a>
-<a href="https://www.instagram.com/ekatyulya/">Instagram <span aria-hidden="true">↗</span>
-</a>
-<a href="https://www.strava.com/athletes/26974925">Strava <span aria-hidden="true">↗</span>
-</a>
-</div>
-</section>
+      <div class="contact-heading">
+        <span class="eyebrow">Начнём с разговора</span>
+        <h2 id="contact-title">Обсудим<br>ваши планы?</h2>
+      </div>
+      <div class="contact-channels">
+        <p>Расскажите, что вам хочется попробовать и к чему прийти. Обсудим ваш опыт, время на тренировки и подходящий формат.</p>
+        <a class="button contact-main" href="https://t.me/ekatyulya">Написать в Telegram <span aria-hidden="true">↗</span></a>
+        <div class="contact-links">
+          <a href="https://wa.me/79251718691">WhatsApp <span aria-hidden="true">↗</span></a>
+          <a href="https://www.instagram.com/ekatyulya/">Instagram <span aria-hidden="true">↗</span></a>
+          <a href="https://www.strava.com/athletes/26974925">Strava <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
     <div class="livebar">      <details class="daylight" id="daylight">
-        <summary><span class="daylight-mark" aria-hidden="true">✳</span><span>За окном в Москве</span><span data-weather-summary>Здесь мы тренируемся</span><span class="disclosure daylight-expand" aria-hidden="true"></span></summary>
+        <summary><svg class="daylight-mark" viewBox="0 0 24 24" aria-hidden="true"><use data-weather-icon href="assets/illustrations/weather.svg#cloud"/></svg><span>За окном в Москве</span><span data-weather-summary>Здесь мы тренируемся</span><span class="disclosure daylight-expand" aria-hidden="true"></span></summary>
         <div class="daylight-panel">
-          <div class="daylight-copy"><span class="eyebrow">Свет, погода, настроение</span><p class="daylight-title" data-daylight-title>У каждого дня — свой ритм.</p><p>У каждой тренировки своя погода. В Москве встречаемся очно, а онлайн можно заниматься из любой точки мира.</p></div>
-          <div class="daylight-scene"><svg viewBox="0 0 400 180" aria-hidden="true"><path d="M30 150 Q200 -100 370 150" class="sun-path"/><path d="M20 151h360" class="sun-horizon"/><g data-sun-position transform="translate(200 25)"><circle r="17" class="sun-disc"/><path d="M0-26v-7m0 59v7m-26-33h-7m59 0h7m-51-18-5-5m41 41 5 5m-41 0 5-5m36-36-5 5" class="sun-rays"/></g></svg><div class="daylight-times"><span data-sunrise>Восход</span><span data-daylight-clock>Москва</span><span data-sunset>Закат</span></div><p class="weather-detail" data-weather-detail>Москва — город наших очных тренировок.</p><a class="weather-source" href="https://open-meteo.com/">Погода: Open-Meteo <span aria-hidden="true">↗</span></a></div>
+          <div class="daylight-copy">
+            <span class="eyebrow">Сейчас в Москве</span>
+            <div class="weather-reading"><span class="weather-temperature" data-weather-temperature>—</span><div><span class="weather-condition" data-weather-condition>Погода за окном</span><time data-daylight-clock>Московское время</time></div></div>
+            <p class="daylight-title" data-daylight-title>У каждого дня — свой ритм.</p>
+            <p>В Москве встречаемся очно.<br>Онлайн — откуда вам удобно.</p>
+          </div>
+          <div class="daylight-scene">
+            <span class="eyebrow">От рассвета до заката</span>
+            <svg viewBox="-12 -16 424 200" aria-hidden="true"><path d="M30 150 Q200 -100 370 150" class="sun-path"/><path d="M20 151h360" class="sun-horizon"/><g data-sun-position transform="translate(200 25)"><circle r="17" class="sun-disc"/><path d="M0-26v-7m0 59v7m-26-33h-7m59 0h7m-51-18-5-5m41 41 5 5m-41 0 5-5m36-36-5 5" class="sun-rays"/></g></svg>
+            <div class="daylight-times"><span>Восход<strong data-sunrise>—</strong></span><span>Закат<strong data-sunset>—</strong></span></div>
+          </div>
+          <div class="weather-meta"><p class="weather-detail" data-weather-detail>Погода появится, когда загрузятся данные.</p><a class="weather-source" href="https://open-meteo.com/">Данные: Open-Meteo <span aria-hidden="true">↗</span></a></div>
         </div>
       </details>
 </div>
@@ -357,21 +364,30 @@
       <div class="tarot-spread">
           <article class="tarot-card tarot-card-1">
             <div class="tarot-card-inner">
-              <div class="tarot-back" aria-hidden="true"><span class="tarot-number">I</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#star"/></svg><span class="tarot-back-title">Дисциплина</span><span class="tarot-tap">Открыть карту</span></div>
+              <div class="tarot-back" aria-hidden="true">
+                <img class="tarot-back-photo" src="assets/images/swimming.webp" width="1080" height="720" loading="lazy" decoding="async" alt="">
+                <div class="tarot-back-caption"><div class="tarot-back-heading"><span class="tarot-number">I</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#wave"/></svg></div><span class="tarot-back-title">Дисциплина</span><span class="tarot-tap">Открыть карту</span></div>
+              </div>
               <div class="tarot-front" id="tarot-face-1"><span class="tarot-number">I / Дисциплина</span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="assets/illustrations/tarot.svg#medal"/></svg><h3>Триатлон</h3><p class="tarot-description">Зачем выбирать что-то одно?</p></div>
             </div>
             <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-1" hidden>Открыть карту «Дисциплина»</button>
           </article>
           <article class="tarot-card tarot-card-2">
             <div class="tarot-card-inner">
-              <div class="tarot-back" aria-hidden="true"><span class="tarot-number">II</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#star"/></svg><span class="tarot-back-title">Формат старта</span><span class="tarot-tap">Открыть карту</span></div>
+              <div class="tarot-back" aria-hidden="true">
+                <img class="tarot-back-photo" src="assets/images/col-de-turini.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="">
+                <div class="tarot-back-caption"><div class="tarot-back-heading"><span class="tarot-number">II</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#compass"/></svg></div><span class="tarot-back-title">Формат старта</span><span class="tarot-tap">Открыть карту</span></div>
+              </div>
               <div class="tarot-front" id="tarot-face-2"><span class="tarot-number">II / Формат старта</span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="assets/illustrations/tarot.svg#mountain"/></svg><h3>Половинка</h3><p class="tarot-description">Кажется, намечается что-то интересное.</p></div>
             </div>
             <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-2" hidden>Открыть карту «Формат старта»</button>
           </article>
           <article class="tarot-card tarot-card-3">
             <div class="tarot-card-inner">
-              <div class="tarot-back" aria-hidden="true"><span class="tarot-number">III</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#star"/></svg><span class="tarot-back-title">Знак на финише</span><span class="tarot-tap">Открыть карту</span></div>
+              <div class="tarot-back" aria-hidden="true">
+                <img class="tarot-back-photo" src="assets/images/finish.webp" width="1200" height="1200" loading="lazy" decoding="async" alt="">
+                <div class="tarot-back-caption"><div class="tarot-back-heading"><span class="tarot-number">III</span><svg viewBox="0 0 200 200"><use href="assets/illustrations/tarot.svg#sun"/></svg></div><span class="tarot-back-title">Знак на финише</span><span class="tarot-tap">Открыть карту</span></div>
+              </div>
               <div class="tarot-front" id="tarot-face-3"><span class="tarot-number">III / Знак на финише</span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="assets/illustrations/tarot.svg#sun"/></svg><h3>Солнце</h3><p class="tarot-description">На финише вы будете сиять ярче собственной медали. Фотограф, приготовьтесь.</p></div>
             </div>
             <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-3" hidden>Открыть карту «Знак на финише»</button>

@@ -31,15 +31,20 @@
     if (code <= 86) return 'снегопад';
     return 'гроза';
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, conditions };
+  function weatherIcon(code, night = false) {
+    const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
+    return icons[conditions(code)] || 'cloud';
+  }
+  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, conditions, weatherIcon };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#daylight');
   if (!root) return;
   const get = name => root.querySelector(`[data-${name}]`);
   const environment = root;
-  const palette = { morning: '#ffcfaa', day: '#ffb8d2', evening: '#edb6d7', night: '#c2b6e8' };
+  const palette = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
   const titles = { morning: 'Москва просыпается.', day: 'День в самом разгаре.', evening: 'Ловим вечерний свет.', night: 'В Москве уже ночь.' };
   let weather = null;
+  let unavailable = false;
   let pending = false;
   let lastAttempt = 0;
   function render() {
@@ -48,10 +53,13 @@
     root.toggleAttribute('data-weather-ready', Boolean(current));
     get('daylight-clock').textContent = clock.format(now);
     if (!current) {
+      get('weather-icon').setAttribute('href', 'assets/illustrations/weather.svg#cloud');
       get('weather-summary').textContent = `${clock.format(now)} · московское время`;
       get('sun-position').style.visibility = 'hidden';
-      get('sunrise').textContent = 'Восход';
-      get('sunset').textContent = 'Закат';
+      get('sunrise').textContent = '—';
+      get('sunset').textContent = '—';
+      get('weather-temperature').textContent = '—';
+      get('weather-condition').textContent = unavailable || weather ? 'Нет свежих данных' : 'Загружаем погоду';
       root.removeAttribute('data-night');
       get('daylight-title').textContent = 'У каждого дня — свой ритм.';
       if (weather) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
@@ -61,11 +69,14 @@
     get('sun-position').style.visibility = '';
     get('sun-position').setAttribute('transform', `translate(${30 + 340 * current.progress} ${150 - 500 * current.progress * (1 - current.progress)})`);
     root.toggleAttribute('data-night', current.night);
+    get('weather-icon').setAttribute('href', `assets/illustrations/weather.svg#${weatherIcon(current.code, current.night)}`);
     environment.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
     get('daylight-title').textContent = titles[current.phase];
-    get('sunrise').textContent = `Восход ${clock.format(current.sunrise)}`;
-    get('sunset').textContent = `Закат ${clock.format(current.sunset)}`;
+    get('sunrise').textContent = clock.format(current.sunrise);
+    get('sunset').textContent = clock.format(current.sunset);
     const temp = `${current.temperature > 0 ? '+' : current.temperature < 0 ? '−' : ''}${Math.abs(current.temperature)}°`;
+    get('weather-temperature').textContent = temp;
+    get('weather-condition').textContent = conditions(current.code);
     get('weather-summary').textContent = `${clock.format(now)} · ${temp} · ${conditions(current.code)}`;
     get('weather-detail').textContent = `Ветер — ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с. Данные на ${clock.format(current.observed)}.`;
   }
@@ -81,8 +92,10 @@
       const data = await response.json();
       if (!readWeather(data)) throw new Error('Weather is stale or incomplete');
       weather = data;
+      unavailable = false;
       try { sessionStorage.setItem('katya-weather', JSON.stringify({ saved: Date.now(), data })); } catch { /* Storage is optional. */ }
     } catch {
+      unavailable = true;
       if (!weather || !readWeather(weather)) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
     } finally {
       clearTimeout(timeout);
