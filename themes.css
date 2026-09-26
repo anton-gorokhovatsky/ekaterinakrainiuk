@@ -4,12 +4,15 @@
   --surface: #e9e9e2;
   --ink: #101216;
   --muted: #5b6067;
-  --accent: #526400;
+  --accent: #101216;
   --line: #c9ccc2;
   --accent-fill: #e9ff64;
   --button-ink: #101216;
   --button-hover: #d9ef4c;
   --control-line: #787e70;
+  --contact-bg: #e9ff64;
+  --contact-ink: #101216;
+  --contact-muted: #3f472b;
 }
 
 /* System appearance also works when JavaScript is unavailable. */
