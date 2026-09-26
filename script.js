@@ -10,7 +10,7 @@ if (menuButton && navigation) {
     navigation.classList.remove('is-open');
     document.body.classList.remove('menu-open');
     if (menuLabel) menuLabel.textContent = 'Меню';
-    if (restoreFocus) menuButton.focus();
+    if (restoreFocus) menuButton.focus({ preventScroll: true });
   };
 
   menuButton.addEventListener('click', () => {
@@ -44,12 +44,19 @@ if (menuButton && navigation) {
   menuButton.hidden = false;
 }
 
-// Keep anchor destinations visible below the actual, font-dependent header height.
+// Measure the header for anchors and share one glass surface with the open menu.
 const header = document.querySelector('.site-header');
 if (header && 'ResizeObserver' in window) {
-  const updateHeaderHeight = () => document.documentElement.style.setProperty('--header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
-  new ResizeObserver(updateHeaderHeight).observe(header);
-  updateHeaderHeight();
+  const updateHeaderLayout = () => {
+    document.documentElement.style.setProperty('--header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
+    const menuHeight = navigation?.classList.contains('is-open') ? navigation.getBoundingClientRect().height : 0;
+    header.style.setProperty('--menu-height', `${Math.ceil(menuHeight)}px`);
+    header.dataset.sharedGlass = '';
+  };
+  const headerObserver = new ResizeObserver(updateHeaderLayout);
+  headerObserver.observe(header);
+  if (navigation) headerObserver.observe(navigation);
+  updateHeaderLayout();
 }
 
 // A photo opens its native story. Direct links and browser history do the same.
