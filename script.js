@@ -1,13 +1,15 @@
 const menuButton = document.querySelector('.menu-toggle');
 const navigation = document.querySelector('#navigation');
+const menuLabel = document.querySelector('[data-menu-label]');
 
 if (menuButton && navigation) {
-  const mobileLayout = window.matchMedia('(max-width: 760px)');
+  const mobileLayout = window.matchMedia('(max-width: 1000px)');
 
   const closeMenu = (restoreFocus = false) => {
     menuButton.setAttribute('aria-expanded', 'false');
     navigation.classList.remove('is-open');
     document.body.classList.remove('menu-open');
+    if (menuLabel) menuLabel.textContent = 'Меню';
     if (restoreFocus) menuButton.focus();
   };
 
@@ -16,6 +18,7 @@ if (menuButton && navigation) {
     menuButton.setAttribute('aria-expanded', String(opening));
     navigation.classList.toggle('is-open', opening);
     document.body.classList.toggle('menu-open', opening);
+    if (menuLabel) menuLabel.textContent = opening ? 'Закрыть' : 'Меню';
   });
 
   navigation.addEventListener('click', (event) => {
@@ -39,6 +42,14 @@ if (menuButton && navigation) {
   mobileLayout.addEventListener('change', () => closeMenu());
   document.documentElement.classList.add('js');
   menuButton.hidden = false;
+}
+
+// Keep anchor destinations visible below the actual, font-dependent header height.
+const header = document.querySelector('.site-header');
+if (header && 'ResizeObserver' in window) {
+  const updateHeaderHeight = () => document.documentElement.style.setProperty('--header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
+  new ResizeObserver(updateHeaderHeight).observe(header);
+  updateHeaderHeight();
 }
 
 // A photo opens its native story. Direct links and browser history do the same.

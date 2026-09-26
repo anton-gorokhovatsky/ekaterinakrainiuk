@@ -33,4 +33,8 @@ test('all disciplines and omens can be drawn', () => {
 });
 test('short prepositions stay with the next word without changing words', () => {
   assert.equal(type('На финише вы снова в игре.'), 'На\u00a0финише вы снова в\u00a0игре.');
+  const text = 'Кроссовки, номер — и на старт!';
+  const typeset = 'Кроссовки, номер\u00a0— и\u00a0на\u00a0старт!';
+  assert.equal(type(text), typeset);
+  assert.equal(type(typeset), typeset);
 });

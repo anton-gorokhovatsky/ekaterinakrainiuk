@@ -38,7 +38,7 @@
   const get = name => root.querySelector(`[data-${name}]`);
   const environment = root;
   const palette = { morning: '#ffcfaa', day: '#ffb8d2', evening: '#edb6d7', night: '#c2b6e8' };
-  const titles = { morning: 'Москва просыпается.', day: 'День в самом разгаре.', evening: 'Ловим вечерний свет.', night: 'У Москвы — пауза.' };
+  const titles = { morning: 'Москва просыпается.', day: 'День в самом разгаре.', evening: 'Ловим вечерний свет.', night: 'В Москве уже ночь.' };
   let weather = null;
   let pending = false;
   let lastAttempt = 0;
@@ -50,11 +50,11 @@
     if (!current) {
       get('weather-summary').textContent = `${clock.format(now)} · московское время`;
       get('sun-position').style.visibility = 'hidden';
-      get('sunrise').textContent = 'Рассвет';
+      get('sunrise').textContent = 'Восход';
       get('sunset').textContent = 'Закат';
       root.removeAttribute('data-night');
-      get('daylight-title').textContent = 'У каждого дня — свой ритм.';
-      if (weather) get('weather-detail').textContent = 'Свежая погода сейчас недоступна. Время — московское.';
+      get('daylight-title').textContent = 'У каждого дня — свой ритм.';
+      if (weather) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
       environment.style.removeProperty('--daylight-paper');
       return;
     }
@@ -63,11 +63,11 @@
     root.toggleAttribute('data-night', current.night);
     environment.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
     get('daylight-title').textContent = titles[current.phase];
-    get('sunrise').textContent = `Рассвет ${clock.format(current.sunrise)}`;
-    get('sunset').textContent = `Закат ${clock.format(current.sunset)}`;
+    get('sunrise').textContent = `Восход ${clock.format(current.sunrise)}`;
+    get('sunset').textContent = `Закат ${clock.format(current.sunset)}`;
     const temp = `${current.temperature > 0 ? '+' : current.temperature < 0 ? '−' : ''}${Math.abs(current.temperature)}°`;
     get('weather-summary').textContent = `${clock.format(now)} · ${temp} · ${conditions(current.code)}`;
-    get('weather-detail').textContent = `Ветер ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с. Данные на ${clock.format(current.observed)}.`;
+    get('weather-detail').textContent = `Ветер — ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с. Данные на ${clock.format(current.observed)}.`;
   }
   async function refresh() {
     if (pending || document.hidden || Date.now() - lastAttempt < 15 * 60 * 1000) return;
@@ -83,7 +83,7 @@
       weather = data;
       try { sessionStorage.setItem('katya-weather', JSON.stringify({ saved: Date.now(), data })); } catch { /* Storage is optional. */ }
     } catch {
-      if (!weather || !readWeather(weather)) get('weather-detail').textContent = 'Погода сейчас недоступна. Время — московское.';
+      if (!weather || !readWeather(weather)) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
     } finally {
       clearTimeout(timeout);
       pending = false;

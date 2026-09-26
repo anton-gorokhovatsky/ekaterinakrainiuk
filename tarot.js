@@ -2,9 +2,9 @@
 (() => {
   'use strict';
   const disciplines = [
-    { id: 'run', title: 'Бег', icon: 'run', detail: 'Кроссовки. Номер. Поехали!', formats: ['Быстрая пятёрка', 'Городская десятка', 'Полумарафон', 'Марафон'] },
-    { id: 'trail', title: 'Трейл', icon: 'mountain', detail: 'Здесь поворот — уже приключение.', formats: ['Лесной маршрут', 'Горный трейл', 'Ночной старт', 'Трейл у моря'] },
-    { id: 'swim', title: 'Плавание', icon: 'wave', detail: 'Вода, горизонт и ваши две руки.', formats: ['Морской заплыв', 'Озёрная миля', 'Открытая вода', 'Заплыв на рассвете'] },
+    { id: 'run', title: 'Бег', icon: 'run', detail: 'Кроссовки, номер — и на старт!', formats: ['Быстрая пятёрка', 'Городская десятка', 'Полумарафон', 'Марафон'] },
+    { id: 'trail', title: 'Трейл', icon: 'mountain', detail: 'За каждым поворотом — приключение.', formats: ['Лесной маршрут', 'Горный трейл', 'Ночной старт', 'Трейл у моря'] },
+    { id: 'swim', title: 'Плавание', icon: 'wave', detail: 'Вода, горизонт и ровное дыхание.', formats: ['Морской заплыв', 'Озёрная миля', 'Открытая вода', 'Заплыв на рассвете'] },
     { id: 'bike', title: 'Велоспорт', icon: 'wheel', detail: 'Два колеса и столько планов.', formats: ['Гранфондо', 'Горный серпантин', 'Гравийная гонка', 'Гонка с раздельным стартом'] },
     { id: 'tri', title: 'Триатлон', icon: 'medal', detail: 'Зачем выбирать что-то одно?', formats: ['Спринт', 'Олимпийская дистанция', 'Половинка', 'Экстремальный триатлон'] },
     { id: 'swimrun', title: 'Свимран', icon: 'world', detail: 'Из воды — на тропу. И обратно.', formats: ['Островной маршрут', 'Озёра и тропы', 'Командный старт', 'Прибрежная дистанция'] },
@@ -12,12 +12,12 @@
   ];
   const omens = [
     { id: 'sun', title: 'Солнце', icon: 'sun', detail: 'На финише вы будете сиять ярче собственной медали. Фотограф, приготовьтесь.' },
-    { id: 'star', title: 'Звезда', icon: 'star', detail: 'Кто-то крикнет «давай-давай!», и это почему-то сработает. Болельщикам — отдельная медаль.' },
+    { id: 'star', title: 'Звезда', icon: 'star', detail: 'Кто-то крикнет: «Давай-давай!» — и это почему-то сработает. Болельщикам — отдельная медаль.' },
     { id: 'fool', title: 'Шут', icon: 'compass', detail: 'Вы снова скажете: «Это мой последний старт». Карты вежливо промолчат.' },
     { id: 'magician', title: 'Маг', icon: 'medal', detail: 'После финиша вы чудесным образом найдёте силы на прогулку за мороженым.' },
     { id: 'strength', title: 'Сила', icon: 'mountain', detail: 'Самый громкий крик поддержки окажется вашим. И адресован он будет кому-то рядом.' },
     { id: 'world', title: 'Мир', icon: 'world', detail: 'Всё сойдётся: место, люди и настроение. Домой увезёте медаль и желание повторить.' },
-    { id: 'fortune', title: 'Колесо фортуны', icon: 'wheel', detail: 'Финишное фото впервые понравится с первого взгляда. Кажется, это личный рекорд.' },
+    { id: 'fortune', title: 'Колесо фортуны', icon: 'wheel', detail: 'На этот раз финишное фото понравится с первого взгляда. Кажется, это личный рекорд.' },
     { id: 'balance', title: 'Умеренность', icon: 'wave', detail: 'План на день: немного волнения, много впечатлений и что-нибудь вкусное после.' }
   ];
   const pick = (items, random) => items[Math.min(items.length - 1, Math.max(0, Math.floor(random() * items.length)))];
@@ -28,7 +28,9 @@
     return { sport, format, omen };
   }
   // Keep short Russian prepositions with the following word, including game copy.
-  const type = value => value.replace(/(^|[\s«(])((?:[вксоуяаи]|на|по|из|за|не|ни|но|до|от|во|со|об|ко)) /gi, '$1$2\u00a0');
+  const type = value => value
+    .replace(/(^|[\s«(])((?:(?:[вксоуяаи]|на|по|из|за|не|ни|но|до|от|во|со|об|ко|без|для|при|над|под) )+)(?=\S)/gi, (_, boundary, words) => boundary + words.replace(/ /g, '\u00a0'))
+    .replace(/ — /g, '\u00a0— ');
   if (typeof module !== 'undefined' && module.exports) module.exports = { disciplines, omens, createSpread, type };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#tarot');
@@ -65,10 +67,10 @@
     card.classList.add('is-revealed');
     card.querySelector('.tarot-front').removeAttribute('aria-hidden');
     card.querySelector('button').setAttribute('aria-expanded', 'true');
-    card.querySelector('button').setAttribute('aria-label', `${roles[index]}: ${card.querySelector('h3').textContent}. Карта открыта`);
+    card.querySelector('button').setAttribute('aria-label', `Закрыть карту «${card.querySelector('h3').textContent}»`);
     if (opened.size === cards.length) {
       dealButton.querySelector('span').textContent = 'Ещё расклад';
-      instruction.textContent = 'Вот это планы! Можно оставить судьбе ещё одну попытку.';
+      instruction.textContent = type('Вот это планы! Интересно, что выпадет в следующий раз?');
       status.textContent = type(`${spread.sport.title}. ${spread.format}. ${spread.omen.title}. ${spread.omen.detail}`);
     }
   }
@@ -81,6 +83,7 @@
     card.querySelector('button').setAttribute('aria-expanded', 'false');
     card.querySelector('button').setAttribute('aria-label', `Открыть карту «${roles[index]}»`);
     dealButton.querySelector('span').textContent = 'Открыть расклад';
+    instruction.textContent = type('Откройте оставшиеся карты — и расклад сложится.');
     status.textContent = '';
   }));
   const rail = root.querySelector('.tarot-spread');
@@ -105,7 +108,7 @@
       opened = new Set();
       fill();
       root.querySelector('.tarot-spread').scrollTo({ left: 0, behavior: reduced.matches ? 'instant' : 'smooth' });
-      instruction.textContent = 'Новый расклад готов. Откройте карты по одной или все сразу.';
+      instruction.textContent = type('Новый расклад готов. Откройте карты по одной или все сразу.');
       dealButton.querySelector('span').textContent = 'Открыть расклад';
       dealButton.removeAttribute('aria-disabled');
       busy = false;
@@ -113,6 +116,6 @@
   });
   fill();
   root.classList.add('tarot-ready');
-  instruction.textContent = 'Откройте три карты. Каким окажется ваш следующий старт?';
+  instruction.textContent = type('Откройте три карты. Каким окажется ваш следующий старт?');
   dealButton.hidden = false;
 })();
