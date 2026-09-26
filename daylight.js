@@ -51,6 +51,7 @@
   if (!root) return;
   const get = name => root.querySelector(`[data-${name}]`);
   const environment = root;
+  const iconSymbols = { sun: 'sun', moon: 'moon', cloud: 'cloud', 'partly-cloudy': 'cloud', 'cloudy-night': 'cloud', fog: 'cloud-fog', rain: 'cloud-rain', snow: 'cloud-snow', storm: 'cloud-storm' };
   const palette = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
   let weather = null;
   let unavailable = false;
@@ -66,7 +67,7 @@
     get('daylight-remaining').textContent = light.value;
     get('next-sunrise').textContent = current?.night && Number.isFinite(current.nextSunrise) ? `Солнце взойдёт в ${clock.format(current.nextSunrise)}.` : '';
     if (!current) {
-      get('weather-icon').setAttribute('href', 'assets/illustrations/weather.svg#cloud');
+      get('weather-icon').setAttribute('href', 'assets/icons/tabler.svg#cloud');
       get('weather-summary').textContent = `${clock.format(now)} · московское время`;
       get('sun-position').style.visibility = 'hidden';
       get('sunrise').textContent = '—';
@@ -81,7 +82,7 @@
     get('sun-position').style.visibility = '';
     get('sun-position').setAttribute('transform', `translate(${16 + 368 * current.progress} ${70 - 184 * current.progress * (1 - current.progress)})`);
     root.toggleAttribute('data-night', current.night);
-    get('weather-icon').setAttribute('href', `assets/illustrations/weather.svg#${weatherIcon(current.code, current.night)}`);
+    get('weather-icon').setAttribute('href', `assets/icons/tabler.svg#${iconSymbols[weatherIcon(current.code, current.night)]}`);
     environment.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
     get('sunrise').textContent = clock.format(current.sunrise);
     get('sunset').textContent = clock.format(current.sunset);

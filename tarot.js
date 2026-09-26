@@ -4,21 +4,21 @@
   const disciplines = [
     { id: 'run', title: 'Бег', icon: 'run', detail: 'Кроссовки, номер — и на старт!', formats: ['Быстрая пятёрка', 'Городская десятка', 'Полумарафон', 'Марафон'] },
     { id: 'trail', title: 'Трейл', icon: 'mountain', detail: 'За каждым поворотом — приключение.', formats: ['Лесной маршрут', 'Горный трейл', 'Ночной старт', 'Трейл у моря'] },
-    { id: 'swim', title: 'Плавание', icon: 'wave', detail: 'Вода, горизонт и ровное дыхание.', formats: ['Морской заплыв', 'Озёрная миля', 'Открытая вода', 'Заплыв на рассвете'] },
-    { id: 'bike', title: 'Велоспорт', icon: 'wheel', detail: 'Два колеса и столько планов.', formats: ['Гранфондо', 'Горный серпантин', 'Гравийная гонка', 'Гонка с раздельным стартом'] },
-    { id: 'tri', title: 'Триатлон', icon: 'medal', detail: 'Зачем выбирать что-то одно?', formats: ['Спринт', 'Олимпийская дистанция', 'Половинка', 'Экстремальный триатлон'] },
-    { id: 'swimrun', title: 'Свимран', icon: 'world', detail: 'Из воды — на тропу. И обратно.', formats: ['Островной маршрут', 'Озёра и тропы', 'Командный старт', 'Прибрежная дистанция'] },
-    { id: 'duathlon', title: 'Дуатлон', icon: 'compass', detail: 'Бег, велосипед и бег на десерт.', formats: ['Городской спринт', 'Кросс-дуатлон', 'Длинная дистанция', 'Осенний старт'] }
+    { id: 'swim', title: 'Плавание', icon: 'swimming', detail: 'Вода, горизонт и ровное дыхание.', formats: ['Морской заплыв', 'Озёрная миля', 'Открытая вода', 'Заплыв на рассвете'] },
+    { id: 'bike', title: 'Велоспорт', icon: 'bike', detail: 'Два колеса и столько планов.', formats: ['Гранфондо', 'Горный серпантин', 'Гравийная гонка', 'Гонка с раздельным стартом'] },
+    { id: 'tri', title: 'Триатлон', icon: 'medal-2', detail: 'Зачем выбирать что-то одно?', formats: ['Спринт', 'Олимпийская дистанция', 'Половинка', 'Экстремальный триатлон'] },
+    { id: 'swimrun', title: 'Свимран', icon: 'route', detail: 'Из воды — на тропу. И обратно.', formats: ['Островной маршрут', 'Озёра и тропы', 'Командный старт', 'Прибрежная дистанция'] },
+    { id: 'duathlon', title: 'Дуатлон', icon: 'bike', detail: 'Бег, велосипед и бег на десерт.', formats: ['Городской спринт', 'Кросс-дуатлон', 'Длинная дистанция', 'Осенний старт'] }
   ];
   const omens = [
     { id: 'sun', title: 'Солнце', icon: 'sun', detail: 'На финише вы будете сиять ярче собственной медали. Фотограф, приготовьтесь.' },
     { id: 'star', title: 'Звезда', icon: 'star', detail: 'Кто-то крикнет: «Давай-давай!» — и это почему-то сработает. Болельщикам — отдельная медаль.' },
-    { id: 'fool', title: 'Шут', icon: 'compass', detail: 'Вы снова скажете: «Это мой последний старт». Карты вежливо промолчат.' },
-    { id: 'magician', title: 'Маг', icon: 'medal', detail: 'После финиша вы чудесным образом найдёте силы на прогулку за мороженым.' },
-    { id: 'strength', title: 'Сила', icon: 'mountain', detail: 'Самый громкий крик поддержки окажется вашим. И адресован он будет кому-то рядом.' },
+    { id: 'fool', title: 'Шут', icon: 'mood-smile', detail: 'Вы снова скажете: «Это мой последний старт». Карты вежливо промолчат.' },
+    { id: 'magician', title: 'Маг', icon: 'sparkles', detail: 'После финиша вы чудесным образом найдёте силы на прогулку за мороженым.' },
+    { id: 'strength', title: 'Сила', icon: 'barbell', detail: 'Самый громкий крик поддержки окажется вашим. И адресован он будет кому-то рядом.' },
     { id: 'world', title: 'Мир', icon: 'world', detail: 'Всё сойдётся: место, люди и настроение. Домой увезёте медаль и желание повторить.' },
     { id: 'fortune', title: 'Колесо фортуны', icon: 'wheel', detail: 'На этот раз финишное фото понравится с первого взгляда. Кажется, это личный рекорд.' },
-    { id: 'balance', title: 'Умеренность', icon: 'wave', detail: 'План на день: немного волнения, много впечатлений и что-нибудь вкусное после.' }
+    { id: 'balance', title: 'Умеренность', icon: 'yin-yang', detail: 'План на день: немного волнения, много впечатлений и что-нибудь вкусное после.' }
   ];
   const pick = (items, random) => items[Math.min(items.length - 1, Math.max(0, Math.floor(random() * items.length)))];
   function createSpread(random = Math.random, previous = null) {
@@ -51,7 +51,7 @@
       const value = values[index];
       card.querySelector('h3').textContent = type(value.title);
       card.querySelector('.tarot-description').textContent = type(value.detail);
-      card.querySelector('.tarot-front use').setAttribute('href', `assets/illustrations/tarot.svg#${value.icon}`);
+      card.querySelector('.tarot-front use').setAttribute('href', `assets/icons/tabler.svg#${value.icon}`);
       card.querySelector('.tarot-front').setAttribute('aria-hidden', 'true');
       const toggle = card.querySelector('button');
       toggle.hidden = false;
