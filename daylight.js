@@ -4,11 +4,13 @@
   const MAX_AGE = 3 * 60 * 60 * 1000;
   const clock = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit' });
   const calendar = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
+  const skyColours = { morning: '#ffc99b', day: '#a9dbe3', evening: '#ffb8d2', night: '#aaa5e8' };
   function readWeather(data, now = Date.now()) {
     const current = data?.current;
     if (!current || ![current.time, current.temperature_2m, current.wind_speed_10m, current.weather_code].every(Number.isFinite)) return null;
     if (Math.abs(now - current.time * 1000) > MAX_AGE) return null;
     if (data.current_units?.wind_speed_10m !== 'm/s' || data.current_units?.temperature_2m !== '°C') return null;
+    if (current.wind_speed_10m < 0) return null;
     const index = data.daily?.time?.findIndex(time => Number.isFinite(time) && calendar.format(time * 1000) === calendar.format(now));
     if (!Number.isInteger(index) || index < 0) return null;
     const sunrise = data.daily.sunrise?.[index] * 1000;
@@ -18,7 +20,25 @@
     const night = now < sunrise || now >= sunset;
     const nextSunrise = data.daily.sunrise.map(time => time * 1000).find(time => Number.isFinite(time) && time > now);
     const phase = night ? 'night' : progress < .12 ? 'morning' : progress > .85 ? 'evening' : 'day';
-    return { temperature: Math.round(current.temperature_2m), wind: current.wind_speed_10m, code: current.weather_code, observed: current.time * 1000, sunrise, sunset, nextSunrise, progress, phase, night };
+    // Older cached responses have no percentage: retain a coarse condition-based fallback.
+    const cloudCover = Number.isFinite(current.cloud_cover) && data.current_units?.cloud_cover === '%'
+      ? Math.max(0, Math.min(100, current.cloud_cover))
+      : ({ 0: 0, 1: 30, 2: 70 }[current.weather_code] ?? 100);
+    return { temperature: Math.round(current.temperature_2m), wind: current.wind_speed_10m, cloudCover, code: current.weather_code, observed: current.time * 1000, sunrise, sunset, nextSunrise, progress, phase, night };
+  }
+  function atmosphere(current) {
+    if (!current) return null;
+    const cloud = current.cloudCover / 100;
+    const wind = Math.max(0, Math.min(1, current.wind / 8));
+    return {
+      tint: skyColours[current.phase],
+      tintShare: 16 - 7 * cloud,
+      opacity: 84 + 4 * cloud,
+      blur: 20 + 8 * cloud,
+      saturation: 1 - .2 * cloud,
+      sway: current.wind < .5 ? 0 : .25 + .85 * wind,
+      duration: 4400 - 1000 * wind
+    };
   }
   function daylightWindow(current, now = Date.now()) {
     if (!current) return { label: 'Световой день', value: 'Нет данных' };
@@ -45,12 +65,68 @@
     const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
     return icons[conditions(code)] || 'cloud';
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#daylight');
   if (!root) return;
   const get = name => root.querySelector(`[data-${name}]`);
   const environment = root;
+  const material = document.documentElement.style;
+  const glassProperties = ['--weather-tint', '--weather-tint-share', '--weather-opacity', '--weather-blur', '--weather-saturation'];
+  const deck = document.querySelector('.tarot-spread');
+  const cards = deck ? [...deck.querySelectorAll('.tarot-card')] : [];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let breeze = [];
+  let deckVisible = false;
+  let breezePlayed = false;
+  let currentAtmosphere = null;
+  function stopBreeze() {
+    breeze.forEach(animation => animation.cancel());
+    breeze = [];
+  }
+  function playBreeze() {
+    if (!deckVisible || breezePlayed || document.hidden || reducedMotion.matches || !currentAtmosphere?.sway) return;
+    if (deck.matches(':hover') || deck.contains(document.activeElement)) return;
+    breezePlayed = true;
+    stopBreeze();
+    // A single passing gust, under five seconds including delays. Independent rotate
+    // leaves the authored card angles, hover lift and inner flip untouched.
+    cards.forEach((card, index) => {
+      if (typeof card.animate !== 'function') return;
+      const angle = currentAtmosphere.sway * (index === 1 ? -.8 : 1);
+      breeze.push(card.animate([
+        { rotate: '0deg', offset: 0 },
+        { rotate: `${angle}deg`, offset: .25 },
+        { rotate: `${-angle * .55}deg`, offset: .6 },
+        { rotate: '0deg', offset: 1 }
+      ], { duration: currentAtmosphere.duration, delay: index * 140, easing: 'cubic-bezier(.45,0,.55,1)' }));
+    });
+  }
+  function updateAtmosphere(current) {
+    currentAtmosphere = atmosphere(current);
+    if (!currentAtmosphere) {
+      glassProperties.forEach(property => material.removeProperty(property));
+      stopBreeze();
+      return;
+    }
+    const sky = currentAtmosphere;
+    [sky.tint, `${sky.tintShare}%`, `${sky.opacity}%`, `${sky.blur}px`, sky.saturation].forEach((value, index) => material.setProperty(glassProperties[index], value));
+    playBreeze();
+  }
+  if (deck && typeof IntersectionObserver === 'function') {
+    new IntersectionObserver(entries => {
+      const visible = entries[0].isIntersecting && entries[0].intersectionRatio >= .15;
+      if (!visible) { stopBreeze(); breezePlayed = false; }
+      deckVisible = visible;
+      if (visible) playBreeze();
+    }, { threshold: .15 }).observe(deck);
+    deck.addEventListener('pointerenter', stopBreeze);
+    deck.addEventListener('pointerdown', stopBreeze);
+    deck.addEventListener('focusin', stopBreeze);
+  }
+  reducedMotion.addEventListener('change', () => {
+    if (reducedMotion.matches) stopBreeze();
+  });
   const iconSymbols = { sun: 'sun', moon: 'moon', cloud: 'cloud', 'partly-cloudy': 'cloud', 'cloudy-night': 'cloud', fog: 'cloud-fog', rain: 'cloud-rain', snow: 'cloud-snow', storm: 'cloud-storm' };
   const palette = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
   let weather = null;
@@ -60,6 +136,7 @@
   function render() {
     const now = Date.now();
     const current = weather && readWeather(weather, now);
+    updateAtmosphere(current);
     root.toggleAttribute('data-weather-ready', Boolean(current));
     get('daylight-clock').textContent = clock.format(now);
     const light = daylightWindow(current, now);
@@ -99,7 +176,7 @@
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     try {
-      const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.7558&longitude=37.6173&current=temperature_2m,weather_code,wind_speed_10m&daily=sunrise,sunset&wind_speed_unit=ms&timeformat=unixtime&timezone=Europe%2FMoscow&forecast_days=2', { signal: controller.signal, credentials: 'omit' });
+      const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.7558&longitude=37.6173&current=temperature_2m,weather_code,wind_speed_10m,cloud_cover&daily=sunrise,sunset&wind_speed_unit=ms&timeformat=unixtime&timezone=Europe%2FMoscow&forecast_days=2', { signal: controller.signal, credentials: 'omit' });
       if (!response.ok) throw new Error('Weather response unavailable');
       const data = await response.json();
       if (!readWeather(data)) throw new Error('Weather is stale or incomplete');
@@ -125,5 +202,8 @@
   render();
   refresh();
   setInterval(() => { if (!document.hidden) { render(); refresh(); } }, 60 * 1000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); refresh(); } });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopBreeze();
+    else { render(); refresh(); }
+  });
 })();

@@ -65,11 +65,12 @@
   --accordion-open: 360ms;
   --accordion-close: 240ms;
 }
-/* One matte material for navigation and card captions. Content supplies its colour. */
+/* One matte material: Moscow's light tints the same surface in both themes.
+   Cloud cover changes density, never text colour or the visitor's theme choice. */
 @supports (background: color-mix(in srgb, white 76%, transparent)) and ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   :root {
-    --glass-fill: color-mix(in srgb, var(--bg) 76%, transparent);
-    --glass-filter: blur(24px) saturate(.9);
+    --glass-fill: color-mix(in srgb, color-mix(in srgb, var(--bg), var(--weather-tint, var(--bg)) var(--weather-tint-share, 0%)) var(--weather-opacity, 76%), transparent);
+    --glass-filter: blur(var(--weather-blur, 24px)) saturate(var(--weather-saturation, .9));
     --glass-muted: color-mix(in srgb, var(--ink) 85%, var(--bg));
   }
 }
@@ -115,6 +116,7 @@ summary::-webkit-details-marker { display: none; }
 /* A single backdrop spans the header and measured menu, without a blur seam. */
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
 .site-header::before, .js .navigation.is-open { background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+.site-header::before, .tarot-back-caption { transition: backdrop-filter 800ms ease, -webkit-backdrop-filter 800ms ease; }
 .site-header[data-shared-glass]::before { bottom: calc(-1 * var(--menu-height, 0px)); }
 .site-header[data-shared-glass] .navigation.is-open { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .brand { display: flex; align-items: center; min-height: 2.75rem; flex: 0 0 auto; }
