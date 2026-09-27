@@ -186,5 +186,16 @@
     "caption": "Портрет в Антибе; в подписи указана @maria_byka",
     "acquired": "2026-09-26",
     "method": "Rendered Instagram photograph exported through browser pageAssets; local WebP conversion. No embedded feed."
+  },
+  {
+    "source_page": "https://www.strava.com/activities/20332347814",
+    "url": "https://d35tn3x5zm6xrc.cloudfront.net/cJ7l4bNIWWVMpUxGzSBgSIDR8eK6Fj5T4tXGMAF7WqQ/thumbnails/cJ7l4bNIWWVMpUxGzSBgSIDR8eK6Fj5T4tXGMAF7WqQ_1080x1920.jpg",
+    "output": "assets/images/mm10-medal.webp",
+    "width": 720,
+    "height": 1280,
+    "bytes": 75420,
+    "caption": "Кадр из видео медали в записи Кати «ММ 10»",
+    "acquired": "2026-09-27",
+    "method": "Original video thumbnail exported from the rendered Strava activity via pageAssets; proportional resize and local WebP compression. Video was viewed to verify the medal. No private account data copied."
   }
 ]
