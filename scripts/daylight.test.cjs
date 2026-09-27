@@ -1,13 +1,9 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere } = require('../daylight.js');
+const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, conditionCode } = require('../daylight.js');
 const noon = Date.parse('2026-09-26T09:00:00Z');
-const sample = (now = noon) => ({
-  current: { time: now / 1000, temperature_2m: 14.6, wind_speed_10m: 1.8, weather_code: 3 },
-  current_units: { temperature_2m: '°C', wind_speed_10m: 'm/s' },
-  daily: { time: [Date.parse('2026-09-25T21:00:00Z') / 1000], sunrise: [Date.parse('2026-09-26T03:00:00Z') / 1000], sunset: [Date.parse('2026-09-26T15:00:00Z') / 1000] }
-});
-test('daylight uses Moscow dates and Unix seconds, regardless of visitor timezone', () => {
+const { sample, sunDay } = require('./weather-fixture.cjs');
+test('daylight uses Moscow dates and ISO timestamps, regardless of visitor timezone', () => {
   const current = readWeather(sample(), noon);
   assert.equal(current.phase, 'day');
   assert.equal(current.progress, 0.5);
@@ -16,12 +12,12 @@ test('daylight uses Moscow dates and Unix seconds, regardless of visitor timezon
 });
 test('rejects missing, null, stale, or wrongly labelled weather instead of presenting zero', () => {
   assert.equal(readWeather({}, noon), null);
-  const broken = sample(); broken.current.temperature_2m = null;
+  const broken = sample(); broken.forecast.properties.timeseries[0].data.instant.details.air_temperature = null;
   assert.equal(readWeather(broken, noon), null);
   assert.equal(readWeather(sample(), noon + 4 * 60 * 60 * 1000), null);
-  const wrongUnits = sample(); wrongUnits.current_units.wind_speed_10m = 'km/h';
+  const wrongUnits = sample(); wrongUnits.forecast.properties.meta.units.wind_speed = 'km/h';
   assert.equal(readWeather(wrongUnits, noon), null);
-  const missingSun = sample(); missingSun.daily.sunset = [];
+  const missingSun = sample(); missingSun.sun[0].properties.sunset.time = null;
   assert.equal(readWeather(missingSun, noon), null);
 });
 test('sun arc is bounded and night has its own state', () => {
@@ -40,7 +36,7 @@ test('daylight countdown switches to the next sunrise at sunset', () => {
   assert.equal(daylightWindow(readWeather(sample(lastMinute), lastMinute), lastMinute).value, '1 мин');
   const sunset = Date.parse('2026-09-26T15:00:00Z');
   const twoDays = sample(sunset);
-  twoDays.daily.sunrise.push(Date.parse('2026-09-27T03:00:00Z') / 1000);
+  twoDays.sun.push(sunDay('2026-09-27'));
   assert.deepEqual(daylightWindow(readWeather(twoDays, sunset), sunset), { label: 'До рассвета', value: '12 ч 00 мин' });
   assert.deepEqual(daylightWindow(readWeather(sample(sunset), sunset), sunset), { label: 'Световой день', value: 'Завершён' });
   assert.deepEqual(daylightWindow(null), { label: 'Световой день', value: 'Нет данных' });
@@ -63,9 +59,9 @@ test('weather symbols follow the reported condition and clear nights never show 
   for (const code of [95, 96, 99]) assert.equal(weatherIcon(code), 'storm');
 });
 
-test('cloud percentage controls the shared material, with safe older-cache fallback', () => {
-  const clear = sample(); clear.current.cloud_cover = 0; clear.current_units.cloud_cover = '%';
-  const overcast = sample(); overcast.current.cloud_cover = 100; overcast.current_units.cloud_cover = '%';
+test('cloud percentage controls the shared material and malformed values are rejected', () => {
+  const clear = sample(); clear.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = 0;
+  const overcast = sample(); overcast.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = 100;
   const sun = atmosphere(readWeather(clear, noon));
   const cloud = atmosphere(readWeather(overcast, noon));
   assert.ok(cloud.opacity > sun.opacity);
@@ -73,10 +69,10 @@ test('cloud percentage controls the shared material, with safe older-cache fallb
   assert.ok(cloud.tintShare < sun.tintShare);
   assert.ok(cloud.saturation < sun.saturation);
   assert.equal(readWeather(sample(), noon).cloudCover, 100);
-  clear.current.cloud_cover = 200;
-  assert.equal(readWeather(clear, noon).cloudCover, 100);
-  clear.current.cloud_cover = null;
-  assert.equal(readWeather(clear, noon).cloudCover, 100);
+  clear.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = 200;
+  assert.equal(readWeather(clear, noon), null);
+  clear.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = null;
+  assert.equal(readWeather(clear, noon), null);
 });
 test('light follows the Moscow sun while stale weather has no material or wind effect', () => {
   const morning = Date.parse('2026-09-26T03:30:00Z');
@@ -88,16 +84,46 @@ test('light follows the Moscow sun while stale weather has no material or wind e
 });
 test('calm air stays still and extreme wind cannot create a large or long animation', () => {
   const data = sample();
-  data.current.wind_speed_10m = 0;
+  data.forecast.properties.timeseries[0].data.instant.details.wind_speed = 0;
   assert.equal(atmosphere(readWeather(data, noon)).sway, 0);
-  data.current.wind_speed_10m = 2;
+  data.forecast.properties.timeseries[0].data.instant.details.wind_speed = 2;
   const mild = atmosphere(readWeather(data, noon));
-  data.current.wind_speed_10m = 80;
+  data.forecast.properties.timeseries[0].data.instant.details.wind_speed = 80;
   const strong = atmosphere(readWeather(data, noon));
   assert.ok(strong.sway > mild.sway);
   assert.ok(strong.sway <= 1.1);
   assert.ok(strong.duration < mild.duration);
   assert.ok(mild.duration + 280 < 5000);
-  data.current.wind_speed_10m = -1;
+  data.forecast.properties.timeseries[0].data.instant.details.wind_speed = -1;
   assert.equal(readWeather(data, noon), null);
+});
+
+test('MET Norway symbols distinguish sleet and thunderstorms, including night variants', () => {
+  assert.equal(conditionCode('clearsky_night'), 0);
+  assert.equal(conditionCode('fair_day'), 1);
+  assert.equal(conditionCode('partlycloudy_polartwilight'), 2);
+  assert.equal(conditions(conditionCode('lightsleetshowers_day')), 'дождь со снегом');
+  assert.equal(weatherIcon(conditionCode('heavysnowandthunder')), 'storm');
+  assert.equal(conditionCode('unknown_condition'), null);
+});
+test('cached forecasts advance to the current hour but old models and unknown symbols are rejected', () => {
+  const data = sample();
+  const next = structuredClone(data.forecast.properties.timeseries[0]);
+  next.time = new Date(noon + 3600000).toISOString();
+  next.data.instant.details.air_temperature = 20;
+  data.forecast.properties.timeseries.push(next);
+  assert.equal(readWeather(data, noon + 3600000).temperature, 20);
+  data.forecast.properties.meta.updated_at = new Date(noon - 13 * 3600000).toISOString();
+  assert.equal(readWeather(data, noon), null);
+  const unknown = sample();
+  unknown.forecast.properties.timeseries[0].data.next_1_hours.summary.symbol_code = 'unknown';
+  assert.equal(readWeather(unknown, noon), null);
+});
+test('the Moscow calendar rolls over before UTC and selects the correct sunrise', () => {
+  const midnight = Date.parse('2026-09-26T21:05:00Z');
+  const data = sample(midnight);
+  data.sun.push(sunDay('2026-09-27'));
+  const weather = readWeather(data, midnight);
+  assert.equal(weather.sunrise, Date.parse('2026-09-27T03:00:00Z'));
+  assert.equal(weather.phase, 'night');
 });

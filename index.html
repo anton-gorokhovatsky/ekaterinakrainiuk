@@ -44,6 +44,7 @@
   <header class="site-header">
     <a class="brand" href="#top">
 <h1>Екатерина<br>Крайнюк</h1>
+<span class="brand-role">Тренер по триатлону</span>
 </a>
     <p class="header-role">Ваш тренер по триатлону<br>и циклическим видам спорта</p>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" hidden><span data-menu-label>Меню</span><span class="menu-icon" aria-hidden="true"></span>
@@ -72,7 +73,7 @@
 </div>
       <h2 id="invitation-title" class="invitation">
 <span>Ну что,</span> погнали?</h2>
-      <p class="hero-instruction">Выберите, с чего начнём.</p>
+      <div class="hero-intro"><p class="hero-instruction">Выберите, с чего начнём.</p><a class="hero-training" href="#training"><span>Выбрать тренировку</span><span aria-hidden="true">↓</span></a></div>
       <div class="portals">
         <a class="portal portal-water" href="#water" data-route-link>
 <img src="assets/images/open-water.webp" width="625" height="625" alt="Катя улыбается во время заплыва на открытой воде" fetchpriority="high">
@@ -82,14 +83,14 @@
 </span>
 </a>
         <a class="portal portal-ride" href="#ride" data-route-link>
-<img src="assets/images/nice-friends.webp" width="1200" height="1600" alt="Катя и подруга на велосипедах в солнечной Ницце" fetchpriority="high">
+<img src="assets/images/nice-friends.webp" srcset="assets/images/nice-friends-450.webp 450w, assets/images/nice-friends-800.webp 800w, assets/images/nice-friends.webp 1200w" sizes="(max-width: 760px) 94vw, 45vw" width="1200" height="1600" alt="Катя и подруга на велосипедах в солнечной Ницце" loading="lazy" decoding="async">
 <span class="portal-index">02 / Велосипед</span>
 <span class="portal-verb">Крутить</span>
 <span class="portal-bottom">Ещё один поворот <span aria-hidden="true">↓</span>
 </span>
 </a>
         <a class="portal portal-run" href="#run" data-route-link>
-<img src="assets/images/nice-run.webp" width="1200" height="1600" alt="Катя после пробежки на набережной в Ницце" fetchpriority="high">
+<img src="assets/images/nice-run.webp" srcset="assets/images/nice-run-450.webp 450w, assets/images/nice-run-800.webp 800w, assets/images/nice-run.webp 1200w" sizes="(max-width: 760px) 94vw, 45vw" width="1200" height="1600" alt="Катя после пробежки на набережной в Ницце" loading="lazy" decoding="async">
 <span class="portal-index">03 / Бег</span>
 <span class="portal-verb">Бежать</span>
 <span class="portal-bottom">К своему финишу <span aria-hidden="true">↓</span>
@@ -357,7 +358,7 @@
             <span class="eyebrow">Москва <time data-daylight-clock></time></span>
             <div class="weather-reading"><span class="weather-temperature" data-weather-temperature>—</span><span class="weather-condition" data-weather-condition>Погода за окном</span></div>
             <p class="weather-detail" data-weather-detail>Погода появится, когда загрузятся данные.</p>
-            <a class="weather-source" href="https://open-meteo.com/">Погода: Open-Meteo <span aria-hidden="true">↗</span></a>
+            <p class="weather-source">Прогноз: <a href="https://www.met.no/en">MET Norway ↗</a><br><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · значения округлены</p>
           </div>
           <div class="daylight-scene">
             <span class="eyebrow" data-daylight-label>Световой день</span>

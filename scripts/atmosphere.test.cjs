@@ -5,7 +5,7 @@ const { resolve } = require('node:path');
 const { runInNewContext } = require('node:vm');
 
 const source = readFileSync(resolve(__dirname, '../daylight.js'), 'utf8');
-function visit({ reduced = false } = {}) {
+function visit({ reduced = false, cachedWeather = true, request = async () => ({ ok: false }) } = {}) {
   let now = Date.parse('2026-09-26T09:00:00Z');
   const events = {}, material = new Map(), nodes = new Map(), animations = [];
   const node = () => ({ textContent: '', style: { setProperty() {}, removeProperty() {} }, setAttribute() {} });
@@ -29,19 +29,19 @@ function visit({ reduced = false } = {}) {
     querySelector: selector => selector === '#daylight' ? root : deck,
     addEventListener: (name, fn) => { events[name] = fn; }
   };
-  const data = {
-    current: { time: now / 1000, temperature_2m: 15, wind_speed_10m: 4, weather_code: 2, cloud_cover: 65 },
-    current_units: { temperature_2m: '°C', wind_speed_10m: 'm/s', cloud_cover: '%' },
-    daily: { time: [(now - 12 * 60 * 60 * 1000) / 1000], sunrise: [(now - 6 * 60 * 60 * 1000) / 1000], sunset: [(now + 6 * 60 * 60 * 1000) / 1000] }
-  };
+  const data = require('./weather-fixture.cjs').sample(now);
+  data.forecast.properties.timeseries[0].data.instant.details.wind_speed = 4;
+  const cached = { forecast: { data: data.forecast, expires: now + 3600000 }, '2026-09-26': { data: data.sun[0] }, '2026-09-27': { data: require('./weather-fixture.cjs').sunDay('2026-09-27') } };
   runInNewContext(source, { document, window: { matchMedia: () => media }, Intl, Number, Math,
     Date: class extends Date { static now() { return now; } },
-    sessionStorage: { getItem: () => JSON.stringify({ saved: now, data }) },
+    sessionStorage: { getItem: () => cachedWeather ? JSON.stringify(cached) : null, setItem() {} },
     IntersectionObserver: class { constructor(callback) { events.intersection = callback; } observe() {} },
     setInterval: callback => { events.tick = callback; }, setTimeout, clearTimeout, AbortController,
-    fetch: async () => ({ ok: false })
+    fetch: request
   });
   return { document, deck, material, animations,
+    text: name => nodes.get(`[data-${name}]`)?.textContent,
+    advance: minutes => { now += minutes * 60000; events.tick(); },
     enter: () => events.intersection([{ isIntersecting: true, intersectionRatio: .5 }]),
     leave: () => events.intersection([{ isIntersecting: false, intersectionRatio: 0 }]),
     reduce: () => { media.matches = true; events.motion(); },
@@ -59,6 +59,48 @@ test('shared weather material preserves the explicit theme and clears stale valu
   page.expire();
   assert.equal(page.material.size, 0);
   assert.ok(page.animations.every(animation => animation.cancelled));
+});
+
+test('API failures leave a useful clock and do not apply weather effects', async () => {
+  const page = visit({ cachedWeather: false, request: async () => { throw new Error('offline'); } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(page.material.size, 0);
+  assert.equal(page.text('weather-temperature'), '—');
+  assert.equal(page.text('weather-condition'), 'Нет свежих данных');
+  assert.match(page.text('weather-summary'), /московское время/);
+  assert.match(page.text('weather-detail'), /Не удалось обновить/);
+});
+test('browser requests respect Expires and never refetch immutable sunrise data', async () => {
+  const { sample, sunDay } = require('./weather-fixture.cjs');
+  const calls = [];
+  const page = visit({ cachedWeather: false, request: async (url, options) => {
+    calls.push(url);
+    assert.equal(options.credentials, 'omit');
+    assert.equal(options.headers, undefined); // No CORS preflight or exposed API credentials.
+    const day = new URL(url).searchParams.get('date');
+    return { ok: true, headers: { get: () => 'Sat, 26 Sep 2026 11:00:00 GMT' },
+      json: async () => day ? sunDay(day) : sample().forecast };
+  } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls.length, 3);
+  assert.equal(page.text('weather-temperature'), '+15°');
+  page.advance(45);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls.length, 3);
+  page.advance(80);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls.length, 4);
+  assert.ok(calls[3].includes('locationforecast'));
+});
+test('rate limiting backs off instead of retrying every polling interval', async () => {
+  let calls = 0;
+  const page = visit({ cachedWeather: false, request: async () => { calls++; return { ok: false, status: 429 }; } });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls, 3);
+  page.advance(30);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls, 3);
+  assert.equal(page.material.size, 0);
 });
 test('the deck gets one bounded gust per entrance, never a recurring idle animation', () => {
   const page = visit();

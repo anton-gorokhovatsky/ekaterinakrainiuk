@@ -45,6 +45,16 @@
   let busy = false;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const roles = ['Дисциплина', 'Формат старта', 'Знак на финише'];
+  function updateInstruction(fresh = false) {
+    const remaining = cards.length - opened.size;
+    instruction.textContent = type(remaining === 0
+      ? 'Вот это планы! Интересно, что выпадет в следующий раз?'
+      : remaining === 1 ? 'Откройте последнюю карту — и расклад сложится.'
+      : remaining === 2 ? 'Осталось открыть две карты. Что ещё вас ждёт?'
+      : fresh ? 'Новый расклад готов. Откройте карты по одной или все сразу.'
+      : 'Откройте три карты. Каким окажется ваш следующий старт?');
+    dealButton.querySelector('span').textContent = remaining ? 'Открыть расклад' : 'Ещё расклад';
+  }
   function fill() {
     const values = [spread.sport, { title: spread.format, icon: 'compass', detail: 'Кажется, намечается что-то интересное.' }, spread.omen];
     cards.forEach((card, index) => {
@@ -68,9 +78,8 @@
     card.querySelector('.tarot-front').removeAttribute('aria-hidden');
     card.querySelector('button').setAttribute('aria-expanded', 'true');
     card.querySelector('button').setAttribute('aria-label', `Закрыть карту «${card.querySelector('h3').textContent}»`);
+    updateInstruction();
     if (opened.size === cards.length) {
-      dealButton.querySelector('span').textContent = 'Ещё расклад';
-      instruction.textContent = type('Вот это планы! Интересно, что выпадет в следующий раз?');
       status.textContent = type(`${spread.sport.title}. ${spread.format}. ${spread.omen.title}. ${spread.omen.detail}`);
     }
   }
@@ -82,13 +91,16 @@
     card.querySelector('.tarot-front').setAttribute('aria-hidden', 'true');
     card.querySelector('button').setAttribute('aria-expanded', 'false');
     card.querySelector('button').setAttribute('aria-label', `Открыть карту «${roles[index]}»`);
-    dealButton.querySelector('span').textContent = 'Открыть расклад';
-    instruction.textContent = type('Откройте оставшиеся карты — и расклад сложится.');
+    updateInstruction();
     status.textContent = '';
   }));
   const rail = root.querySelector('.tarot-spread');
-  cards.forEach(card => card.querySelector('button').addEventListener('focus', () => {
-    if (rail.scrollWidth > rail.clientWidth) card.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'instant' });
+  cards.forEach(card => card.querySelector('button').addEventListener('focus', event => {
+    if (!event.target.matches(':focus-visible') || rail.scrollWidth <= rail.clientWidth) return;
+    // Move only the horizontal rail. Pointer clicks must not reposition the page.
+    const bounds = card.getBoundingClientRect();
+    const viewport = rail.getBoundingClientRect();
+    rail.scrollTo({ left: rail.scrollLeft + bounds.left - viewport.left - (rail.clientWidth - bounds.width) / 2, behavior: 'instant' });
   }));
   dealButton.addEventListener('click', () => {
     if (busy) return;
@@ -108,14 +120,13 @@
       opened = new Set();
       fill();
       root.querySelector('.tarot-spread').scrollTo({ left: 0, behavior: reduced.matches ? 'instant' : 'smooth' });
-      instruction.textContent = type('Новый расклад готов. Откройте карты по одной или все сразу.');
-      dealButton.querySelector('span').textContent = 'Открыть расклад';
+      updateInstruction(true);
       dealButton.removeAttribute('aria-disabled');
       busy = false;
     }, reduced.matches ? 0 : 350);
   });
   fill();
   root.classList.add('tarot-ready');
-  instruction.textContent = type('Откройте три карты. Каким окажется ваш следующий старт?');
+  updateInstruction();
   dealButton.hidden = false;
 })();

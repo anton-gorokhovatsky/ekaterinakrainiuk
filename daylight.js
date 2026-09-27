@@ -1,30 +1,49 @@
 /* Moscow is the training city, not a claim about Katya's current location. */
 (() => {
   'use strict';
-  const MAX_AGE = 3 * 60 * 60 * 1000;
+  const HOUR = 60 * 60 * 1000;
+  const MAX_AGE = 12 * HOUR; // The global forecast model is updated several times a day.
+  const CACHE_KEY = 'katya-met-norway-v1';
   const clock = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit' });
   const calendar = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
   const skyColours = { morning: '#ffc99b', day: '#a9dbe3', evening: '#ffb8d2', night: '#aaa5e8' };
+  function conditionCode(symbol) {
+    if (typeof symbol !== 'string') return null;
+    const name = symbol.replace(/_(day|night|polartwilight)$/, '');
+    if (name.includes('thunder')) return 95;
+    if (name.includes('sleet')) return 68;
+    if (name.includes('snow')) return 73;
+    if (name.includes('rain')) return 61;
+    return { clearsky: 0, fair: 1, partlycloudy: 2, cloudy: 3, fog: 45 }[name] ?? null;
+  }
   function readWeather(data, now = Date.now()) {
-    const current = data?.current;
-    if (!current || ![current.time, current.temperature_2m, current.wind_speed_10m, current.weather_code].every(Number.isFinite)) return null;
-    if (Math.abs(now - current.time * 1000) > MAX_AGE) return null;
-    if (data.current_units?.wind_speed_10m !== 'm/s' || data.current_units?.temperature_2m !== '°C') return null;
-    if (current.wind_speed_10m < 0) return null;
-    const index = data.daily?.time?.findIndex(time => Number.isFinite(time) && calendar.format(time * 1000) === calendar.format(now));
-    if (!Number.isInteger(index) || index < 0) return null;
-    const sunrise = data.daily.sunrise?.[index] * 1000;
-    const sunset = data.daily.sunset?.[index] * 1000;
+    const forecast = data?.forecast?.properties;
+    const updated = Date.parse(forecast?.meta?.updated_at);
+    if (!Number.isFinite(updated) || now - updated > MAX_AGE || updated - now > 5 * 60000) return null;
+    const units = forecast.meta.units;
+    if (units?.wind_speed !== 'm/s' || units?.air_temperature !== 'celsius' || units?.cloud_area_fraction !== '%') return null;
+    if (!Array.isArray(forecast.timeseries) || !Array.isArray(data.sun)) return null;
+    // Select the current forecast hour again on each render, including cached responses.
+    const frame = forecast.timeseries.reduce((latest, item) => {
+      const time = Date.parse(item?.time);
+      return time <= now && (!latest || time > Date.parse(latest.time)) ? item : latest;
+    }, null);
+    const observed = Date.parse(frame?.time);
+    if (!Number.isFinite(observed) || now - observed > HOUR + 5 * 60000) return null;
+    const current = frame.data?.instant?.details;
+    const code = conditionCode(frame.data?.next_1_hours?.summary?.symbol_code);
+    if (!current || ![current.air_temperature, current.wind_speed, current.cloud_area_fraction, code].every(Number.isFinite)) return null;
+    if (current.wind_speed < 0 || current.cloud_area_fraction < 0 || current.cloud_area_fraction > 100) return null;
+    const days = data.sun.map(day => ({ sunrise: Date.parse(day?.properties?.sunrise?.time), sunset: Date.parse(day?.properties?.sunset?.time) }));
+    const today = days.find(day => Number.isFinite(day.sunrise) && calendar.format(day.sunrise) === calendar.format(now));
+    const sunrise = today?.sunrise;
+    const sunset = today?.sunset;
     if (!Number.isFinite(sunrise) || !Number.isFinite(sunset) || sunset <= sunrise) return null;
     const progress = Math.max(0, Math.min(1, (now - sunrise) / (sunset - sunrise)));
     const night = now < sunrise || now >= sunset;
-    const nextSunrise = data.daily.sunrise.map(time => time * 1000).find(time => Number.isFinite(time) && time > now);
+    const nextSunrise = days.map(day => day.sunrise).filter(time => Number.isFinite(time) && time > now).sort((a, b) => a - b)[0];
     const phase = night ? 'night' : progress < .12 ? 'morning' : progress > .85 ? 'evening' : 'day';
-    // Older cached responses have no percentage: retain a coarse condition-based fallback.
-    const cloudCover = Number.isFinite(current.cloud_cover) && data.current_units?.cloud_cover === '%'
-      ? Math.max(0, Math.min(100, current.cloud_cover))
-      : ({ 0: 0, 1: 30, 2: 70 }[current.weather_code] ?? 100);
-    return { temperature: Math.round(current.temperature_2m), wind: current.wind_speed_10m, cloudCover, code: current.weather_code, observed: current.time * 1000, sunrise, sunset, nextSunrise, progress, phase, night };
+    return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night };
   }
   function atmosphere(current) {
     if (!current) return null;
@@ -56,16 +75,17 @@
     if (code <= 48) return 'туман';
     if (code <= 57) return 'морось';
     if (code <= 67) return 'дождь';
+    if (code === 68) return 'дождь со снегом';
     if (code <= 77) return 'снег';
     if (code <= 82) return 'ливень';
     if (code <= 86) return 'снегопад';
     return 'гроза';
   }
   function weatherIcon(code, night = false) {
-    const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
+    const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'дождь со снегом': 'snow', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
     return icons[conditions(code)] || 'cloud';
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, conditionCode };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#daylight');
   if (!root) return;
@@ -130,6 +150,7 @@
   const iconSymbols = { sun: 'sun', moon: 'moon', cloud: 'cloud', 'partly-cloudy': 'cloud', 'cloudy-night': 'cloud', fog: 'cloud-fog', rain: 'cloud-rain', snow: 'cloud-snow', storm: 'cloud-storm' };
   const palette = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
   let weather = null;
+  let cache = {};
   let unavailable = false;
   let pending = false;
   let lastAttempt = 0;
@@ -167,7 +188,7 @@
     get('weather-temperature').textContent = temp;
     get('weather-condition').textContent = conditions(current.code);
     get('weather-summary').textContent = `${clock.format(now)} · ${temp} · ${conditions(current.code)}`;
-    get('weather-detail').textContent = `Ветер — ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с. Данные на ${clock.format(current.observed)}.`;
+    get('weather-detail').textContent = `Ветер — ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с. Прогноз на ${clock.format(current.observed)}.`;
   }
   async function refresh() {
     if (pending || document.hidden || Date.now() - lastAttempt < 15 * 60 * 1000) return;
@@ -176,13 +197,43 @@
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     try {
-      const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.7558&longitude=37.6173&current=temperature_2m,weather_code,wind_speed_10m,cloud_cover&daily=sunrise,sunset&wind_speed_unit=ms&timeformat=unixtime&timezone=Europe%2FMoscow&forecast_days=2', { signal: controller.signal, credentials: 'omit' });
-      if (!response.ok) throw new Error('Weather response unavailable');
-      const data = await response.json();
+      const today = calendar.format(Date.now());
+      const tomorrow = calendar.format(Date.now() + 24 * HOUR);
+      // Sunrise is immutable for a given date; only the forecast needs revalidation.
+      for (const key of Object.keys(cache)) if (!['forecast', today, tomorrow].includes(key)) delete cache[key];
+      const request = async (key, url) => {
+        const entry = cache[key];
+        if (entry?.data && (key !== 'forecast' || entry.expires > Date.now())) return entry.data;
+        // Simple CORS GET: the browser sends Origin for identification, and its HTTP
+        // cache revalidates with Last-Modified. Custom headers would cause a preflight.
+        const response = await fetch(url, { signal: controller.signal, credentials: 'omit' });
+        if (!response.ok) {
+          if ([403, 429].includes(response.status)) lastAttempt = Date.now() + HOUR;
+          throw new Error('Weather response unavailable');
+        }
+        const data = await response.json();
+        if (key !== 'forecast') {
+          const rise = Date.parse(data?.properties?.sunrise?.time);
+          const set = Date.parse(data?.properties?.sunset?.time);
+          if (!Number.isFinite(rise) || !Number.isFinite(set) || set <= rise || calendar.format(rise) !== key) {
+            throw new Error('Incomplete sunrise response');
+          }
+        }
+        const expires = Date.parse(response.headers.get('Expires'));
+        cache[key] = { data, expires: Math.max(Date.now() + 30 * 60000, Number.isFinite(expires) ? expires : 0) };
+        return data;
+      };
+      const base = 'https://api.met.no/weatherapi/';
+      const location = 'lat=55.7558&lon=37.6173';
+      const [forecast, ...sun] = await Promise.all([
+        request('forecast', `${base}locationforecast/2.0/compact?${location}`),
+        ...[today, tomorrow].map(day => request(day, `${base}sunrise/3.0/sun?${location}&date=${day}&offset=%2B03:00`))
+      ]);
+      const data = { forecast, sun };
       if (!readWeather(data)) throw new Error('Weather is stale or incomplete');
       weather = data;
       unavailable = false;
-      try { sessionStorage.setItem('katya-weather', JSON.stringify({ saved: Date.now(), data })); } catch { /* Storage is optional. */ }
+      try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch { /* Storage is optional. */ }
     } catch {
       unavailable = true;
       if (!weather || !readWeather(weather)) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
@@ -193,11 +244,10 @@
     }
   }
   try {
-    const cached = JSON.parse(sessionStorage.getItem('katya-weather'));
-    if (cached && Date.now() - cached.saved >= 0 && Date.now() - cached.saved < 15 * 60 * 1000 && readWeather(cached.data)) {
-      weather = cached.data;
-      lastAttempt = cached.saved;
-    }
+    const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY));
+    if (cached && typeof cached === 'object' && !Array.isArray(cached)) cache = cached;
+    const data = { forecast: cache.forecast?.data, sun: Object.entries(cache).filter(([key]) => key !== 'forecast').map(([, entry]) => entry.data) };
+    if (readWeather(data)) weather = data;
   } catch { /* A fresh request also handles missing or unavailable storage. */ }
   render();
   refresh();
