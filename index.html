@@ -316,13 +316,17 @@
 <p>И в цифрах, и в ощущениях.</p>
 </div>      <div class="testimonials">
         <figure class="testimonial testimonial-wide"><blockquote><p>«Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!»</p></blockquote><figcaption><img src="assets/images/alexander.webp" width="366" height="400" loading="lazy" decoding="async" alt=""><span>Александр<small>О подготовке и поддержке</small></span></figcaption><details class="review-full"><summary>Весь отзыв</summary><p>Хочется подвести какой-то итог году и сказать тебе спасибо. Потому что прям всё хорошо, даже с учетом моей лени и халтуры, все запланированные важные старты вполне удались. И из самого конца списка участников я уверенно переполз в середину, и даже есть удовлетворение — начало что-то получаться! Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!</p></details></figure>
+        <div class="testimonials-aside">
         <figure class="testimonial"><blockquote><p>«Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))»</p></blockquote><figcaption><img src="assets/images/denis.webp" width="400" height="400" loading="lazy" decoding="async" alt=""><span>Денис<small>О прогрессе в тренировках</small></span></figcaption><details class="review-full"><summary>Весь разговор</summary><p>— Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))<br>— Только спросить хотела по ощущениям как тебе, стало посильнее?<br>— Да, сто процентов. Ну и запас какой-то всё равно чувствуется. Думал, что all out ехал, но в конце даже немного осталось сил придавить.</p></details></figure>
         <figure class="testimonial"><blockquote><p>«Прошло, считаю, неплохо. Выложился я прям хорошо вчера».</p></blockquote><figcaption><img src="assets/images/dmitry.webp" width="400" height="400" loading="lazy" decoding="async" alt=""><span>Дмитрий<small>После заплыва на 3 км</small></span></figcaption><details class="review-full"><summary>Весь отзыв</summary><p>Екатерина, добрый вечер! Прошло, считаю, неплохо. Выложился я прям хорошо вчера. Время 1:01, но расстояние не известно и трека нет. Не только у меня, из-за атомной станции gps видимо глушится. Часы не работали нормально. Всего 64/138, мужском зачёте 49/84. В прошлом году было 86/111, 61/67 в мужском.</p></details></figure>
+        </div>
       </div>
 <details class="result-details">
   <summary>
-    <img class="result-entry-photo" src="assets/images/evgenia.webp" width="400" height="400" loading="lazy" decoding="async" alt="">
-    <span class="result-entry-copy"><strong>Евгения</strong><span>Три сезона, одна дистанция.<br>Триатлон · Ironstar Лужники</span></span>
+    <span class="result-entry-person">
+      <img class="result-entry-photo" src="assets/images/evgenia.webp" width="400" height="400" loading="lazy" decoding="async" alt="">
+      <span class="result-entry-copy"><strong>Евгения</strong><span>Три сезона, одна дистанция.<br>Триатлон · Ironstar Лужники</span></span>
+    </span>
     <span class="result-entry-times">
       <span class="result-entry-metric"><small>2023</small><span>1:19:43</span></span>
       <span class="result-entry-arrow" aria-hidden="true">→</span>
@@ -351,21 +355,35 @@
         </div>
       </div>
     </section>
-    <div class="livebar">      <details class="daylight" id="daylight">
+    <div class="livebar">
+      <details class="daylight" id="daylight">
         <summary><svg class="daylight-mark" viewBox="0 0 24 24" aria-hidden="true"><use data-weather-icon href="assets/icons/tabler.svg#cloud"/></svg><span>За окном в Москве</span><span data-weather-summary>Здесь мы тренируемся</span><span class="disclosure daylight-expand" aria-hidden="true"></span></summary>
         <div class="daylight-panel">
           <div class="daylight-copy">
             <span class="eyebrow">Москва <time data-daylight-clock></time></span>
-            <div class="weather-reading"><span class="weather-temperature" data-weather-temperature>—</span><span class="weather-condition" data-weather-condition>Погода за окном</span></div>
-            <p class="weather-detail" data-weather-detail>Погода появится, когда загрузятся данные.</p>
-            <p class="weather-source">Прогноз: <a href="https://www.met.no/en">MET Norway ↗</a><br><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · значения округлены</p>
+            <div class="weather-reading">
+              <span class="weather-temperature" data-weather-temperature>—</span>
+              <div class="weather-description">
+                <span class="weather-condition" data-weather-condition>Погода за окном</span>
+                <span class="weather-wind" data-weather-wind></span>
+              </div>
+            </div>
           </div>
           <div class="daylight-scene">
-            <span class="eyebrow" data-daylight-label>Световой день</span>
-            <p class="daylight-remaining" data-daylight-remaining>—</p>
-            <svg class="daylight-arc" viewBox="0 0 400 88" aria-hidden="true"><path d="M16 70 Q200 -22 384 70" class="sun-path"/><g data-sun-position transform="translate(200 24)"><svg x="-17" y="-17" width="34" height="34" viewBox="0 0 24 24"><use href="assets/icons/tabler.svg#sun"/></svg></g></svg>
-            <div class="daylight-times"><span>Восход<strong data-sunrise>—</strong></span><span>Закат<strong data-sunset>—</strong></span></div>
-            <p class="daylight-night" data-next-sunrise></p>
+            <p class="daylight-heading"><span data-daylight-label>Световой день</span><strong data-daylight-remaining>—</strong></p>
+            <div class="daylight-track">
+              <svg class="daylight-arc" viewBox="0 0 400 88" aria-hidden="true">
+                <path d="M16 70 Q200 -22 384 70" class="sun-path"/>
+                <path data-sun-trail d="M16 70 Q200 -22 384 70" class="sun-trail"/>
+                <g data-sun-position transform="translate(200 24)"><circle r="18" class="sun-halo"/><svg x="-12" y="-12" width="24" height="24" viewBox="0 0 24 24"><use href="assets/icons/tabler.svg#sun"/></svg></g>
+              </svg>
+              <div class="daylight-times"><span>Восход<strong data-sunrise>—</strong></span><span>Закат<strong data-sunset>—</strong></span></div>
+            </div>
+            <p class="daylight-night"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler.svg#moon"/></svg><span data-next-sunrise></span></p>
+          </div>
+          <div class="weather-footnote">
+            <p class="weather-detail" data-weather-detail>Погода появится, когда загрузятся данные.</p>
+            <p class="weather-source"><a href="https://www.met.no/en">MET Norway ↗</a><span><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · значения округлены</span></p>
           </div>
         </div>
       </details>

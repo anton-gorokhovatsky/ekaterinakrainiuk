@@ -55,9 +55,11 @@ test('shared weather material preserves the explicit theme and clears stale valu
   const page = visit();
   assert.equal(page.material.size, 5);
   assert.equal(page.document.documentElement.dataset.theme, 'dark');
+  assert.equal(page.text('weather-wind'), 'Ветер 4 м/с');
   page.enter();
   page.expire();
   assert.equal(page.material.size, 0);
+  assert.equal(page.text('weather-wind'), '');
   assert.ok(page.animations.every(animation => animation.cancelled));
 });
 

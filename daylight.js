@@ -172,6 +172,7 @@
       get('sunset').textContent = '—';
       get('weather-temperature').textContent = '—';
       get('weather-condition').textContent = unavailable || weather ? 'Нет свежих данных' : 'Загружаем погоду';
+      get('weather-wind').textContent = '';
       root.removeAttribute('data-night');
       if (weather) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
       environment.style.removeProperty('--daylight-paper');
@@ -179,6 +180,9 @@
     }
     get('sun-position').style.visibility = '';
     get('sun-position').setAttribute('transform', `translate(${16 + 368 * current.progress} ${70 - 184 * current.progress * (1 - current.progress)})`);
+    // Exact sub-curve of the day arc, ending at the current sun marker.
+    const p = current.progress;
+    get('sun-trail').setAttribute('d', `M16 70 Q${16 + 184 * p} ${70 - 92 * p} ${16 + 368 * p} ${70 - 184 * p * (1 - p)}`);
     root.toggleAttribute('data-night', current.night);
     get('weather-icon').setAttribute('href', `assets/icons/tabler.svg#${iconSymbols[weatherIcon(current.code, current.night)]}`);
     environment.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
@@ -188,7 +192,8 @@
     get('weather-temperature').textContent = temp;
     get('weather-condition').textContent = conditions(current.code);
     get('weather-summary').textContent = `${clock.format(now)} · ${temp} · ${conditions(current.code)}`;
-    get('weather-detail').textContent = `Ветер — ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с. Прогноз на ${clock.format(current.observed)}.`;
+    get('weather-wind').textContent = `Ветер ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с`;
+    get('weather-detail').textContent = `Прогноз на ${clock.format(current.observed)}`;
   }
   async function refresh() {
     if (pending || document.hidden || Date.now() - lastAttempt < 15 * 60 * 1000) return;
