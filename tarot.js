@@ -65,6 +65,7 @@
       card.querySelector('.tarot-front').setAttribute('aria-hidden', 'true');
       const toggle = card.querySelector('button');
       toggle.hidden = false;
+      toggle.removeAttribute('aria-disabled');
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', `Открыть карту «${roles[index]}»`);
       card.classList.remove('is-revealed');
@@ -110,9 +111,12 @@
     }
     busy = true;
     dealButton.setAttribute('aria-disabled', 'true');
-    cards.forEach(card => {
+    cards.forEach((card, index) => {
       card.classList.remove('is-revealed');
       card.querySelector('.tarot-front').setAttribute('aria-hidden', 'true');
+      card.querySelector('button').setAttribute('aria-disabled', 'true');
+      card.querySelector('button').setAttribute('aria-expanded', 'false');
+      card.querySelector('button').setAttribute('aria-label', `Пересдаём карту «${roles[index]}»`);
     });
     status.textContent = '';
     window.setTimeout(() => {
