@@ -180,7 +180,7 @@ summary::-webkit-details-marker { display: none; }
 .portal-bottom .link-icon { width: 1.5rem; height: 1.5rem; }
 .portal:focus-visible { text-decoration: none; }
 .portal:focus-visible .portal-verb { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
-@media (hover: hover) and (min-width: 1000px) {
+@media (hover: hover) and (min-width: 1001px) and (min-height: 721px) {
   .portals:has(.portal-water:hover) { grid-template-columns: 1.4fr .8fr .8fr; }
   .portals:has(.portal-ride:hover) { grid-template-columns: .8fr 1.4fr .8fr; }
   .portals:has(.portal-run:hover) { grid-template-columns: .8fr .8fr 1.4fr; }
@@ -190,6 +190,25 @@ summary::-webkit-details-marker { display: none; }
 .hero-after > p { color: var(--muted); }
 .hero-after > a { text-align: right; padding: var(--space-2) 0; }
 .hero-after strong { display: flex; align-items: center; justify-content: end; gap: .45em; font-size: var(--text-ui-title); font-weight: 500; }
+
+/* The header and the complete invitation share one desktop viewport. */
+@media (min-width: 1001px) {
+  .hero { display: grid; grid-template-rows: auto auto auto minmax(14rem, 1fr) auto; height: calc(100svh - var(--header-height, 5.5rem)); min-height: min-content; }
+  .invitation { font-size: clamp(3rem, min(8.5vw, 16svh), 10rem); }
+  .portals, .portal { min-height: 0; }
+  .portal-ride img { object-position: 100% 18%; }
+  .portal-run img { object-position: 58% 12%; }
+  .hero-after { padding-block: clamp(var(--space-3), 2svh, var(--space-6)) clamp(var(--space-4), 2.5svh, var(--space-8)); }
+}
+@media (min-width: 1001px) and (max-height: 720px) {
+  .hero { padding-top: var(--space-3); }
+  .invitation { margin-block: var(--space-2) var(--space-3); }
+  .hero-intro { margin-bottom: var(--space-3); }
+  .portal { padding: var(--space-4); }
+  .portal-verb { font-size: clamp(2rem, min(17.5cqw, 9svh), 5.5rem); }
+  .hero-after { padding-block: var(--space-3) var(--space-4); font-size: var(--text-label); }
+  .hero-after strong { font-size: var(--text-body); }
+}
 
 /* The visitor opens a story; these are complete native HTML disclosures. */
 .routes { padding-bottom: var(--space-6); }
@@ -393,6 +412,7 @@ tbody { font-variant-numeric: tabular-nums; }
   --weather-muted: #454e58;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
   align-items: start;
   gap: var(--space-7) var(--gap);
   padding: clamp(var(--space-6), 3vw, var(--space-12));
@@ -401,6 +421,7 @@ tbody { font-variant-numeric: tabular-nums; }
   background: var(--daylight-paper, #d9e6eb);
   background: linear-gradient(115deg, color-mix(in srgb, var(--daylight-paper, #d9e6eb) 50%, var(--paper)) 0%, var(--daylight-paper, #d9e6eb) 100%);
 }
+.daylight-copy { grid-column: 1; grid-row: 1; }
 .daylight-panel .eyebrow { color: var(--weather-muted); }
 [data-daylight-clock] { margin-left: var(--space-3); font-variant-numeric: tabular-nums; }
 .weather-reading { display: flex; align-items: center; gap: var(--space-6); margin-top: var(--space-6); }
@@ -410,11 +431,11 @@ tbody { font-variant-numeric: tabular-nums; }
 .weather-condition::first-letter { text-transform: uppercase; }
 .weather-wind { color: var(--weather-muted); font-size: var(--text-small); }
 .weather-wind:empty { display: none; }
-.daylight-scene { width: 100%; }
-.daylight-heading { display: flex; align-items: baseline; gap: var(--space-2); padding-inline: 4%; font-size: var(--text-small); line-height: var(--leading-small); }
+.daylight-scene { grid-column: 2; grid-row: 1 / 3; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3) var(--space-5); width: 100%; }
+.daylight-heading { grid-column: 1 / -1; display: grid; gap: var(--space-6); font-size: var(--text-label); line-height: var(--leading-body); }
 .daylight-heading > span { color: var(--weather-muted); }
-.daylight-heading > strong { font-size: var(--text-ui-title); font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.daylight-track { margin-top: var(--space-4); }
+.daylight-heading > strong { font-size: var(--text-lead); line-height: var(--leading-lead); font-weight: 600; font-variant-numeric: tabular-nums; }
+.daylight-track { grid-column: 1 / -1; }
 .daylight-arc { display: block; width: 100%; height: auto; overflow: visible; }
 .sun-path, .sun-trail { fill: none; stroke: currentColor; stroke-width: 1.1; }
 .sun-path { opacity: .18; }
@@ -423,17 +444,21 @@ tbody { font-variant-numeric: tabular-nums; }
 [data-weather-ready] :is([data-sun-position], .sun-trail) { visibility: visible; }
 .sun-halo { fill: #e9ff64; }
 [data-sun-position] svg { stroke-width: 1.5; }
-.daylight-times { display: flex; justify-content: space-between; gap: var(--space-4); padding-inline: 4%; font-size: var(--text-label); color: var(--weather-muted); }
+.daylight-times { display: flex; justify-content: space-between; gap: var(--space-4); font-size: var(--text-label); color: var(--weather-muted); }
 .daylight-times > span:last-child { text-align: right; }
 .daylight-times strong { margin-left: var(--space-2); color: var(--weather-ink); font-weight: 500; font-variant-numeric: tabular-nums; }
-.daylight-night { display: none; align-items: center; gap: var(--space-5); min-height: 7rem; font-size: var(--text-small); }
-.daylight-night svg { width: 3rem; height: 3rem; flex: 0 0 auto; stroke-width: 1.25; }
+.daylight-night { display: none; font-size: var(--text-small); }
+.daylight-night svg { grid-column: 2; grid-row: 1; align-self: end; width: 2.25rem; height: 2.25rem; stroke-width: 1.25; }
+.daylight-night > span { grid-column: 1 / -1; grid-row: 2; }
+.daylight[data-night] .daylight-scene { grid-template-columns: minmax(0, max-content) auto; justify-content: start; }
+.daylight[data-night] .daylight-heading { grid-column: 1; grid-row: 1; }
 .daylight[data-night] .daylight-track { display: none; }
-.daylight[data-night] .daylight-night { display: flex; }
+.daylight[data-night] .daylight-night { display: contents; }
 .daylight:not([data-weather-ready]) .daylight-copy { grid-column: 1 / -1; }
 .daylight:not([data-weather-ready]) :is(.weather-temperature, .daylight-scene) { display: none; }
 .daylight:not([data-weather-ready]) .weather-condition { max-width: none; }
-.weather-footnote { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: var(--space-1) var(--space-6); color: var(--weather-muted); font-size: var(--text-label); }
+.weather-footnote { grid-column: 1; grid-row: 2; display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1) var(--space-6); color: var(--weather-muted); font-size: var(--text-label); }
+.daylight:not([data-weather-ready]) .weather-footnote { grid-column: 1 / -1; grid-row: 2; }
 .weather-detail { max-width: 48ch; }
 .weather-source { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
 .weather-source a { padding-block: var(--space-1); }
@@ -624,14 +649,15 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .daylight-summary-end { display: contents; }
   [data-weather-summary] { grid-column: 2; grid-row: 2; font-size: var(--text-label); }
   .daylight-expand { grid-column: 3; grid-row: 1 / 3; }
-  .daylight-panel { grid-template-columns: 1fr; gap: var(--space-8); padding: var(--space-5); }
+  .daylight-panel { grid-template-columns: 1fr; grid-template-rows: none; gap: var(--space-6); padding: var(--space-5); }
   .weather-reading { gap: var(--space-4); margin-top: var(--space-5); }
   .weather-temperature { font-size: clamp(3.5rem, 18vw, 5.5rem); }
   .weather-condition { font-size: var(--text-small); }
   .weather-wind { font-size: var(--text-label); }
-  .daylight-heading > strong { font-size: var(--text-body); }
+  .daylight-scene { grid-column: 1; grid-row: 2; column-gap: var(--space-4); }
+  .daylight-heading { gap: var(--space-1); font-size: var(--text-small); line-height: var(--leading-small); }
   .daylight-times strong { display: block; margin: var(--space-1) 0 0; }
-  .weather-footnote { display: grid; gap: var(--space-1); }
+  .weather-footnote { grid-column: 1; grid-row: 3; display: grid; gap: var(--space-1); }
   .weather-source { gap: 0 var(--space-3); }
   .footer-invitation { grid-template-columns: 1fr; gap: var(--space-8); align-items: start; }
   .footer-heading { font-size: var(--text-display); }
