@@ -27,7 +27,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("assets/fonts/golos-regular.ttf") format('truetype');
+  src: url("assets/fonts/golostext-ruble.woff2") format('woff2');
   unicode-range: U+20BD;
 }
 :root {
@@ -311,14 +311,15 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
   .training-preview img { display: block; width: 100%; height: 100%; object-fit: cover; }
 }
 .service { --service-number-width: var(--space-5); --service-gap: var(--space-4); }
-.service > summary { display: grid; grid-template-columns: var(--service-number-width) minmax(0, 1fr) auto 1.3rem; gap: var(--service-gap); align-items: first baseline; padding: var(--space-6) 0; }
+.service > summary { display: grid; grid-template-columns: var(--service-number-width) minmax(0, 1fr) auto 1.3rem; gap: var(--space-2) var(--service-gap); align-items: first baseline; padding: var(--space-6) 0; }
 .services > .service:first-child > summary { padding-top: 0; }
-.service-number { font-size: var(--text-label); color: var(--muted); }
-.service h3 { font-size: var(--text-item); font-weight: 500; }
-.service-price { text-align: right; white-space: nowrap; font-size: var(--text-body); }
+.service-number { grid-column: 1; grid-row: 1; font-size: var(--text-label); color: var(--muted); }
+.service h3 { grid-column: 2; grid-row: 1; font-size: var(--text-item); font-weight: 500; }
+.service-purpose { grid-column: 2 / 4; grid-row: 2; font-size: var(--text-small); line-height: var(--leading-small); color: var(--muted); }
+.service-price { grid-column: 3; grid-row: 1; text-align: right; white-space: nowrap; font-size: var(--text-body); }
 .service-price small { margin-left: var(--space-1); font-size: 1em; font-weight: 400; color: var(--muted); }
 .service-price-text { font-size: var(--text-body); }
-.service .disclosure { width: 1rem; height: 1rem; align-self: center; }
+.service .disclosure { grid-column: 4; grid-row: 1; width: 1rem; height: 1rem; align-self: center; }
 .service-body { display: grid; grid-template-columns: .8fr 1.5fr; gap: var(--space-6); padding: 0 0 var(--space-8) calc(var(--service-number-width) + var(--service-gap)); }
 .service-body img { width: 100%; aspect-ratio: 1; object-fit: cover; }
 .service-body p { font-size: var(--text-body); }
@@ -375,6 +376,7 @@ tbody { font-variant-numeric: tabular-nums; }
 .contact h2 { grid-column: 1 / span 7; grid-row: 2; font-size: var(--text-title); line-height: var(--leading-display); }
 .contact-channels { grid-column: 8 / -1; grid-row: 2; width: 100%; }
 .contact-channels > p { font-size: var(--text-body); max-width: 43ch; }
+.contact-channels > p + p { margin-top: var(--space-4); }
 .contact-main { display: flex; gap: var(--space-4); min-height: 4rem; margin-top: var(--space-7); padding: var(--space-4) var(--space-6); font-size: var(--text-body); }
 .button .link-label { text-decoration: none; }
 .button .link-icon { width: 1.25rem; height: 1.25rem; }
@@ -495,9 +497,14 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   html:not(.js) .site-header { position: relative; }
   .brand h1 { font-size: var(--text-body); line-height: var(--leading-heading); }
   .navigation { display: flex; width: 100%; flex-wrap: wrap; gap: var(--space-2) var(--space-5); font-size: var(--text-small); }
-  .js .menu-toggle { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 2.75rem; min-width: 7.3rem; font-size: var(--text-small); background: none; color: var(--ink); border: 0; padding: var(--space-2) var(--space-3); }
-  .menu-icon { width: 1rem; height: 1rem; position: relative; }
-  .menu-icon::before, .menu-icon::after { content: ""; position: absolute; width: 100%; height: 1.5px; background: currentColor; top: 50%; left: 0; transition: transform 180ms; }
+  .js .menu-toggle { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: flex-end; gap: var(--space-2); min-height: 2.75rem; font-size: var(--text-small); line-height: var(--leading-small); background: none; color: var(--ink); border: 0; padding: var(--space-2) 0 var(--space-2) var(--space-2); }
+  /* Reserve the longer label, but keep either visible word next to the icon. */
+  .menu-label { display: grid; text-align: right; white-space: nowrap; }
+  .menu-label > span { grid-area: 1 / 1; }
+  .menu-label-reserve { visibility: hidden; }
+  .menu-toggle:active { opacity: .7; }
+  .menu-icon { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; position: relative; }
+  .menu-icon::before, .menu-icon::after { content: ""; position: absolute; width: 1rem; height: 1.5px; background: currentColor; top: calc(50% - .75px); left: .125rem; transition: transform 180ms; }
   .menu-icon::before { transform: translateY(-3px); }
   .menu-icon::after { transform: translateY(3px); }
   .menu-toggle[aria-expanded="true"] .menu-icon::before { transform: rotate(45deg); }
@@ -588,7 +595,8 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .service { --service-number-width: var(--space-4); --service-gap: var(--space-3); }
   .service > summary { grid-template-columns: var(--service-number-width) 1fr 1rem; gap: var(--space-2) var(--service-gap); padding-block: var(--space-4); }
   .service h3 { grid-column: 2; font-size: var(--text-body); }
-  .service-price { grid-column: 2; grid-row: 2; text-align: left; font-size: var(--text-body); }
+  .service-purpose { grid-column: 2; }
+  .service-price { grid-column: 2; grid-row: 3; text-align: left; font-size: var(--text-body); }
   .service .disclosure { grid-column: 3; grid-row: 1; }
   .service-body { grid-template-columns: 1fr; padding: 0 0 var(--space-6) calc(var(--service-number-width) + var(--service-gap)); gap: var(--space-4); }
   .service-body img { aspect-ratio: 1.7; }

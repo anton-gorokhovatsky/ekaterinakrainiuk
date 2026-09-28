@@ -9,9 +9,15 @@
 - `golostext-cyrillic.woff2` — кириллица.
 - `golostext-cyrillic-ext.woff2` — расширенная кириллица.
 - `golostext-latin.woff2` — латиница, цифры и пунктуация.
-- `golos-regular.ttf` — локальный полный Regular; подключён отдельно только для знака рубля U+20BD, отсутствующего в перечисленных веб-поднаборах.
+- `golostext-ruble.woff2` — знак рубля U+20BD из локального `golos-regular.ttf`, отсутствующий в перечисленных веб-поднаборах. Поднабор весит 888 байт вместо 64 240 байт полного TTF. Контур, ширина и отступы глифа сохранены; исходный TTF остаётся в архиве и сайтом не загружается.
 
 Кириллица и латиница предварительно загружаются из `index.html`.
+
+Поднабор рубля получен FontTools 4.60.2, без добавления зависимости в сайт. Лицензия остаётся SIL OFL 1.1 (`golostext-OFL.txt`); записи об авторстве сохранены внутри WOFF2. Команда воспроизведения при установленном FontTools с поддержкой WOFF2:
+
+```sh
+python -m fontTools.subset assets/fonts/golos-regular.ttf --unicodes=U+20BD --flavor=woff2 --output-file=assets/fonts/golostext-ruble.woff2 --name-IDs='*' --name-languages='*' --name-legacy --notdef-glyph --notdef-outline --recommended-glyphs
+```
 
 ## Ambidexter
 

@@ -33,7 +33,7 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=20260926-light">
-  <link rel="stylesheet" href="styles.css?v=20260927-actions">
+  <link rel="stylesheet" href="styles.css?v=20260928-choice">
   <link rel="stylesheet" href="tarot.css?v=20260927-actions">
   <script src="script.js" defer></script>
   <script src="tarot.js?v=20260927-actions" defer></script>
@@ -47,8 +47,10 @@
 <span class="brand-role">Тренер по триатлону</span>
 </div>
     <p class="header-role">Ваш тренер по триатлону<br>и циклическим видам спорта</p>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" hidden><span data-menu-label>Меню</span><span class="menu-icon" aria-hidden="true"></span>
-</button>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" hidden>
+      <span class="menu-label"><span class="menu-label-reserve" aria-hidden="true">Закрыть</span><span data-menu-label>Меню</span></span>
+      <span class="menu-icon" aria-hidden="true"></span>
+    </button>
     <nav class="navigation" id="navigation" aria-label="Основная навигация">
 <a href="#about">Обо мне</a>
 <a href="#training">Тренировки</a>
@@ -106,7 +108,7 @@
     </section>
 
     <section class="routes" aria-label="Четыре истории о спорте">
-      <details class="route route-water" id="water" tabindex="-1">
+      <details class="route route-water" id="water">
 <summary>
 <span class="route-number">01</span>
 <h2>С водой на ты.</h2>
@@ -131,7 +133,7 @@
 </div>
 </div>
       </details>
-      <details class="route route-ride" id="ride" tabindex="-1">
+      <details class="route route-ride" id="ride">
 <summary>
 <span class="route-number">02</span>
 <h2>Ещё один поворот.</h2>
@@ -177,7 +179,7 @@
 </div>
 </div>
       </details>
-      <details class="route route-run" id="run" tabindex="-1">
+      <details class="route route-run" id="run">
 <summary>
 <span class="route-number">03</span>
 <h2>К своему финишу.</h2>
@@ -215,7 +217,7 @@
 </div>
 </div>
       </details>
-      <details class="route route-triathlon" id="triathlon" tabindex="-1">
+      <details class="route route-triathlon" id="triathlon">
 <summary>
 <span class="route-number">04</span>
 <h2>Зачем выбирать?</h2>
@@ -278,35 +280,35 @@
 <div class="training-heading">
 <span class="eyebrow">Теперь к делу</span>
 <h2 id="training-title">Как<br>начнём?</h2>
-<p>Лично, онлайн или вместе с командой. Выберите формат, чтобы узнать подробности.</p>
+<p>Лично, онлайн или вместе с командой. Выберите, какая помощь нужна сейчас.</p>
 </div>
 <div class="training-list">      <div class="services">
         <details class="service">
-          <summary><span class="service-number">01</span><h3>Онлайн-сопровождение</h3><span class="service-price">16 000 ₽ <small>/ месяц</small></span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><span class="service-number">01</span><h3>Онлайн-сопровождение</h3><span class="service-purpose">Регулярный план и поддержка</span><span class="service-price">16 000 ₽ <small>/ месяц</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/training-plan.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Индивидуальный тренировочный план на экране ноутбука"><div><p>Индивидуальный план в TrainingPeaks или Intervals: учитываю ваши цели, привычный ритм жизни и время на тренировки. По ходу подготовки корректирую нагрузку, отвечаю на вопросы и помогаю разобраться с трудностями.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Обсудить сопровождение</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">02</span><h3>Персональная тренировка</h3><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><span class="service-number">02</span><h3>Персональная тренировка</h3><span class="service-purpose">Техника и упражнения вместе с тренером</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/run-session.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Екатерина показывает беговое упражнение на стадионе"><div><p>Бег, плавание, велосипед, прохождение транзитных зон, общая и специальная физическая подготовка. Подойдёт, если хотите поработать над техникой под руководством тренера.</p><p class="service-note">Для спортсменов на сопровождении — 4000 ₽.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Договориться о тренировке</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">03</span><h3>Консультация</h3><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><span class="service-number">03</span><h3>Консультация</h3><span class="service-purpose">Разовый разбор техники или подготовки</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/swimming.webp" width="1080" height="720" loading="lazy" decoding="async" alt="Отработка техники плавания в бассейне"><div><p>Очно или онлайн разберём технику, в том числе по видео, и подберём упражнения для самостоятельных занятий. Ещё можно обсудить трассу, тактику гонки или общий план подготовки к выбранному старту.</p><p class="service-note">В такой план входят этапы подготовки, а не подробные задания на каждую тренировку. Он рассчитан на тех, кто уже знаком с микро- и макроциклами.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Записаться на консультацию</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">04</span><h3>Групповая тренировка</h3><span class="service-price">2000 ₽ <small>/ 90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><span class="service-number">04</span><h3>Групповая тренировка</h3><span class="service-purpose">Занятия вместе с моей командой</span><span class="service-price">2000 ₽ <small>/ 90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/team.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Команда спортсменов с велосипедами после совместной тренировки"><div><p>Тренировка с моей командой: бег, велосипед и отработка транзитных зон. Летом тренируемся в Лужниках, зимой — в манеже на велотреке в Крылатском.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Узнать о ближайшей тренировке</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">05</span><h3>Корпоративные команды</h3><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><span class="service-number">05</span><h3>Корпоративные команды</h3><span class="service-purpose">Подготовка команды к общему старту</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/coaching.webp" width="960" height="720" loading="lazy" decoding="async" alt="Обсуждение тренировки со спортсменами на стадионе"><div><p>Очные групповые тренировки и общий план подготовки к командному старту. Формат и стоимость обсудим с учётом целей вашей команды.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Обсудить командную подготовку</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">06</span><h3>Сопровождение на стартах</h3><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><span class="service-number">06</span><h3>Сопровождение на стартах</h3><span class="service-purpose">Помощь на выбранной гонке или заплыве</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/race-support.webp" width="1200" height="959" loading="lazy" decoding="async" alt="Екатерина со спортсменами на соревнованиях"><div><p>Экстремальный триатлон, велогонки и заплывы. Для тех, кто задумал что-то особенное и ищет опытного человека в команду поддержки.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Рассказать о своём старте</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">07</span><h3>Тренировочные сборы</h3><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><span class="service-number">07</span><h3>Тренировочные сборы</h3><span class="service-purpose">Поездка с программой тренировок</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/camp.webp" width="1080" height="720" loading="lazy" decoding="async" alt="Участники тренировочного сбора с велосипедами"><div><p>Организация тренировочных сборов в России и за рубежом — индивидуально или в группе. Место, программу и стоимость обсудим с учётом ваших целей.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Обсудить сборы</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
       </div>
@@ -350,7 +352,8 @@
         <h2 id="contact-title">Обсудим<br>ваши планы?</h2>
       </div>
       <div class="contact-channels">
-        <p>Расскажите, что вам хочется попробовать и к чему прийти. Обсудим ваш опыт, время на тренировки и подходящий формат.</p>
+        <p>Напишите, какой спорт вам интересен, как вы тренируетесь сейчас и к чему хотите прийти. Если уже выбрали старт, добавьте его название и дату.</p>
+        <p>Обсудим ваш опыт, время на тренировки и подходящий формат.</p>
         <a class="button button-primary contact-main" href="https://t.me/ekatyulya"><span class="link-label">Написать в Telegram</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
         <div class="contact-links">
           <a href="https://wa.me/79251718691" class="link"><span class="link-label">WhatsApp</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
@@ -398,7 +401,7 @@
       <div class="tarot-header"><div><span class="eyebrow">Бюро спортивных предсказаний</span><h2 id="tarot-title">Карты<br>на старт.</h2></div><div class="tarot-intro"><p>А вдруг впереди<br>что-то классное?</p><p data-tarot-instruction>Один из возможных раскладов на ваш следующий старт.</p></div></div>
       <p class="tarot-swipe">Листайте карты и открывайте по одной <svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-right"/></svg></p>
       <div class="tarot-spread">
-          <article class="tarot-card tarot-card-1">
+          <article class="tarot-card tarot-card-1" aria-label="Дисциплина">
             <div class="tarot-card-inner">
               <div class="tarot-back" aria-hidden="true">
                 <img class="tarot-back-photo" src="assets/images/swimming.webp" width="1080" height="720" loading="lazy" decoding="async" alt="">
@@ -412,7 +415,7 @@
             </div>
             <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-1" hidden>Открыть карту «Дисциплина»</button>
           </article>
-          <article class="tarot-card tarot-card-2">
+          <article class="tarot-card tarot-card-2" aria-label="Формат старта">
             <div class="tarot-card-inner">
               <div class="tarot-back" aria-hidden="true">
                 <img class="tarot-back-photo" src="assets/images/col-de-turini.webp" width="1200" height="1600" loading="lazy" decoding="async" alt="">
@@ -426,7 +429,7 @@
             </div>
             <button class="tarot-card-toggle" type="button" aria-controls="tarot-face-2" hidden>Открыть карту «Формат старта»</button>
           </article>
-          <article class="tarot-card tarot-card-3">
+          <article class="tarot-card tarot-card-3" aria-label="Знак на финише">
             <div class="tarot-card-inner">
               <div class="tarot-back" aria-hidden="true">
                 <img class="tarot-back-photo" src="assets/images/finish.webp" width="1200" height="1200" loading="lazy" decoding="async" alt="">
