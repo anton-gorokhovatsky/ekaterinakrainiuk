@@ -102,7 +102,7 @@
 }
 * { box-sizing: border-box; }
 /* Overlap the rounded header edge so anchors do not expose a stripe of the previous section. */
-html { scroll-behavior: auto; scroll-padding-top: calc(var(--header-height, 5.5rem) - 1px); }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height, 5.5rem) - 1px); }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-body)/var(--leading-body) var(--body); -webkit-font-smoothing: antialiased; }
 html:has(body.menu-open) { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
@@ -538,10 +538,10 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .hero-intro { display: block; }
   .hero-training { margin-top: var(--space-3); }
   .portals { display: grid; grid-template-columns: 1fr; gap: var(--space-2); }
-  .portal { min-height: 19rem; padding: var(--space-4); }
+  .portal { min-height: max(19rem, 72vw); padding: var(--space-4); }
   .portal img { object-position: 50% 45%; }
   .portal-ride img { object-position: 50% 40%; }
-  .portal-run img { object-position: 50% 47%; }
+  .portal-run img { object-position: 50% 12%; }
   .portal::after { background: linear-gradient(90deg,#0007,transparent 70%),linear-gradient(0deg,#0007,transparent 45%); }
   .portal-verb { font-size: 14vw; margin-top: var(--space-3); padding-bottom: .1em; }
   .portal-bottom { font-size: var(--text-label); padding-top: var(--space-2); }
@@ -581,9 +581,9 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .coach-label { font-size: var(--text-label); }
   .coach-statement { grid-template-columns: 1fr; gap: var(--space-8); margin-block: var(--space-8); }
   .coach h2 { font-size: var(--text-title); }
-  .coach-statement figure { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: var(--space-6); align-items: end; transform: none; }
-  .coach-statement img { transform: rotate(-4deg); }
-  .coach-statement figcaption { font-size: var(--text-small); }
+  .coach-statement figure { width: 100%; transform: none; }
+  .coach-statement img { width: 94%; margin: var(--space-3) auto 0; aspect-ratio: 1; transform: rotate(-4deg); }
+  .coach-statement figcaption { font-size: var(--text-small); margin-top: var(--space-8); }
   .coach-bottom { grid-template-columns: 1fr; gap: var(--space-6); }
   .coach-lead { font-size: var(--text-lead); }
   .coach-bio { font-size: var(--text-body); }

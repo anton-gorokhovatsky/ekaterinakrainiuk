@@ -101,7 +101,7 @@
     // Move only the horizontal rail. Pointer clicks must not reposition the page.
     const bounds = card.getBoundingClientRect();
     const viewport = rail.getBoundingClientRect();
-    rail.scrollTo({ left: rail.scrollLeft + bounds.left - viewport.left - (rail.clientWidth - bounds.width) / 2, behavior: 'instant' });
+    rail.scrollTo({ left: rail.scrollLeft + bounds.left - viewport.left - (rail.clientWidth - bounds.width) / 2, behavior: reduced.matches ? 'instant' : 'smooth' });
   }));
   dealButton.addEventListener('click', () => {
     if (busy) return;
