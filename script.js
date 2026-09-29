@@ -83,7 +83,7 @@ const navSections = [...document.querySelectorAll('[data-nav-section]')]
   .map(link => ({ link, section: document.getElementById(link.hash.slice(1)) }))
   .filter(entry => entry.section);
 if (navSections.length) {
-  const navDestinations = [...navigation.querySelectorAll('a[href^="#"]')]
+  const navDestinations = [...navigation.querySelectorAll('.nav-contact[href^="#"]')]
     .map(link => ({ link, section: document.getElementById(link.hash.slice(1)) }))
     .filter(entry => entry.section);
   let framePending = false;

@@ -154,11 +154,11 @@ summary::-webkit-details-marker { display: none; }
 .nav-main > a { padding: var(--space-3) var(--space-2); min-height: 2.75rem; display: flex; align-items: center; font-weight: 500; white-space: nowrap; }
 .nav-label { min-width: 0; overflow-wrap: anywhere; text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); text-decoration-color: transparent; transition: text-decoration-color 180ms var(--ease-enter); }
 .nav-main > a:is([aria-current="location"], :focus-visible) .nav-label { text-decoration-color: currentColor; }
-.nav-direction, .nav-sports { display: none; }
+.nav-sports { display: none; }
 .nav-contact { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 2.75rem; padding: var(--space-3) var(--space-4); background: var(--action-bg); color: var(--action-ink); font-weight: 600; white-space: nowrap; }
-.navigation a { --nav-shift: 2px; }
-.navigation a[data-nav-up] { --nav-shift: -2px; }
-.navigation a[data-nav-up] :is(.nav-direction, .link-icon) { rotate: 180deg; }
+.nav-contact { --nav-shift: 2px; }
+.nav-contact[data-nav-up] { --nav-shift: -2px; }
+.nav-contact[data-nav-up] > .link-icon { rotate: 180deg; }
 .nav-contact[aria-current="location"] > span { text-decoration: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
 .theme-control { display: flex; align-items: center; gap: var(--space-2); }
 .theme-control label { color: var(--glass-muted); font-size: var(--text-label); }
@@ -538,14 +538,11 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .navigation { display: flex; width: 100%; flex-direction: column; flex-wrap: nowrap; align-items: stretch; justify-content: start; gap: var(--space-7); font-size: var(--text-small); }
   .nav-main { display: grid; align-items: stretch; gap: 0; }
   .nav-main > a { justify-content: space-between; gap: var(--space-4); font: 700 clamp(1.5rem, 8.6vw, 3.5rem)/var(--leading-heading) var(--display); padding: var(--space-3) 0; white-space: normal; }
-  .nav-direction { display: block; width: 24px; height: 24px; flex: 0 0 auto; stroke-width: 1.75; transition: translate 180ms var(--ease-enter); }
-  .nav-main > a:focus-visible .nav-direction { translate: 0 var(--nav-shift); }
   .nav-sports { display: block; }
   .nav-sports .eyebrow { color: var(--glass-muted); }
   .nav-sports-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr)); gap: 0 var(--space-6); margin-top: var(--space-2); }
   .nav-sports-links > a { width: 100%; min-height: 2.75rem; justify-content: space-between; font-size: var(--text-small); }
   .nav-sports-links .link-label { min-width: 0; overflow-wrap: anywhere; }
-  .nav-sports-links .link-icon { width: 16px; height: 16px; }
   .nav-actions { flex-direction: column; align-items: stretch; gap: var(--space-4); margin-top: auto; }
   .nav-contact { min-height: 3.75rem; padding: var(--space-4) var(--space-5); font-size: var(--text-ui-title); white-space: normal; }
   .nav-contact > span { min-width: 0; overflow-wrap: anywhere; }
@@ -579,10 +576,9 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .nav-main > a { font-size: clamp(1.75rem, 4.2vw, 2.5rem); padding-block: var(--space-2); }
 }
 @media (hover: hover) and (pointer: fine) {
-  .nav-main > a:hover .nav-direction { translate: 0 var(--nav-shift); }
-  .navigation a:is(:hover, :focus-visible) > .link-icon { translate: 0 var(--nav-shift); }
+  .nav-contact:is(:hover, :focus-visible) > .link-icon { translate: 0 var(--nav-shift); }
 }
-.navigation a:focus-visible > .link-icon { translate: 0 var(--nav-shift); }
+.nav-contact:focus-visible > .link-icon { translate: 0 var(--nav-shift); }
 @keyframes menu-enter { from { opacity: 0; translate: 0 -.5rem; } to { opacity: 1; translate: none; } }
 @media (max-width: 760px) {
   :root {
