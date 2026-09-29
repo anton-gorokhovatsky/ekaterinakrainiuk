@@ -33,14 +33,15 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=20260926-light">
-  <link rel="stylesheet" href="styles.css?v=20260928-viewport-weather">
+  <link rel="stylesheet" href="styles.css?v=20260929-navigation">
   <link rel="stylesheet" href="tarot.css?v=20260927-actions">
-  <script src="script.js" defer></script>
+  <script src="script.js?v=20260929-navigation" defer></script>
   <script src="tarot.js?v=20260928-scroll" defer></script>
   <script src="daylight.js" defer></script>
 </head>
 <body id="top">
   <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <div class="site-header-shell">
   <header class="site-header">
     <div class="brand">
 <h1>Екатерина<br>Крайнюк</h1>
@@ -52,21 +53,35 @@
       <span class="menu-icon" aria-hidden="true"></span>
     </button>
     <nav class="navigation" id="navigation" aria-label="Основная навигация">
-<a href="#about">Обо мне</a>
-<a href="#training">Тренировки</a>
-<a href="#tarot">Карты на старт</a>
-<a class="nav-contact button-primary" href="#contact">Написать мне
-</a>
-<div class="theme-control" hidden>
-<label for="theme-choice">Тема</label>
-<select id="theme-choice" name="theme">
-<option value="system">Как в системе</option>
-<option value="light">Светлая</option>
-<option value="dark">Тёмная</option>
-</select>
-</div>
-</nav>
+      <div class="nav-main">
+        <a href="#training" data-nav-section><span class="nav-label">Тренировки</span><svg class="nav-direction" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+        <a href="#about" data-nav-section><span class="nav-label">Обо мне</span><svg class="nav-direction" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+        <a href="#results" data-nav-section><span class="nav-label">Результаты</span><svg class="nav-direction" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+        <a href="#tarot" data-nav-section><span class="nav-label">Карты на старт</span><svg class="nav-direction" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+      </div>
+      <div class="nav-sports">
+        <p class="eyebrow">Мои виды спорта</p>
+        <div class="nav-sports-links">
+          <a class="link" href="#water" data-route-link><span class="link-label">Плавание</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+          <a class="link" href="#ride" data-route-link><span class="link-label">Велосипед</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+          <a class="link" href="#run" data-route-link><span class="link-label">Бег</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+          <a class="link" href="#triathlon" data-route-link><span class="link-label">Триатлон</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <div class="theme-control" hidden>
+          <label for="theme-choice">Тема</label>
+          <select id="theme-choice" name="theme">
+            <option value="system">Как в системе</option>
+            <option value="light">Светлая</option>
+            <option value="dark">Тёмная</option>
+          </select>
+        </div>
+        <a class="nav-contact button-primary" href="#contact" data-nav-section><span>Написать мне</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-down"/></svg></a>
+      </div>
+    </nav>
   </header>
+  </div>
   <main id="main" tabindex="-1">
     <section class="hero" aria-labelledby="invitation-title">
       <div class="hero-kicker">
@@ -315,7 +330,7 @@
 </div>
 </section>
 
-    <section class="results" id="results" aria-labelledby="results-title">
+    <section class="results" id="results" aria-labelledby="results-title" tabindex="-1">
 <div class="results-head">
 <span class="eyebrow">Слова спортсменов</span>
 <h2 id="results-title">Получается.</h2>
