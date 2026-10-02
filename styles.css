@@ -80,11 +80,11 @@
   --accordion-open: 360ms;
   --accordion-close: 240ms;
 }
-/* One matte material: Moscow's light tints the same surface in both themes.
-   Cloud cover changes density, never text colour or the visitor's theme choice. */
+/* Glass shares the page colour; tinting it again would create a separate header band.
+   Cloud cover still changes density, never text colour or the visitor's theme choice. */
 @supports (background: color-mix(in srgb, white 76%, transparent)) and ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   :root {
-    --glass-fill: color-mix(in srgb, color-mix(in srgb, var(--bg), var(--weather-tint, var(--bg)) var(--weather-tint-share, 0%)) var(--weather-opacity, 76%), transparent);
+    --glass-fill: color-mix(in srgb, var(--bg) var(--weather-opacity, 76%), transparent);
     --glass-filter: blur(var(--weather-blur, 24px)) saturate(var(--weather-saturation, .9));
     --glass-muted: color-mix(in srgb, var(--ink) 85%, var(--bg));
   }
@@ -141,6 +141,7 @@ summary::-webkit-details-marker { display: none; }
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
 .site-header::before, .js .navigation.is-open, .theme-options { background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
 .site-header::before, .tarot-back-caption, .theme-options { transition: backdrop-filter 800ms ease, -webkit-backdrop-filter 800ms ease; }
+.js body:not(.menu-open) .site-header:not([data-scrolled])::before { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .site-header[data-shared-glass]::before { bottom: calc(-1 * var(--menu-height, 0px)); }
 .site-header[data-shared-glass] .navigation.is-open { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .brand { display: flex; align-items: center; min-height: 2.75rem; flex: 0 0 auto; }

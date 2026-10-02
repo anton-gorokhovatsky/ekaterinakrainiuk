@@ -89,6 +89,7 @@ if (navSections.length) {
   let framePending = false;
   const updateCurrentSection = () => {
     framePending = false;
+    header?.toggleAttribute('data-scrolled', window.scrollY > 1);
     const headerHeight = header?.getBoundingClientRect().height || 0;
     const readingLine = headerHeight + Math.min(120, window.innerHeight * .2);
     const current = navSections.find(({ section }) => {
