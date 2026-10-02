@@ -7,6 +7,31 @@
   const clock = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit' });
   const calendar = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
   const skyColours = { morning: '#ffc99b', day: '#a9dbe3', evening: '#ffb8d2', night: '#aaa5e8' };
+  const paperColours = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
+  function skyColour(colours, sunrise, sunset, now) {
+    const day = sunset - sunrise;
+    // A stylised light cycle anchored to the actual Moscow sunrise and sunset.
+    // Ease into each colour so neither dawn nor dusk introduces a palette jump.
+    const stops = [
+      [sunrise - HOUR, colours.night], [sunrise, colours.morning],
+      [sunrise + day * .2, colours.day], [sunset - day * .2, colours.day],
+      [sunset, colours.evening], [sunset + HOUR, colours.night]
+    ];
+    if (now <= stops[0][0]) return stops[0][1];
+    for (let index = 1; index < stops.length; index++) {
+      const [end, to] = stops[index];
+      if (now > end) continue;
+      const [start, from] = stops[index - 1];
+      const progress = (now - start) / (end - start);
+      const blend = progress * progress * (3 - 2 * progress);
+      return '#' + [1, 3, 5].map(offset => {
+        const a = parseInt(from.slice(offset, offset + 2), 16);
+        const b = parseInt(to.slice(offset, offset + 2), 16);
+        return Math.round(a + (b - a) * blend).toString(16).padStart(2, '0');
+      }).join('');
+    }
+    return colours.night;
+  }
   function conditionCode(symbol) {
     if (typeof symbol !== 'string') return null;
     const name = symbol.replace(/_(day|night|polartwilight)$/, '');
@@ -43,14 +68,15 @@
     const night = now < sunrise || now >= sunset;
     const nextSunrise = days.map(day => day.sunrise).filter(time => Number.isFinite(time) && time > now).sort((a, b) => a - b)[0];
     const phase = night ? 'night' : progress < .12 ? 'morning' : progress > .85 ? 'evening' : 'day';
-    return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night };
+    return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night,
+      skyTint: skyColour(skyColours, sunrise, sunset, now), skyPaper: skyColour(paperColours, sunrise, sunset, now) };
   }
   function atmosphere(current) {
     if (!current) return null;
     const cloud = current.cloudCover / 100;
     const wind = Math.max(0, Math.min(1, current.wind / 8));
     return {
-      tint: skyColours[current.phase],
+      tint: current.skyTint,
       tintShare: 16 - 7 * cloud,
       opacity: 84 + 4 * cloud,
       blur: 20 + 8 * cloud,
@@ -148,7 +174,6 @@
     if (reducedMotion.matches) stopBreeze();
   });
   const iconSymbols = { sun: 'sun', moon: 'moon', cloud: 'cloud', 'partly-cloudy': 'cloud', 'cloudy-night': 'cloud', fog: 'cloud-fog', rain: 'cloud-rain', snow: 'cloud-snow', storm: 'cloud-storm' };
-  const palette = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
   let weather = null;
   let cache = {};
   let unavailable = false;
@@ -185,7 +210,7 @@
     get('sun-trail').setAttribute('d', `M16 70 Q${16 + 184 * p} ${70 - 92 * p} ${16 + 368 * p} ${70 - 184 * p * (1 - p)}`);
     root.toggleAttribute('data-night', current.night);
     get('weather-icon').setAttribute('href', `assets/icons/tabler.svg#${iconSymbols[weatherIcon(current.code, current.night)]}`);
-    environment.style.setProperty('--daylight-paper', current.code >= 3 && !current.night ? `color-mix(in srgb, ${palette[current.phase]} 76%, #bcc7d5)` : palette[current.phase]);
+    environment.style.setProperty('--daylight-paper', `color-mix(in srgb, ${current.skyPaper} ${100 - .24 * current.cloudCover}%, #bcc7d5)`);
     get('sunrise').textContent = clock.format(current.sunrise);
     get('sunset').textContent = clock.format(current.sunset);
     const temp = `${current.temperature > 0 ? '+' : current.temperature < 0 ? '−' : ''}${Math.abs(current.temperature)}°`;

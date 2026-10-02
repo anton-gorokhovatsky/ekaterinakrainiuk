@@ -153,6 +153,40 @@ document.querySelectorAll('[data-route-link]').forEach(link => {
 window.addEventListener('hashchange', () => openRoute(window.location.hash));
 openRoute(window.location.hash);
 
+// The photograph responds only inside its own row; titles and controls stay fixed.
+const routePreviewMotion = window.matchMedia('(min-width: 1200px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+document.querySelectorAll('.route > summary').forEach(summary => {
+  const preview = summary.querySelector('.route-preview');
+  if (!preview) return;
+  let frame = 0;
+  let pointerX = 0;
+  let pointerY = 0;
+  const reset = () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    ['--preview-x', '--preview-y', '--preview-angle'].forEach(name => preview.style.removeProperty(name));
+  };
+  summary.addEventListener('pointermove', event => {
+    if (!routePreviewMotion.matches || summary.parentElement.open || event.pointerType === 'touch') return;
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      const bounds = summary.getBoundingClientRect();
+      const x = Math.max(-1, Math.min(1, 2 * (pointerX - bounds.left) / bounds.width - 1));
+      const y = Math.max(-1, Math.min(1, 2 * (pointerY - bounds.top) / bounds.height - 1));
+      preview.style.setProperty('--preview-x', `${x * 8}px`);
+      preview.style.setProperty('--preview-y', `${y * 4}px`);
+      preview.style.setProperty('--preview-angle', `${-3 + x * 3}deg`);
+    });
+  }, { passive: true });
+  summary.addEventListener('pointerleave', reset);
+  summary.addEventListener('blur', reset);
+  summary.parentElement.addEventListener('toggle', reset);
+  routePreviewMotion.addEventListener('change', reset);
+});
+
 // A quiet photo preview in the spare column; disclosures remain the source of truth.
 const trainingHeading = document.querySelector('.training-heading');
 if (trainingHeading) {

@@ -82,6 +82,40 @@ test('light follows the Moscow sun while stale weather has no material or wind e
   assert.equal(new Set(colours).size, 4);
   assert.equal(atmosphere(readWeather(sample(), noon + 4 * 60 * 60 * 1000)), null);
 });
+test('light changes continuously through dawn, sunset and the former phase boundaries', () => {
+  const sunrise = Date.parse('2026-09-26T03:00:00Z');
+  const sunset = Date.parse('2026-09-26T15:00:00Z');
+  const channels = colour => [1, 3, 5].map(offset => parseInt(colour.slice(offset, offset + 2), 16));
+  const light = now => readWeather(sample(now), now);
+  const boundaries = [sunrise - 3600000, sunrise, sunrise + .12 * (sunset - sunrise),
+    sunrise + .2 * (sunset - sunrise), sunrise + .8 * (sunset - sunrise),
+    sunrise + .85 * (sunset - sunrise), sunset, sunset + 3600000];
+  for (const boundary of boundaries) {
+    for (const property of ['skyTint', 'skyPaper']) {
+      const before = channels(light(boundary - 1000)[property]);
+      const after = channels(light(boundary + 1000)[property]);
+      assert.ok(before.every((value, i) => Math.abs(value - after[i]) <= 1), `${property} jumps at ${new Date(boundary).toISOString()}`);
+    }
+  }
+  assert.equal(light(sunrise - 3600000).skyTint, '#aaa5e8');
+  assert.equal(light(sunrise).skyTint, '#ffc99b');
+  assert.equal(light(noon).skyTint, '#a9dbe3');
+  assert.equal(light(sunset).skyTint, '#ffb8d2');
+  assert.equal(light(sunset + 3600000).skyTint, '#aaa5e8');
+  assert.notEqual(light(sunrise - 1800000).skyTint, light(sunrise).skyTint);
+  assert.notEqual(light(sunset + 1800000).skyTint, light(sunset).skyTint);
+});
+test('a changed sunrise shifts the light while midnight keeps the same night colour', () => {
+  const morning = Date.parse('2026-09-26T04:00:00Z');
+  const laterSunrise = sample(morning);
+  laterSunrise.sun[0].properties.sunrise.time = '2026-09-26T07:00:00+03:00';
+  assert.notEqual(readWeather(sample(morning), morning).skyTint, readWeather(laterSunrise, morning).skyTint);
+  const beforeMidnight = Date.parse('2026-09-26T20:59:59Z');
+  const afterMidnight = beforeMidnight + 2000;
+  const next = sample(afterMidnight);
+  next.sun.push(sunDay('2026-09-27'));
+  assert.equal(readWeather(sample(beforeMidnight), beforeMidnight).skyTint, readWeather(next, afterMidnight).skyTint);
+});
 test('calm air stays still and extreme wind cannot create a large or long animation', () => {
   const data = sample();
   data.forecast.properties.timeseries[0].data.instant.details.wind_speed = 0;
