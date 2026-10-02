@@ -51,9 +51,12 @@ function visit({ reduced = false, cachedWeather = true, request = async () => ({
     tick: () => events.tick()
   };
 }
-test('shared weather material preserves the explicit theme and clears stale values', () => {
+test('the whole palette preserves the explicit theme and clears every stale colour', () => {
   const page = visit();
-  assert.equal(page.material.size, 5);
+  assert.ok(page.material.has('--weather-tint'));
+  const now = Date.parse('2026-09-26T09:00:00Z');
+  const expected = require('../daylight.js').readWeather(require('./weather-fixture.cjs').sample(now), now).palette;
+  for (const [role, colour] of Object.entries(expected)) assert.equal(page.material.get(`--${role}`), colour);
   assert.equal(page.document.documentElement.dataset.theme, 'dark');
   assert.equal(page.text('weather-wind'), 'Ветер 4 м/с');
   page.enter();

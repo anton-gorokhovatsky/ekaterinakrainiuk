@@ -116,6 +116,53 @@ test('a changed sunrise shifts the light while midnight keeps the same night col
   next.sun.push(sunDay('2026-09-27'));
   assert.equal(readWeather(sample(beforeMidnight), beforeMidnight).skyTint, readWeather(next, afterMidnight).skyTint);
 });
+test('every chapter and accent follows the sun and clouds without a boundary jump', () => {
+  const start = Date.parse('2026-09-26T00:00:00+03:00');
+  const palette = (hour, cloud = 0) => {
+    const now = start + hour * 3600000;
+    const data = sample(now);
+    data.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = cloud;
+    return readWeather(data, now).palette;
+  };
+  const phases = [6, 12, 18, 22].map(hour => palette(hour));
+  const roles = ['water', 'acid', 'peach', 'lavender', 'rose', 'cobalt', 'paper'];
+  assert.deepEqual(Object.keys(phases[0]), roles);
+  for (const role of roles) {
+    assert.equal(new Set(phases.map(colours => colours[role])).size, 4, role);
+    assert.notEqual(palette(12)[role], palette(12, 100)[role], `${role} ignores clouds`);
+    for (const hour of [5, 6, 8.4, 15.6, 18, 19]) {
+      const before = palette(hour - 1 / 3600)[role];
+      const after = palette(hour + 1 / 3600)[role];
+      for (const offset of [1, 3, 5]) {
+        assert.ok(Math.abs(parseInt(before.slice(offset, offset + 2), 16) - parseInt(after.slice(offset, offset + 2), 16)) <= 1, `${role} jumps at ${hour}`);
+      }
+    }
+  }
+});
+test('editorial colour pairs keep readable contrast across the full day and cloud range', () => {
+  const luminance = hex => [1, 3, 5].map(offset => {
+    const channel = parseInt(hex.slice(offset, offset + 2), 16) / 255;
+    return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
+  }).reduce((sum, channel, i) => sum + channel * [.2126, .7152, .0722][i], 0);
+  const contrast = (a, b) => (Math.max(luminance(a), luminance(b)) + .05) / (Math.min(luminance(a), luminance(b)) + .05);
+  const start = Date.parse('2026-09-26T00:00:00+03:00');
+  for (let minutes = 0; minutes < 1440; minutes += 15) {
+    for (const cloud of [0, 25, 50, 75, 100]) {
+      const now = start + minutes * 60000;
+      const data = sample(now);
+      data.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = cloud;
+      const colours = readWeather(data, now).palette;
+      const pairs = [
+        ...['water', 'acid', 'peach', 'lavender', 'rose', 'paper'].map(role => [role, '#101216', colours[role]]),
+        ['coach body', '#ffffff', colours.cobalt], ['coach accent', colours.acid, colours.cobalt],
+        ['tarot secondary', '#51424b', colours.rose]
+      ];
+      for (const [role, ink, background] of pairs) {
+        assert.ok(contrast(ink, background) >= 4.5, `${role}: ${contrast(ink, background).toFixed(2)} at minute ${minutes}, cloud ${cloud}`);
+      }
+    }
+  }
+});
 test('calm air stays still and extreme wind cannot create a large or long animation', () => {
   const data = sample();
   data.forecast.properties.timeseries[0].data.instant.details.wind_speed = 0;

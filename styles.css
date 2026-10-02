@@ -72,10 +72,6 @@
   --section-space: clamp(3.5rem, 8vw, 8rem);
   --section-space-compact: clamp(3rem, 6vw, 6rem);
   --section-space-cards: clamp(4rem, 7vw, 7rem);
-  --rose: #ffb8d2;
-  --paper: #f4f3ee;
-  --acid: #e9ff64;
-  --cobalt: #234ce8;
   --glass-fill: var(--bg);
   --glass-filter: none;
   --glass-muted: var(--muted);
@@ -104,6 +100,9 @@
 /* Overlap the rounded header edge so anchors do not expose a stripe of the previous section. */
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height, 5.5rem) - 1px); }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-body)/var(--leading-body) var(--body); -webkit-font-smoothing: antialiased; }
+/* Weather updates recolour the surfaces without affecting photos or layout. */
+.route-content, .coach, .tarot, .tarot-front { transition: background-color 900ms ease; }
+.coach h2 > span { transition: color 900ms ease; }
 html:has(body.menu-open) { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 button, select { font: inherit; }
@@ -239,10 +238,10 @@ summary::-webkit-details-marker { display: none; }
 details[open] > summary .disclosure::after { transform: none; transition-timing-function: var(--ease-enter); }
 .route[open] > summary { background: var(--route-color); color: #101216; }
 .route[open] .route-kind { color: #101216; }
-.route-water { --route-color: #a9dbe3; }
-.route-ride { --route-color: #e9ff64; }
-.route-run { --route-color: #ffb08b; }
-.route-triathlon { --route-color: #c4b9ff; }
+.route-water { --route-color: var(--water); }
+.route-ride { --route-color: var(--acid); }
+.route-run { --route-color: var(--peach); }
+.route-triathlon { --route-color: var(--lavender); }
 .route-content { padding: clamp(var(--space-8), 5vw, 5rem) var(--pad); background: var(--route-color); color: #101216; }
 .route-content p { max-width: 48ch; }
 /* Native height transitions keep links, keyboard controls and rapid reversals intact. */
@@ -458,7 +457,7 @@ tbody { font-variant-numeric: tabular-nums; }
 .sun-trail { opacity: .55; }
 [data-sun-position], .sun-trail { visibility: hidden; }
 [data-weather-ready] :is([data-sun-position], .sun-trail) { visibility: visible; }
-.sun-halo { fill: #e9ff64; }
+.sun-halo { fill: var(--acid); }
 [data-sun-position] svg { stroke-width: 1.5; }
 .daylight-times { display: flex; justify-content: space-between; gap: var(--space-4); font-size: var(--text-label); color: var(--weather-muted); }
 .daylight-times > span:last-child { text-align: right; }

@@ -8,15 +8,20 @@
   --muted: #5b6067;
   --accent: #101216;
   --line: #c9ccc2;
-  --accent-fill: #e9ff64;
+  --accent-fill: var(--acid);
   --button-ink: #101216;
-  --button-hover: #d9ef4c;
+  --button-hover: color-mix(in srgb, var(--acid) 90%, #101216);
   --control-line: #787e70;
-  --contact-bg: #e9ff64;
+  --contact-bg: var(--acid);
   --contact-ink: #101216;
   --contact-muted: #3f472b;
   --rose: #ffb8d2;
   --paper: #f4f3ee;
+  --acid: #e9ff64;
+  --cobalt: #234ce8;
+  --water: #a9dbe3;
+  --peach: #ffb08b;
+  --lavender: #c4b9ff;
 }
 
 /* System appearance also works when JavaScript is unavailable. */
@@ -27,9 +32,9 @@
     --surface-base: #191c21;
     --ink: #e9ebef;
     --muted: #a5a9b0;
-    --accent: #e9ff64;
+    --accent: var(--acid);
     --line: #393d43;
-    --button-hover: #f5ffae;
+    --button-hover: color-mix(in srgb, var(--acid) 50%, white);
     --control-line: #70767e;
   }
 }
@@ -40,9 +45,9 @@
   --surface-base: #191c21;
   --ink: #e9ebef;
   --muted: #a5a9b0;
-  --accent: #e9ff64;
+  --accent: var(--acid);
   --line: #393d43;
-  --button-hover: #f5ffae;
+  --button-hover: color-mix(in srgb, var(--acid) 50%, white);
   --control-line: #70767e;
 }
 

@@ -8,6 +8,24 @@
   const calendar = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
   const skyColours = { morning: '#ffc99b', day: '#a9dbe3', evening: '#ffb8d2', night: '#aaa5e8' };
   const paperColours = { morning: '#ffcfaa', day: '#cee4ec', evening: '#edb6d7', night: '#c2b6e8' };
+  // Each chapter keeps its colour family throughout the same solar cycle.
+  // The neutral cloud colour respects the role's lightness, especially cobalt.
+  const paletteColours = {
+    water: { morning: '#b9d7d4', day: '#a9dbe3', evening: '#b9cbdc', night: '#91bbc9', cloud: '#b9c3c8' },
+    acid: { morning: '#eef29a', day: '#e9ff64', evening: '#f4dd88', night: '#d0dd85', cloud: '#c9ccae' },
+    peach: { morning: '#ffc29b', day: '#ffb08b', evening: '#efa394', night: '#dfa592', cloud: '#c9b9b1' },
+    lavender: { morning: '#d5c4ef', day: '#c4b9ff', evening: '#cbb0e6', night: '#b2a5d7', cloud: '#bdbacb' },
+    rose: { morning: '#f5c1ce', day: '#ffb8d2', evening: '#efa8c2', night: '#dfa9c3', cloud: '#c9b8c0' },
+    cobalt: { morning: '#364ccf', day: '#234ce8', evening: '#4543c4', night: '#293b88', cloud: '#425173' },
+    paper: { morning: '#f6eee1', day: '#f4f3ee', evening: '#f4e7e8', night: '#e7e1ea', cloud: '#dde0e3' }
+  };
+  function mixColour(from, to, blend) {
+    return '#' + [1, 3, 5].map(offset => {
+      const a = parseInt(from.slice(offset, offset + 2), 16);
+      const b = parseInt(to.slice(offset, offset + 2), 16);
+      return Math.round(a + (b - a) * blend).toString(16).padStart(2, '0');
+    }).join('');
+  }
   function skyColour(colours, sunrise, sunset, now) {
     const day = sunset - sunrise;
     // A stylised light cycle anchored to the actual Moscow sunrise and sunset.
@@ -24,11 +42,7 @@
       const [start, from] = stops[index - 1];
       const progress = (now - start) / (end - start);
       const blend = progress * progress * (3 - 2 * progress);
-      return '#' + [1, 3, 5].map(offset => {
-        const a = parseInt(from.slice(offset, offset + 2), 16);
-        const b = parseInt(to.slice(offset, offset + 2), 16);
-        return Math.round(a + (b - a) * blend).toString(16).padStart(2, '0');
-      }).join('');
+      return mixColour(from, to, blend);
     }
     return colours.night;
   }
@@ -69,7 +83,9 @@
     const nextSunrise = days.map(day => day.sunrise).filter(time => Number.isFinite(time) && time > now).sort((a, b) => a - b)[0];
     const phase = night ? 'night' : progress < .12 ? 'morning' : progress > .85 ? 'evening' : 'day';
     return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night,
-      skyTint: skyColour(skyColours, sunrise, sunset, now), skyPaper: skyColour(paperColours, sunrise, sunset, now) };
+      skyTint: skyColour(skyColours, sunrise, sunset, now), skyPaper: skyColour(paperColours, sunrise, sunset, now),
+      palette: Object.fromEntries(Object.entries(paletteColours).map(([role, colours]) =>
+        [role, mixColour(skyColour(colours, sunrise, sunset, now), colours.cloud, current.cloud_area_fraction * .0018)])) };
   }
   function atmosphere(current) {
     if (!current) return null;
@@ -119,6 +135,7 @@
   const environment = root;
   const material = document.documentElement.style;
   const glassProperties = ['--weather-tint', '--weather-tint-share', '--weather-opacity', '--weather-blur', '--weather-saturation'];
+  const paletteProperties = Object.keys(paletteColours).map(role => `--${role}`);
   const deck = document.querySelector('.tarot-spread');
   const cards = deck ? [...deck.querySelectorAll('.tarot-card')] : [];
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -151,12 +168,13 @@
   function updateAtmosphere(current) {
     currentAtmosphere = atmosphere(current);
     if (!currentAtmosphere) {
-      glassProperties.forEach(property => material.removeProperty(property));
+      [...glassProperties, ...paletteProperties].forEach(property => material.removeProperty(property));
       stopBreeze();
       return;
     }
     const sky = currentAtmosphere;
     [sky.tint, `${sky.tintShare}%`, `${sky.opacity}%`, `${sky.blur}px`, sky.saturation].forEach((value, index) => material.setProperty(glassProperties[index], value));
+    Object.entries(current.palette).forEach(([role, colour]) => material.setProperty(`--${role}`, colour));
     playBreeze();
   }
   if (deck && typeof IntersectionObserver === 'function') {
