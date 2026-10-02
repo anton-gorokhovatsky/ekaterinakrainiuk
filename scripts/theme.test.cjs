@@ -17,6 +17,21 @@ function visit({ stored = null, dark = false, blocked = false, withControl = tru
   };
   const colors = [{ content: '' }, { content: '' }];
   const root = { dataset: {} };
+  const summary = {
+    label: '', focused: false,
+    setAttribute: (_, value) => { summary.label = value; },
+    focus: () => { summary.focused = true; },
+  };
+  const options = ['system', 'light', 'dark'].map(value => ({
+    value, checked: false,
+    addEventListener: (_, handler) => { events[value] = handler; },
+  }));
+  const picker = {
+    hidden: true, open: false,
+    querySelector: () => summary,
+    querySelectorAll: () => options,
+    contains: target => target === summary || options.includes(target),
+  };
   const media = {
     matches: dark,
     addEventListener: (_, handler) => { events.system = handler; },
@@ -26,11 +41,13 @@ function visit({ stored = null, dark = false, blocked = false, withControl = tru
     document: {
       documentElement: root,
       querySelectorAll: () => colors,
-      querySelector: () => withControl ? select : null,
+      querySelector: selector => withControl ? (selector === '#theme-choice' ? select : picker) : null,
       addEventListener: (name, handler) => { events[name] = handler; },
     },
     window: {
-      matchMedia: () => media,
+      matchMedia: query => query.includes('prefers-color-scheme') ? media : {
+        addEventListener: (_, handler) => { events.breakpoint = handler; },
+      },
       addEventListener: (name, handler) => { events[name] = handler; },
     },
     localStorage: {
@@ -39,9 +56,16 @@ function visit({ stored = null, dark = false, blocked = false, withControl = tru
     },
   });
   return {
-    root, select, control, colors, storage,
+    root, select, control, colors, storage, picker, summary, options,
     ready: () => events.DOMContentLoaded(),
     choose: (value) => { select.value = value; events.change(); },
+    chooseDesktop: value => {
+      options.forEach(option => { option.checked = option.value === value; });
+      events[value]();
+    },
+    leavePicker: (target, type = 'pointerdown') => events[type]({ target }),
+    escape: () => events.keydown({ key: 'Escape', preventDefault() {} }),
+    resize: () => events.breakpoint(),
     system: (value) => { media.matches = value; events.system(); },
     sync: (value, name = key) => events.storage({ key: name, newValue: value }),
   };
@@ -111,4 +135,41 @@ test('pages without a switch still apply the preference and follow system change
   page.ready();
   page.system(true);
   appearance(page, 'system', true);
+});
+
+test('desktop choices, mobile select and another tab keep one saved theme', () => {
+  const page = visit({ stored: 'dark' });
+  page.ready();
+  assert.equal(page.picker.hidden, false);
+  assert.equal(page.options.find(option => option.checked).value, 'dark');
+  page.chooseDesktop('light');
+  appearance(page, 'light', false);
+  assert.equal(page.select.value, 'light');
+  assert.equal(page.storage.get(key), 'light');
+  assert.equal(page.summary.label, 'Тема сайта: Светлая');
+  page.choose('system');
+  assert.equal(page.options.find(option => option.checked).value, 'system');
+  page.sync('dark');
+  assert.equal(page.options.find(option => option.checked).value, 'dark');
+  assert.equal(page.select.value, 'dark');
+});
+
+test('picker remains open while choosing, and closes on Escape, outside focus or layout change', () => {
+  const page = visit();
+  page.ready();
+  page.picker.open = true;
+  page.chooseDesktop('dark');
+  page.leavePicker(page.options[2]);
+  assert.equal(page.picker.open, true);
+  page.escape();
+  assert.equal(page.picker.open, false);
+  assert.equal(page.summary.focused, true);
+  for (const type of ['pointerdown', 'focusin']) {
+    page.picker.open = true;
+    page.leavePicker({}, type);
+    assert.equal(page.picker.open, false);
+  }
+  page.picker.open = true;
+  page.resize();
+  assert.equal(page.picker.open, false);
 });

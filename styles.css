@@ -139,8 +139,8 @@ summary::-webkit-details-marker { display: none; }
 .site-header { display: flex; align-items: center; gap: var(--space-6); justify-content: space-between; padding: var(--space-3) var(--pad); position: relative; isolation: isolate; }
 /* A single backdrop spans the header and measured menu, without a blur seam. */
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.site-header::before, .js .navigation.is-open { background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
-.site-header::before, .tarot-back-caption { transition: backdrop-filter 800ms ease, -webkit-backdrop-filter 800ms ease; }
+.site-header::before, .js .navigation.is-open, .theme-options { background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+.site-header::before, .tarot-back-caption, .theme-options { transition: backdrop-filter 800ms ease, -webkit-backdrop-filter 800ms ease; }
 .site-header[data-shared-glass]::before { bottom: calc(-1 * var(--menu-height, 0px)); }
 .site-header[data-shared-glass] .navigation.is-open { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .brand { display: flex; align-items: center; min-height: 2.75rem; flex: 0 0 auto; }
@@ -163,6 +163,24 @@ summary::-webkit-details-marker { display: none; }
 .theme-control label { color: var(--glass-muted); font-size: var(--text-label); }
 .theme-control select { color: var(--ink); background: transparent; border: 0; border-radius: 0; padding-block: var(--space-2); min-width: 0; max-width: 100%; min-height: 2.75rem; font-size: var(--text-small); }
 .theme-control option { color: var(--ink); background: var(--bg); }
+.theme-picker { display: none; }
+@media (min-width: 1001px) {
+  .nav-actions { flex-wrap: nowrap; gap: var(--space-3); }
+  .theme-control { display: none; }
+  .nav-contact { gap: var(--space-3); }
+  .theme-picker { display: block; position: relative; flex: 0 0 2.75rem; }
+  .theme-picker > summary { display: flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; color: var(--glass-muted); border-radius: 50%; transition: background-color 180ms ease; }
+  .theme-picker[open] > summary { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
+  .theme-picker > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  .theme-picker > summary:active { opacity: .65; }
+  .theme-options { position: absolute; top: calc(100% + var(--space-3)); right: 0; width: 12rem; padding: var(--space-3); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 var(--space-2) var(--space-6) #00000014; }
+  .theme-options fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .theme-options legend { padding: 0 var(--space-2) var(--space-2); font-size: var(--text-label); color: var(--muted); }
+  .theme-options label { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); min-height: 2.75rem; padding-inline: var(--space-2); font-size: var(--text-small); cursor: pointer; }
+  .theme-options input { flex: 0 0 auto; margin: 0; width: 1rem; height: 1rem; accent-color: var(--ink); cursor: pointer; }
+  .theme-options label:has(:checked) { font-weight: 600; }
+  .theme-options label:has(:focus-visible) { outline: 2px solid currentColor; outline-offset: -2px; }
+}
 .menu-toggle { display: none; }
 .hero { padding: var(--space-5) var(--pad) 0; }
 .hero-kicker { display: flex; justify-content: space-between; gap: var(--space-4); font-size: var(--text-label); }
@@ -246,7 +264,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .route-content p { max-width: 48ch; }
 /* Native height transitions keep links, keyboard controls and rapid reversals intact. */
 @supports (interpolate-size: allow-keywords) and (transition-behavior: allow-discrete) and selector(details::details-content) {
-  details::details-content {
+  details:not(.theme-picker)::details-content {
     interpolate-size: allow-keywords;
     display: flow-root;
     block-size: 0;
@@ -257,7 +275,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
       opacity var(--accordion-close) var(--ease-exit),
       content-visibility var(--accordion-close) allow-discrete;
   }
-  details[open]::details-content {
+  details[open]:not(.theme-picker)::details-content {
     block-size: auto;
     opacity: 1;
     transition:
@@ -516,6 +534,8 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .nav-main > a:hover .nav-label { text-decoration-color: currentColor; }
   .js .menu-toggle:hover [data-menu-label], .service > summary:hover h3, .result-details > summary:hover .result-entry-copy strong, .bio-details > summary:hover .disclosure-label, .daylight > summary:hover .disclosure-label { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
   .theme-control select:hover { box-shadow: inset 0 -1px currentColor; }
+  .theme-picker > summary:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
+  .theme-options label:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
   :is(.button, .nav-contact):not([aria-disabled="true"]):not(:disabled):hover { background: var(--action-hover-bg); color: var(--action-hover-ink); }
   .review-full > summary:hover { color: var(--ink); }
   .route:not([open]) > summary:hover { z-index: 1; background: var(--route-color); color: #101216; }
