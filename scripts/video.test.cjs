@@ -15,8 +15,9 @@ function visit({ mobile = false } = {}) {
       tagName: 'DIV', className: '', childNodes: [], parentNode: null,
       ...properties,
       addEventListener(name, callback) { listeners.set(name, callback); },
-      emit(name) { return listeners.get(name)?.(); },
+      emit(name, event) { return listeners.get(name)?.(event); },
       focus() { document.activeElement = this; },
+      scrollIntoView(options) { this.scrollRequest = options; },
       setAttribute(name, value) { this[name] = value; },
       get firstElementChild() { return this.childNodes[0]; },
       append(...nodes) {
@@ -53,6 +54,7 @@ function visit({ mobile = false } = {}) {
     const video = element({
       tagName: 'VIDEO', paused: true, ended: false, currentTime: 0,
       async play() {
+        this.playCalls = (this.playCalls || 0) + 1;
         if (this.failure) throw this.failure;
         this.ended = false;
         this.paused = false;
@@ -74,6 +76,7 @@ function visit({ mobile = false } = {}) {
       get tagName() { return roots[index].tagName; },
       get summary() { return roots[index].querySelector('summary'); },
       get open() { return roots[index].open; },
+      get scrollRequest() { return roots[index].scrollRequest; },
       set open(value) { roots[index].open = value; },
       emit(name) { return roots[index].emit(name); },
     };
@@ -133,19 +136,65 @@ test('failed starts remain retryable, while a cancelled start is not announced a
   }
 });
 
-test('on mobile, opening the second story stops and closes the first', async () => {
-  const { stories: [first, second] } = visit({ mobile: true });
+test('one mobile row activation opens and starts immediately, and switching stops the first story', async () => {
+  const { document, stories: [first, second] } = visit({ mobile: true });
   assert.equal(first.open, false);
   assert.equal(second.open, false);
-  first.open = true;
+  assert.equal(first.summary['aria-label'], 'Смотреть видео «Сразу после финиша»');
+  let prevented = 0;
+  const click = { preventDefault() { prevented++; } };
+  first.summary.focus();
+  const playing = first.summary.emit('click', click);
+  // play() must run before the event returns, not from a later toggle or timer.
+  assert.equal(first.open, true);
+  assert.equal(first.video.paused, false);
+  assert.equal(first.video.playCalls, 1);
+  assert.equal(first.scrollRequest.block, 'start');
+  assert.equal(document.activeElement, first.video);
+  assert.equal(first.summary['aria-label'], 'Свернуть видео «Сразу после финиша»');
+  await playing;
   first.emit('toggle');
-  await first.video.play();
-  second.open = true;
+  assert.equal(first.video.playCalls, 1);
   second.summary.focus();
+  await second.summary.emit('click', click);
   second.emit('toggle');
   assert.equal(first.video.paused, true);
   assert.equal(first.open, false);
   assert.equal(second.open, true);
+  assert.equal(second.video.paused, false);
+  assert.equal(second.video.playCalls, 1);
+  assert.equal(prevented, 2);
+  assert.equal(document.activeElement, second.video);
+});
+
+test('closing a mobile row pauses playback and reopening resumes with one activation', async () => {
+  const { stories: [first] } = visit({ mobile: true });
+  const click = { preventDefault() {} };
+  await first.summary.emit('click', click);
+  first.video.currentTime = 6;
+  await first.summary.emit('click', click);
+  assert.equal(first.open, false);
+  assert.equal(first.video.paused, true);
+  assert.equal(first.video.playCalls, 1);
+  assert.equal(first.summary['aria-label'], 'Продолжить видео «Сразу после финиша»');
+  await first.summary.emit('click', click);
+  assert.equal(first.video.paused, false);
+  assert.equal(first.video.currentTime, 6);
+  assert.equal(first.video.playCalls, 2);
+});
+
+test('a failed mobile start exposes the player and a working retry control', async () => {
+  const { stories: [first] } = visit({ mobile: true });
+  first.video.failure = { name: 'NotAllowedError' };
+  await first.summary.emit('click', { preventDefault() {} });
+  assert.equal(first.open, true);
+  assert.equal(first.video.paused, true);
+  assert.equal(first.button.hidden, false);
+  assert.equal(first.status.hidden, false);
+  delete first.video.failure;
+  await first.button.emit('click');
+  assert.equal(first.video.paused, false);
+  assert.equal(first.status.hidden, true);
 });
 
 test('collapsing a focused player at the mobile breakpoint preserves a visible focus target', async () => {
@@ -181,9 +230,7 @@ test('desktop stories are static figures and repeated resizing keeps the same wo
       assert.equal(story.tagName, 'DETAILS');
       assert.equal(story.open, false);
     }
-    stories[0].open = true;
-    stories[0].emit('toggle');
-    await stories[0].button.emit('click');
+    await stories[0].summary.emit('click', { preventDefault() {} });
     assert.equal(stories[0].video.paused, false);
     compact.matches = false;
     compact.emit('change');

@@ -11,8 +11,9 @@
     if (story.element.contains(document.activeElement) && document.activeElement !== summary) {
       summary.focus({ preventScroll: true });
     }
-    story.video.pause();
     story.element.open = false;
+    story.video.pause();
+    story.syncPlay();
   };
 
   stories.forEach(story => {
@@ -25,9 +26,12 @@
       const action = video.ended ? 'Смотреть заново' : video.currentTime > 0 ? 'Продолжить' : 'Смотреть';
       button.setAttribute('aria-label', `${action} видео «${title}»`);
       button.hidden = !video.paused && !video.ended;
+      const summary = story.element.querySelector('summary');
+      if (summary) summary.setAttribute('aria-label', `${story.element.open ? 'Свернуть' : action} видео «${title}»`);
     };
+    story.syncPlay = syncPlay;
 
-    button.addEventListener('click', async () => {
+    story.play = async () => {
       status.hidden = true;
       status.textContent = '';
       try {
@@ -40,12 +44,15 @@
           status.textContent = 'Не удалось запустить видео. Попробуйте ещё раз.';
         }
       }
-    });
+    };
+    button.addEventListener('click', story.play);
 
     video.addEventListener('play', () => {
       videos.forEach(other => { if (other !== video) other.pause(); });
       // Keep keyboard control when the poster button disappears.
-      if (document.activeElement === button) video.focus({ preventScroll: true });
+      if (document.activeElement === button || document.activeElement === story.element.querySelector('summary')) {
+        video.focus({ preventScroll: true });
+      }
       status.hidden = true;
       status.textContent = '';
       syncPlay();
@@ -73,12 +80,28 @@
       story.element = element;
 
       if (compact.matches) {
+        heading.addEventListener('click', event => {
+          event.preventDefault();
+          if (element.open) {
+            closeStory(story);
+            return;
+          }
+          stories.forEach(other => { if (other !== story) closeStory(other); });
+          element.open = true;
+          story.syncPlay();
+          // Start inside the tap/keyboard event, preserving mobile media permission.
+          const playing = story.play();
+          element.scrollIntoView({ block: 'start' });
+          return playing;
+        });
         element.addEventListener('toggle', () => {
           if (story.element !== element) return;
           if (!element.open) closeStory(story);
           else stories.forEach(other => { if (other !== story) closeStory(other); });
+          story.syncPlay();
         });
       }
+      story.syncPlay();
       // A collapsing mobile player returns focus to its summary. On desktop,
       // the caption is ordinary text, so focus goes to the visible play control.
       if (focused) {
