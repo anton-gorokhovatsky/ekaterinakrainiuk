@@ -33,9 +33,10 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=20261002-palette">
-  <link rel="stylesheet" href="styles.css?v=20261003-results">
+  <link rel="stylesheet" href="styles.css?v=20261003-controls">
   <link rel="stylesheet" href="tarot.css?v=20260927-actions">
-  <script src="script.js?v=20261003-composition" defer></script>
+  <script src="script.js?v=20261003-controls" defer></script>
+  <script src="video.js?v=20261003-controls" defer></script>
   <script src="tarot.js?v=20260928-scroll" defer></script>
   <script src="daylight.js?v=20261002-palette" defer></script>
 </head>
@@ -85,9 +86,9 @@
           <div class="theme-options">
             <fieldset>
               <legend>Тема сайта</legend>
-              <label><span>Как в системе</span><input type="radio" name="desktop-theme" value="system"></label>
-              <label><span>Светлая</span><input type="radio" name="desktop-theme" value="light"></label>
-              <label><span>Тёмная</span><input type="radio" name="desktop-theme" value="dark"></label>
+              <label><input class="sr-only" type="radio" name="desktop-theme" value="system"><span>Как в системе</span><svg class="theme-check" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20261003-controls#check"/></svg></label>
+              <label><input class="sr-only" type="radio" name="desktop-theme" value="light"><span>Светлая</span><svg class="theme-check" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20261003-controls#check"/></svg></label>
+              <label><input class="sr-only" type="radio" name="desktop-theme" value="dark"><span>Тёмная</span><svg class="theme-check" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20261003-controls#check"/></svg></label>
             </fieldset>
           </div>
         </details>
@@ -371,11 +372,15 @@
                 <span class="video-story-title" id="andrey-finish-caption"><span>Сразу после финиша</span><small>Видео · 0:16</small></span>
                 <span class="disclosure" aria-hidden="true"></span>
               </summary>
-              <video controls playsinline preload="none" poster="assets/images/andrey-filippov-finish.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-finish-caption">
-                <source src="assets/videos/andrey-filippov-finish.mp4" type="video/mp4">
-                <track kind="captions" src="assets/videos/andrey-filippov-finish.ru.vtt" srclang="ru" label="Русские" default>
-                <a href="assets/videos/andrey-filippov-finish.mp4">Смотреть первую сторис Андрея</a>
-              </video>
+              <div class="video-player">
+                <video id="andrey-finish-video" controls playsinline preload="none" poster="assets/images/andrey-filippov-finish.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-finish-caption">
+                  <source src="assets/videos/andrey-filippov-finish.mp4" type="video/mp4">
+                  <track kind="captions" src="assets/videos/andrey-filippov-finish.ru.vtt" srclang="ru" label="Русские" default>
+                  <a href="assets/videos/andrey-filippov-finish.mp4">Смотреть первую сторис Андрея</a>
+                </video>
+                <button class="video-play" type="button" aria-controls="andrey-finish-video" aria-label="Смотреть видео «Сразу после финиша»" hidden><span class="video-play-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20261003-controls#player-play"/></svg></span></button>
+              </div>
+              <p class="video-status" role="status" hidden></p>
             </details>
             <details class="video-story" open>
               <summary>
@@ -383,11 +388,15 @@
                 <span class="video-story-title" id="andrey-coaching-caption"><span>Как прошёл заплыв</span><small>Видео · 0:46</small></span>
                 <span class="disclosure" aria-hidden="true"></span>
               </summary>
-              <video controls playsinline preload="none" poster="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-coaching-caption">
-                <source src="assets/videos/andrey-filippov-coaching.mp4" type="video/mp4">
-                <track kind="captions" src="assets/videos/andrey-filippov-coaching.ru.vtt" srclang="ru" label="Русские" default>
-                <a href="assets/videos/andrey-filippov-coaching.mp4">Смотреть вторую сторис Андрея</a>
-              </video>
+              <div class="video-player">
+                <video id="andrey-coaching-video" controls playsinline preload="none" poster="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-coaching-caption">
+                  <source src="assets/videos/andrey-filippov-coaching.mp4" type="video/mp4">
+                  <track kind="captions" src="assets/videos/andrey-filippov-coaching.ru.vtt" srclang="ru" label="Русские" default>
+                  <a href="assets/videos/andrey-filippov-coaching.mp4">Смотреть вторую сторис Андрея</a>
+                </video>
+                <button class="video-play" type="button" aria-controls="andrey-coaching-video" aria-label="Смотреть видео «Как прошёл заплыв»" hidden><span class="video-play-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20261003-controls#player-play"/></svg></span></button>
+              </div>
+              <p class="video-status" role="status" hidden></p>
             </details>
           </div>
         </article>

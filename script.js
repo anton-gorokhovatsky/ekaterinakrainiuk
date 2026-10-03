@@ -4,31 +4,6 @@ const menuLabel = document.querySelector('[data-menu-label]');
 const headerShell = document.querySelector('.site-header-shell');
 const header = document.querySelector('.site-header');
 
-// Keep each original story independent, with only one soundtrack playing at a time.
-const reviewVideos = [...document.querySelectorAll('.video-story video')];
-reviewVideos.forEach(video => {
-  video.addEventListener('play', () => {
-    reviewVideos.forEach(other => { if (other !== video) other.pause(); });
-  });
-});
-
-// Compact mobile summaries keep both original stories in their author's review.
-const reviewStories = [...document.querySelectorAll('details.video-story')];
-const compactReviews = window.matchMedia('(max-width: 760px)');
-const syncReviewStories = () => {
-  reviewStories.forEach(story => { story.open = !compactReviews.matches; });
-};
-reviewStories.forEach(story => {
-  story.addEventListener('toggle', () => {
-    if (!story.open) story.querySelector('video')?.pause();
-    else if (compactReviews.matches) {
-      reviewStories.forEach(other => { if (other !== story) other.open = false; });
-    }
-  });
-});
-syncReviewStories();
-compactReviews.addEventListener('change', syncReviewStories);
-
 if (menuButton && navigation && headerShell) {
   const mobileLayout = window.matchMedia('(max-width: 1000px)');
   const pageRegions = document.querySelectorAll('.skip-link, main, footer');

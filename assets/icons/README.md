@@ -7,7 +7,8 @@ Tabler Icons, набор Outline, версия 3.48.0.
 - Лицензия MIT: `LICENSE-tabler.txt`.
 - `tabler.svg` содержит только используемые на сайте значки. ID символа совпадает с именем исходного SVG.
 - Геометрия путей сохранена. Размер, цвет и толщина линий задаются в CSS.
+- `play-glass-mask.svg` использует тот же путь `player-play` как прозрачный вырез в круге матового стекла; в режиме усиленного контраста возвращается обычный значок.
 - Для переменной облачности и облачности ночью используется значок `cloud`; точное состояние указано словами рядом.
 - Файлы загружаются с сайта локально, внешнего CDN и JavaScript-библиотеки нет.
 
-Состав: swimming, run, bike, mountain, compass, medal-2, world, star, sun, moon, cloud, cloud-rain, cloud-snow, cloud-fog, cloud-storm, arrow-back-up, arrows-shuffle, mood-smile, sparkles, barbell, wheel, yin-yang, route, arrow-up-right, arrow-up, arrow-down, arrow-right.
+Состав: swimming, run, bike, mountain, compass, medal-2, world, star, sun, moon, cloud, cloud-rain, cloud-snow, cloud-fog, cloud-storm, arrow-back-up, arrows-shuffle, mood-smile, sparkles, barbell, wheel, yin-yang, route, arrow-up-right, arrow-up, arrow-down, arrow-right, player-play, check.
