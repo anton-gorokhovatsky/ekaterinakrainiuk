@@ -383,7 +383,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
   .coach-bio { grid-column: 1 / span 7; grid-row: 4; max-width: 60ch; }
 }
 .bio-details { margin-top: var(--space-6); }
-.bio-details > summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-3) 0; }
+.bio-details > summary { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) 0; }
 .bio-details .disclosure, .daylight .disclosure { width: 1.1rem; height: 1.1rem; }
 .bio-details p { margin-top: var(--space-4); }
 .training { padding: var(--section-space) var(--pad); display: grid; grid-template-columns: var(--grid); gap: var(--space-12) var(--gap); align-items: start; }
@@ -404,13 +404,8 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .training-proof > p { max-width: 34ch; font-size: var(--text-small); }
 .training-proof .text-link { font-size: var(--text-small); }
 .training-group-title { font-size: var(--text-ui-title); line-height: var(--leading-heading); font-weight: 600; }
-.training-options > .training-group-title { margin-bottom: var(--space-5); }
-.training-extra { border-top: 1px solid var(--line); margin-top: var(--space-5); }
-/* Nested disclosures keep their focus and hover marks outside the text column. */
-.training-extra::details-content { overflow-clip-margin: var(--space-2); }
-.training-extra > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 1rem; align-items: center; gap: var(--space-4); padding-block: var(--space-6); }
-.training-extra-price { white-space: nowrap; font-size: var(--text-small); color: var(--muted); }
-.training-extra > summary .disclosure { width: 1rem; height: 1rem; }
+.training-options > .training-group-title, .training-extra > .training-group-title { margin-bottom: var(--space-5); }
+.training-extra { border-top: 1px solid var(--line); margin-top: var(--space-5); padding-top: var(--space-6); }
 .service { --service-gap: var(--space-4); }
 .service > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 1rem; gap: var(--space-2) var(--service-gap); align-items: first baseline; padding: var(--space-5) 0; }
 .services > .service:first-child > summary { padding-top: 0; }
@@ -444,8 +439,8 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-review-copy .video-review-note { margin-top: 0; color: var(--muted); }
 .video-stories { grid-column: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
 .video-story { min-width: 0; }
-.video-story > summary { display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
-.video-story > summary > img { display: none; }
+.video-story > :is(figcaption, summary) { display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
+.video-story > :is(figcaption, summary) > img, .video-story > figcaption .disclosure { display: none; }
 .video-story-title { flex: 1; min-width: 0; display: grid; gap: var(--space-1); }
 .video-story-title > span { min-block-size: calc(2em * var(--leading-small)); }
 .video-story-title small { color: var(--muted); font-size: inherit; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -527,7 +522,7 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .button .link-icon { width: 1.25rem; height: 1.25rem; }
 .contact-links { grid-column: 8 / -1; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); font-size: var(--text-small); }
 .contact-links a { min-height: 2.75rem; }
-.channel-note { display: grid; grid-template-columns: var(--grid); gap: var(--space-6) var(--gap); align-items: start; margin-inline: var(--pad); padding-block: var(--space-12); border-top: 1px solid var(--line); }
+.channel-note { display: grid; grid-template-columns: var(--grid); gap: var(--space-6) var(--gap); align-items: start; margin-inline: var(--pad); padding-block: var(--space-12); }
 .channel-photo { grid-column: 1 / span 2; width: 100%; max-width: 20rem; aspect-ratio: 1; object-fit: contain; }
 .channel-heading { grid-column: 3 / span 5; }
 .channel-kicker { display: inline-block; padding: var(--space-1) var(--space-2); margin-bottom: var(--space-4); background: var(--acid); color: #101216; font-size: var(--text-label); line-height: var(--leading-small); }
@@ -631,7 +626,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .footer-top:hover > .link-icon { translate: 0 -2px; }
   .hero-training:hover > .link-icon, .portal:hover .link-icon, .hero-after > a:hover .link-icon { translate: 0 2px; }
   .nav-main > a:hover .nav-label { text-decoration-color: currentColor; }
-  .js .menu-toggle:hover [data-menu-label], .service > summary:hover .service-title, .training-extra > summary:hover .training-group-title, .video-story > summary:hover .video-story-title > span, .bio-details > summary:hover .disclosure-label, .daylight > summary:hover .disclosure-label { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
+  .js .menu-toggle:hover [data-menu-label], .service > summary:hover .service-title, .video-story > summary:hover .video-story-title > span, .bio-details > summary:hover .disclosure-label, .daylight > summary:hover .disclosure-label { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
   .theme-control select:hover { box-shadow: inset 0 -1px currentColor; }
   .theme-picker > summary:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
   .theme-options label:not(:has(:checked)):hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
@@ -787,9 +782,6 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .training-program-body { grid-template-columns: minmax(0, 1fr); }
   .training-program-body .button { width: 100%; }
   .training-proof { padding-block: var(--space-6); border-bottom: 1px solid var(--line); }
-  .training-extra > summary { grid-template-columns: minmax(0, 1fr) 1rem; gap: var(--space-2) var(--space-3); }
-  .training-extra-price { grid-column: 1; grid-row: 2; }
-  .training-extra > summary .disclosure { grid-column: 2; grid-row: 1; }
   .training-heading h2 { font-size: var(--text-title); margin-block: var(--space-4); }
   .training-heading h2 br { display: block; }
   .training-heading > p { max-width: none; }
