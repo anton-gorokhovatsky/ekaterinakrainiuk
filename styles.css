@@ -400,11 +400,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .training-program-body .button { margin-top: var(--space-6); }
 .training-program-body > img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
 .training-proof { grid-column: 1 / span 4; grid-row: 2; margin: 0; padding-top: var(--space-6); border-top: 1px solid var(--line); }
-.training-proof figcaption { display: grid; gap: var(--space-1); font-size: var(--text-small); }
-.training-proof figcaption strong { font-weight: 600; }
-.training-proof figcaption span { color: var(--muted); font-size: var(--text-label); }
-.training-proof-result { margin-top: var(--space-4); font-size: var(--text-small); }
-.training-proof blockquote { margin: var(--space-5) 0 var(--space-3); max-width: 26ch; font-size: var(--text-ui-title); line-height: var(--leading-lead); }
+.training-proof > p { max-width: 34ch; font-size: var(--text-small); }
 .training-proof .text-link { font-size: var(--text-small); }
 .training-group-title { font-size: var(--text-ui-title); line-height: var(--leading-heading); font-weight: 600; }
 .training-options > .training-group-title { margin-bottom: var(--space-5); }
@@ -794,7 +790,6 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .training-program-body { grid-template-columns: minmax(0, 1fr); }
   .training-program-body .button { width: 100%; }
   .training-proof { padding-block: var(--space-6); border-bottom: 1px solid var(--line); }
-  .training-proof blockquote { max-width: none; }
   .training-extra > summary { grid-template-columns: minmax(0, 1fr) 1rem; gap: var(--space-2) var(--space-3); }
   .training-extra-price { grid-column: 1; grid-row: 2; }
   .training-extra > summary .disclosure { grid-column: 2; grid-row: 1; }
