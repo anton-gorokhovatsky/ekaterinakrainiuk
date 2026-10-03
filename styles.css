@@ -151,8 +151,8 @@ summary::-webkit-details-marker { display: none; }
 .site-header { display: flex; align-items: center; gap: var(--space-6); justify-content: space-between; padding: var(--space-3) var(--pad); position: relative; isolation: isolate; }
 /* A single backdrop spans the header and measured menu, without a blur seam. */
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.site-header::before, .js .navigation.is-open, .theme-options { background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
-.site-header::before, .tarot-back-caption, .theme-options { transition: backdrop-filter 800ms ease, -webkit-backdrop-filter 800ms ease; }
+.site-header::before, .js .navigation.is-open, .theme-options::before { background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+.site-header::before, .tarot-back-caption, .theme-options::before { transition: backdrop-filter 800ms ease, -webkit-backdrop-filter 800ms ease; }
 .js body:not(.menu-open) .site-header:not([data-scrolled])::before { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .site-header[data-shared-glass]::before { bottom: calc(-1 * var(--menu-height, 0px)); }
 .site-header[data-shared-glass] .navigation.is-open { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
@@ -186,12 +186,14 @@ summary::-webkit-details-marker { display: none; }
   .theme-picker[open] > summary { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
   .theme-picker > summary:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
   .theme-picker > summary:active { opacity: .65; }
-  .theme-options { position: absolute; top: calc(100% + var(--space-2)); right: 0; width: 13rem; padding: var(--space-2); color: var(--ink); border-radius: var(--space-4); box-shadow: 0 var(--space-2) var(--space-8) #00000024; }
+  .theme-options { --smooth-corner: var(--space-4); position: absolute; isolation: isolate; top: calc(100% + var(--space-2)); right: 0; width: 13rem; padding: var(--space-2); color: var(--ink); border-radius: var(--smooth-corner); corner-shape: squircle; box-shadow: 0 var(--space-2) var(--space-8) #00000024; }
+  .theme-options::before, .theme-options label::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; corner-shape: squircle; }
   .theme-options fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
   .theme-options legend { padding: var(--space-2) var(--space-3); font-size: var(--text-label); color: var(--glass-muted); }
-  .theme-options label { position: relative; display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); min-height: 2.75rem; padding: var(--space-2) var(--space-3); border-radius: var(--space-2); font-size: var(--text-small); cursor: pointer; }
+  .theme-options label { --smooth-corner: var(--space-2); --option-fill: transparent; position: relative; isolation: isolate; display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); min-height: 2.75rem; padding: var(--space-2) var(--space-3); border-radius: var(--smooth-corner); corner-shape: squircle; font-size: var(--text-small); cursor: pointer; }
+  .theme-options label::before { background: var(--option-fill); }
   .theme-check { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; stroke-width: 2; visibility: hidden; }
-  .theme-options label:has(:checked) { color: var(--action-ink); background: var(--action-bg); font-weight: 600; }
+  .theme-options label:has(:checked) { --option-fill: var(--action-bg); color: var(--action-ink); font-weight: 600; }
   .theme-options :checked ~ .theme-check { visibility: visible; }
   .theme-options label:has(:focus-visible) { outline: 2px solid currentColor; outline-offset: -3px; }
 }
@@ -639,7 +641,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .js .menu-toggle:hover [data-menu-label], .service > summary:hover .service-title, .video-story > summary:hover .video-story-title > span, .bio-details > summary:hover .disclosure-label, .daylight > summary:hover .disclosure-label { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
   .theme-control select:hover { box-shadow: inset 0 -1px currentColor; }
   .theme-picker > summary:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
-  .theme-options label:not(:has(:checked)):hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+  .theme-options label:not(:has(:checked)):hover { --option-fill: color-mix(in srgb, var(--ink) 6%, transparent); }
   .video-play:hover .video-play-icon { transform: scale(1.06); }
   :is(.button, .nav-contact):not([aria-disabled="true"]):not(:disabled):hover { background: var(--action-hover-bg); color: var(--action-hover-ink); }
   .review-full > summary:hover { color: var(--ink); }
@@ -867,7 +869,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
 /* Match the smooth corner construction already used for the Tarot surfaces.
    Only the background is masked; quotation marks and focus remain unclipped. */
 @supports not (corner-shape: squircle) {
-  .review-card::before {
+  .review-card::before, .theme-options::before, .theme-options label::before {
     border-radius: 0;
     --corner-tile: calc(2 * var(--smooth-corner));
     mask:
