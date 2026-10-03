@@ -842,9 +842,9 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .contact-main { margin-top: var(--space-2); }
   .contact-links { gap: var(--space-1) var(--space-5); font-size: var(--text-small); }
   .channel-note { padding-block: var(--space-8); }
-  .channel-link { grid-template-columns: 4rem minmax(0, 1fr); gap: var(--space-4); }
+  .channel-link { grid-template-columns: clamp(5rem, 25vw, 6rem) minmax(0, 1fr); gap: var(--space-4); }
   .channel-photo { grid-column: 1; grid-row: 1; align-self: center; }
-  .channel-heading { grid-column: 2; grid-row: 1; }
+  .channel-heading { grid-column: 2; grid-row: 1; align-self: center; }
   .channel-kicker { padding: 0; margin-bottom: var(--space-2); background: transparent; color: var(--muted); }
   .channel-heading h2 { font-size: var(--text-ui-title); }
   .channel-copy { grid-column: 1 / -1; grid-row: 2; }
