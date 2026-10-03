@@ -443,10 +443,10 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 /* The poster is one large target; the native control strip stays unobstructed. */
 .video-play { position: absolute; inset: 0 0 var(--space-16); display: grid; place-items: center; width: 100%; padding: var(--space-16) 0 0; border: 0; border-radius: 0; background: transparent; color: var(--action-ink); }
 .video-play-icon { position: relative; display: grid; place-items: center; width: var(--space-16); height: var(--space-16); border-radius: 50%; background: var(--play-fill); -webkit-backdrop-filter: var(--play-filter); backdrop-filter: var(--play-filter); box-shadow: 0 2px 16px #0002; transition: transform 180ms var(--ease-enter); }
-.video-play-icon svg { stroke-width: 2; }
+.video-play-icon svg { stroke-width: 2; transform: translateX(1px); }
 @supports (mask-image: url("assets/icons/play-glass-mask.svg")) or (-webkit-mask-image: url("assets/icons/play-glass-mask.svg")) {
   .video-play-icon { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .video-play-icon::before { content: ""; position: absolute; inset: 0; background: var(--play-fill); -webkit-backdrop-filter: var(--play-filter); backdrop-filter: var(--play-filter); -webkit-mask: url("assets/icons/play-glass-mask.svg") center / contain no-repeat; mask: url("assets/icons/play-glass-mask.svg") center / contain no-repeat; }
+  .video-play-icon::before { content: ""; position: absolute; inset: 0; background: var(--play-fill); -webkit-backdrop-filter: var(--play-filter); backdrop-filter: var(--play-filter); -webkit-mask: url("assets/icons/play-glass-mask.svg?v=20261003-optical") center / contain no-repeat; mask: url("assets/icons/play-glass-mask.svg?v=20261003-optical") center / contain no-repeat; }
   .video-play-icon svg { visibility: hidden; }
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
