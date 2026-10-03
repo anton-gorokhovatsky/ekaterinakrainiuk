@@ -12,12 +12,13 @@
   --button-ink: #101216;
   --button-hover: color-mix(in srgb, var(--acid) 90%, #101216);
   --control-line: #787e70;
-  --contact-bg: var(--acid);
+  --contact-bg: var(--acid-base);
   --contact-ink: #101216;
   --contact-muted: #3f472b;
   --rose: #ffb8d2;
   --paper: #f4f3ee;
-  --acid: #e9ff64;
+  --acid-base: #e9ff64;
+  --acid: var(--acid-base);
   --cobalt: #234ce8;
   --water: #a9dbe3;
   --peach: #ffb08b;
@@ -55,6 +56,7 @@
    Without a fresh weather observation, both colours stay at the theme baseline. */
 @supports (background: color-mix(in srgb, white, black)) {
   :root {
+    --contact-bg: color-mix(in srgb, var(--acid) 35%, var(--acid-base));
     --bg: color-mix(in srgb, var(--bg-base), var(--weather-tint, var(--bg-base)) calc(var(--weather-tint-share, 0%) * .5));
     --surface: color-mix(in srgb, var(--surface-base), var(--weather-tint, var(--surface-base)) calc(var(--weather-tint-share, 0%) * .5));
   }
