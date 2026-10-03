@@ -207,7 +207,8 @@ summary::-webkit-details-marker { display: none; }
 .hero-training { display: none; min-height: 2.75rem; font-size: var(--text-small); font-weight: 500; }
 .portals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2); transition: grid-template-columns 500ms cubic-bezier(.2,.65,.2,1); }
 .portal { position: relative; display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: #252b2a; min-height: clamp(25rem, 39vw, 42rem); overflow: clip; isolation: isolate; padding: var(--space-5) var(--space-5); }
-.portal::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, #0008 0%, transparent 28%, #0001 45%, #0009 100%); }
+/* Protect both text areas even when the crop contains white sky or clothing. */
+.portal::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, rgb(0 0 0 / .64) 0, rgb(0 0 0 / .48) 10rem, transparent calc(10rem + 30%)), linear-gradient(0deg, rgb(0 0 0 / .64) 0, rgb(0 0 0 / .58) 3rem, transparent 45%); }
 .portal img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform 700ms cubic-bezier(.2,.65,.2,1); }
 .portal-water img { object-position: 54% center; }
 .portal-ride img { object-position: 100% center; }
@@ -359,6 +360,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .coach-bottom { display: grid; grid-template-columns: var(--grid); gap: var(--gap); align-items: first baseline; padding-top: var(--space-8); }
 .coach-lead { grid-column: 1 / span 7; font-size: var(--text-lead); line-height: var(--leading-lead); max-width: 31ch; }
 .coach-bio { grid-column: 8 / -1; max-width: 48ch; font-size: var(--text-body); }
+.coach-bio > p + p { margin-top: var(--space-4); }
 /* Keep the story and its evidence together as the desktop canvas grows. */
 @media (min-width: 761px) {
   @supports (font-size: 1cqw) {
@@ -445,6 +447,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-review-copy > p { max-width: 43ch; margin-top: var(--space-6); font-size: var(--text-small); }
 .video-review-copy blockquote { margin: var(--space-6) 0; font-size: var(--text-quote); line-height: var(--leading-lead); }
 .video-review-copy .video-review-note { margin-top: 0; color: var(--muted); }
+.review-source { display: inline-block; margin-top: var(--space-2); font-size: var(--text-label); }
 .video-stories { grid-column: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
 .video-story { min-width: 0; }
 .video-story > :is(figcaption, summary) { display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
@@ -488,6 +491,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .review-person img, .testimonial figcaption img { width: 3rem; height: 3rem; flex: 0 0 auto; object-fit: cover; border-radius: 50%; }
 .review-context, .testimonial small { display: block; font-size: var(--text-label); line-height: var(--leading-small); color: var(--muted); }
 .review-context { margin-top: var(--space-1); }
+.age-group { white-space: nowrap; }
 .result-story-label { margin-block: var(--space-6) var(--space-4); font-size: var(--text-small); }
 .result-entry-times { display: grid; grid-template-columns: auto 1.4rem auto; grid-template-rows: auto auto; align-items: center; justify-content: start; gap: var(--space-1) var(--space-3); font: 700 var(--text-result)/var(--leading-heading) var(--display); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .result-entry-metric { display: contents; }
@@ -497,15 +501,17 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .result-entry-metric > span { grid-row: 2; }
 .result-entry-arrow { grid-column: 2; grid-row: 2; color: var(--muted); }
 .result-records { margin-top: var(--space-6); }
+.result-records td { white-space: nowrap; }
 .table-scroll { overflow-x: auto; }
 .table-scroll:focus-visible { background: color-mix(in srgb, var(--ink) 7%, var(--bg)); }
 .table-scroll:focus-visible caption { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
 @media (forced-colors: active) { .table-scroll:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; } }
-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+table { border-collapse: collapse; width: 100%; table-layout: auto; }
 caption { text-align: left; padding-bottom: var(--space-3); font-size: var(--text-small); }
 th, td { text-align: left; padding: var(--space-2) var(--space-1); border-bottom: 1px solid var(--line); font-weight: 400; }
 thead { font-size: var(--text-label); color: var(--muted); }
-th:first-child { width: 22%; padding-left: 0; }
+th:first-child { padding-left: 0; }
+td:last-child, th:last-child { padding-right: 0; }
 tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .record-latest :is(th, td) { font-weight: 600; }
 .record-note { color: var(--muted); }
@@ -746,7 +752,6 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .portal img { object-position: 50% 45%; }
   .portal-ride img { object-position: 50% 40%; }
   .portal-run img { object-position: 50% 12%; }
-  .portal::after { background: linear-gradient(90deg,#0007,transparent 70%),linear-gradient(0deg,#0007,transparent 45%); }
   .portal-verb { font-size: 14vw; margin-top: var(--space-3); padding-bottom: .1em; }
   .portal-bottom { font-size: var(--text-label); padding-top: var(--space-2); }
   .portal-index { font-size: var(--text-label); }
