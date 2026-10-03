@@ -19,6 +19,10 @@
 - `assets/icons/` — пиктограммы Tabler Outline и их MIT-лицензия.
 - `assets/favicon.svg` — веер из трёх карт в цветах сайта. PNG 16 и 32 px служат запасными вариантами, 180 px — иконкой домашнего экрана.
 - `docs/content-sources.md` — источники контента и редакционные решения.
+- [docs/ux-rules.md](docs/ux-rules.md) — 32 обязательных правила UX для проектирования, реализации и приёмки; закреплены в `AGENTS.md`.
+- [docs/nng-sources.md](docs/nng-sources.md) — 37 первоисточников NN/g, пояснения W3C и границы применения рекомендаций.
+- [docs/ux-review-checklist.md](docs/ux-review-checklist.md) — проверка конкретной правки, сценарии и требования к свидетельствам результата.
+- [docs/design-direction.md](docs/design-direction.md) — принятые решения композиции, типографики, материалов и взаимодействия.
 - `docs/usability-checks.md` — изменения выбора формата, проверки Safari и границы приёмки доступности.
 - `docs/image-sources.json` — соответствие фотографий оригиналам.
 - `assets/images/share-card-v5.png` — карточка для шера, 1200 × 630: приглашение «Ну что, погнали?», Golos Text и три фотографии с обложки. Ссылка и описание изображения заданы в Open Graph и Twitter Card в `index.html`.
@@ -41,13 +45,14 @@ python3 -m http.server 4177 --bind 127.0.0.1
 python3 scripts/check_static.py
 node --check script.js
 node --check theme.js
+node --check video.js
 node --check tarot.js
 node --check daylight.js
 node --test scripts/*.test.cjs
 git diff --check
 ```
 
-GitHub Pages настроен на ветку `main`, папку `/`. `.nojekyll` отключает обработку Jekyll. После отправки изменений GitHub публикует статические файлы. Проверка `Static checks` дополнительно запускается в Actions; перед отправкой нужно также просмотреть изменённый экран в браузере.
+GitHub Pages настроен на ветку `main`, папку `/`. `.nojekyll` отключает обработку Jekyll. После отправки изменений GitHub публикует статические файлы. Проверка `Static checks` дополнительно запускается в Actions; перед отправкой нужно также просмотреть изменённый экран в браузере и пройти применимые пункты [UX-чеклиста](docs/ux-review-checklist.md). Автоматические проверки не заменяют просмотр композиции и взаимодействия.
 
 Фотографии, отзывы и цены перенесены из предоставленных источников. При обновлении услуг меняйте текст непосредственно в HTML. Дополнительной синхронизации с Тильдой или Instagram нет.
 
