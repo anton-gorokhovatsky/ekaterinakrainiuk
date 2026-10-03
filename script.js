@@ -4,6 +4,14 @@ const menuLabel = document.querySelector('[data-menu-label]');
 const headerShell = document.querySelector('.site-header-shell');
 const header = document.querySelector('.site-header');
 
+// Keep each original story independent, with only one soundtrack playing at a time.
+const reviewVideos = [...document.querySelectorAll('.video-story video')];
+reviewVideos.forEach(video => {
+  video.addEventListener('play', () => {
+    reviewVideos.forEach(other => { if (other !== video) other.pause(); });
+  });
+});
+
 if (menuButton && navigation && headerShell) {
   const mobileLayout = window.matchMedia('(max-width: 1000px)');
   const pageRegions = document.querySelectorAll('.skip-link, main, footer');

@@ -47,7 +47,7 @@ class Page(HTMLParser):
             for key in ('alt', 'width', 'height'):
                 if key not in attrs:
                     errors.append(f'{self.path.name}: image missing {key}')
-        for key in ('href', 'src'):
+        for key in ('href', 'src', 'poster'):
             value = attrs.get(key)
             if value is not None:
                 self.check_reference(value)

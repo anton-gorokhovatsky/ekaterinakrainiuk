@@ -33,9 +33,9 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=20261002-palette">
-  <link rel="stylesheet" href="styles.css?v=20261002-shared-ground">
+  <link rel="stylesheet" href="styles.css?v=20261003-stories">
   <link rel="stylesheet" href="tarot.css?v=20260927-actions">
-  <script src="script.js?v=20261002-shared-ground" defer></script>
+  <script src="script.js?v=20261003-stories" defer></script>
   <script src="tarot.js?v=20260928-scroll" defer></script>
   <script src="daylight.js?v=20261002-palette" defer></script>
 </head>
@@ -352,7 +352,36 @@
 <span class="eyebrow">Слова спортсменов</span>
 <h2 id="results-title">Получается.</h2>
 <p>И в цифрах, и в ощущениях.</p>
-</div>      <div class="testimonials">
+</div>
+      <article class="video-review" id="andrey-review" aria-labelledby="andrey-review-title">
+        <div class="video-review-copy">
+          <span class="eyebrow">После финиша</span>
+          <h3 id="andrey-review-title">Андрей Филиппов</h3>
+          <a class="text-link link" href="https://www.instagram.com/phil.philippov/"><span class="link-label">@phil.philippov</span></a>
+          <blockquote><p><span class="quote-open">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга».</p></blockquote>
+          <p>Первое место в группе М20–29 на миле SWIMSTAR в Сириусе. Результат — 29:59.</p>
+          <p class="video-review-note">В двух сторис Андрей делится эмоциями и рассказывает, как прошёл заплыв по нашему плану.</p>
+        </div>
+        <div class="video-stories">
+          <figure class="video-story">
+            <figcaption id="andrey-finish-caption"><span>01 · Сразу после финиша</span><span>0:16</span></figcaption>
+            <video controls playsinline preload="none" poster="assets/images/andrey-filippov-finish.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-finish-caption">
+              <source src="assets/videos/andrey-filippov-finish.mp4" type="video/mp4">
+              <track kind="captions" src="assets/videos/andrey-filippov-finish.ru.vtt" srclang="ru" label="Русские" default>
+              <a href="assets/videos/andrey-filippov-finish.mp4">Смотреть первую сторис Андрея</a>
+            </video>
+          </figure>
+          <figure class="video-story">
+            <figcaption id="andrey-coaching-caption"><span>02 · Как прошёл заплыв</span><span>0:46</span></figcaption>
+            <video controls playsinline preload="none" poster="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-coaching-caption">
+              <source src="assets/videos/andrey-filippov-coaching.mp4" type="video/mp4">
+              <track kind="captions" src="assets/videos/andrey-filippov-coaching.ru.vtt" srclang="ru" label="Русские" default>
+              <a href="assets/videos/andrey-filippov-coaching.mp4">Смотреть вторую сторис Андрея</a>
+            </video>
+          </figure>
+        </div>
+      </article>
+      <div class="testimonials">
         <figure class="testimonial testimonial-wide"><blockquote><p>«Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!»</p></blockquote><figcaption><img src="assets/images/alexander.webp" width="366" height="400" loading="lazy" decoding="async" alt=""><span>Александр<small>О подготовке и поддержке</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь отзыв</span><span class="review-collapse">Свернуть отзыв</span></summary><p>Хочется подвести какой-то итог году и сказать тебе спасибо. Потому что прям всё хорошо, даже с учетом моей лени и халтуры, все запланированные важные старты вполне удались. И из самого конца списка участников я уверенно переполз в середину, и даже есть удовлетворение — начало что-то получаться! Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!</p></details></figure>
         <div class="testimonials-aside">
         <figure class="testimonial"><blockquote><p>«Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))»</p></blockquote><figcaption><img src="assets/images/denis.webp" width="400" height="400" loading="lazy" decoding="async" alt=""><span>Денис<small>О прогрессе в тренировках</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь разговор</span><span class="review-collapse">Свернуть разговор</span></summary><p>— Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))<br>— Только спросить хотела по ощущениям как тебе, стало посильнее?<br>— Да, сто процентов. Ну и запас какой-то всё равно чувствуется. Думал, что all out ехал, но в конце даже немного осталось сил придавить.</p></details></figure>
@@ -393,6 +422,16 @@
           <a href="https://www.strava.com/athletes/26974925" class="link"><span class="link-label">Strava</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
         </div>
       </div>
+      <aside class="channel-note" aria-labelledby="channel-title">
+        <div class="channel-heading">
+          <span class="eyebrow">Мой Telegram-канал</span>
+          <h3 id="channel-title">Веселей, малыш,<br>будем танцевать</h3>
+        </div>
+        <div class="channel-copy">
+          <p>Пишу о своих тренировках, стартах и поездках. Делюсь тем, что получается, что даётся непросто и что хочется попробовать.</p>
+          <a class="text-link link" href="https://t.me/ekatyulyaslife"><span class="link-label">Читать канал</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
+        </div>
+      </aside>
     </section>
     <div class="livebar">
       <details class="daylight" id="daylight">
