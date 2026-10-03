@@ -33,9 +33,9 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=20261002-palette">
-  <link rel="stylesheet" href="styles.css?v=20261003-optical">
+  <link rel="stylesheet" href="styles.css?v=20261003-training">
   <link rel="stylesheet" href="tarot.css?v=20260927-actions">
-  <script src="script.js?v=20261003-controls" defer></script>
+  <script src="script.js?v=20261003-training" defer></script>
   <script src="video.js?v=20261003-controls" defer></script>
   <script src="tarot.js?v=20260928-scroll" defer></script>
   <script src="daylight.js?v=20261002-palette" defer></script>
@@ -312,43 +312,69 @@
     </section>
 
     <section class="training" id="training" aria-labelledby="training-title" tabindex="-1">
-<div class="training-heading">
-<span class="eyebrow">Теперь к делу</span>
-<h2 id="training-title">Как<br>начнём?</h2>
-<p>Лично, онлайн или вместе с командой. Выберите, какая помощь нужна сейчас.</p>
-</div>
-<div class="training-list">      <div class="services">
+      <div class="training-heading">
+        <span class="eyebrow">Теперь к делу</span>
+        <h2 id="training-title">Как<br>начнём?</h2>
+        <p>Лично, онлайн или вместе с командой. Выберите, какая помощь нужна сейчас.</p>
+      </div>
+      <article class="training-program" aria-labelledby="program-title">
+        <p class="eyebrow">Регулярный план и поддержка</p>
+        <div class="training-program-heading">
+          <h3 id="program-title">Онлайн-сопровождение</h3>
+          <p class="service-price">16 000 ₽ <small>/ месяц</small></p>
+        </div>
+        <div class="training-program-body">
+          <div>
+            <p>Индивидуальный план в TrainingPeaks или Intervals: учитываю ваши цели, привычный ритм жизни и время на тренировки.</p>
+            <p>По ходу подготовки корректирую нагрузку, отвечаю на вопросы и помогаю разобраться с трудностями.</p>
+            <a class="button button-primary" href="https://t.me/ekatyulya"><span class="link-label">Обсудить сопровождение</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
+          </div>
+          <img src="assets/images/training-plan.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Индивидуальный тренировочный план на экране ноутбука">
+        </div>
+      </article>
+      <figure class="training-proof">
+        <figcaption><strong>Андрей Филиппов</strong><span>После мили SWIMSTAR в Сириусе</span></figcaption>
+        <p class="training-proof-result"><strong>1-е место</strong> в группе М20–29.<br>Результат — <strong>29:59.</strong></p>
+        <blockquote><p class="hanging-text"><span class="hanging-mark">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга».</p></blockquote>
+        <a class="text-link link" href="#andrey-review"><span class="link-label">История и видео Андрея</span></a>
+      </figure>
+      <div class="training-list">
+        <section class="training-options" aria-labelledby="training-options-title">
+          <h3 class="training-group-title" id="training-options-title">Занятия и консультации</h3>
+          <div class="services">
         <details class="service">
-          <summary><span class="service-number">01</span><h3>Онлайн-сопровождение</h3><span class="service-purpose">Регулярный план и поддержка</span><span class="service-price">16 000 ₽ <small>/ месяц</small></span><span class="disclosure" aria-hidden="true"></span></summary>
-          <div class="service-body"><img src="assets/images/training-plan.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Индивидуальный тренировочный план на экране ноутбука"><div><p>Индивидуальный план в TrainingPeaks или Intervals: учитываю ваши цели, привычный ритм жизни и время на тренировки. По ходу подготовки корректирую нагрузку, отвечаю на вопросы и помогаю разобраться с трудностями.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Обсудить сопровождение</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
-        </details>
-        <details class="service">
-          <summary><span class="service-number">02</span><h3>Персональная тренировка</h3><span class="service-purpose">Техника и упражнения вместе с тренером</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><h4 class="service-title">Персональная тренировка</h4><span class="service-purpose">Поработать над техникой вместе со мной</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/run-session.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Екатерина показывает беговое упражнение на стадионе"><div><p>Бег, плавание, велосипед, прохождение транзитных зон, общая и специальная физическая подготовка. Подойдёт, если хотите поработать над техникой под руководством тренера.</p><p class="service-note">Для спортсменов на сопровождении — 4000 ₽.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Договориться о тренировке</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">03</span><h3>Консультация</h3><span class="service-purpose">Разовый разбор техники или подготовки</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><h4 class="service-title">Консультация</h4><span class="service-purpose">Разбор и упражнения для самостоятельных занятий</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/swimming.webp" width="1080" height="720" loading="lazy" decoding="async" alt="Отработка техники плавания в бассейне"><div><p>Очно или онлайн разберём технику, в том числе по видео, и подберём упражнения для самостоятельных занятий. Ещё можно обсудить трассу, тактику гонки или общий план подготовки к выбранному старту.</p><p class="service-note">В такой план входят этапы подготовки, а не подробные задания на каждую тренировку. Он рассчитан на тех, кто уже знаком с микро- и макроциклами.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Записаться на консультацию</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">04</span><h3>Групповая тренировка</h3><span class="service-purpose">Занятия вместе с моей командой</span><span class="service-price">2000 ₽ <small>/ 90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><h4 class="service-title">Групповая тренировка</h4><span class="service-purpose">Тренироваться вместе с моей командой</span><span class="service-price">2000 ₽ <small>/ 90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/team.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Команда спортсменов с велосипедами после совместной тренировки"><div><p>Тренировка с моей командой: бег, велосипед и отработка транзитных зон. Летом тренируемся в Лужниках, зимой — в манеже на велотреке в Крылатском.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Узнать о ближайшей тренировке</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
+          </div>
+        </section>
+        <details class="training-extra">
+          <summary><h3 class="training-group-title">Команды, старты и сборы</h3><span class="training-extra-price">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
+          <div class="services">
         <details class="service">
-          <summary><span class="service-number">05</span><h3>Корпоративные команды</h3><span class="service-purpose">Подготовка команды к общему старту</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><h4 class="service-title">Корпоративные команды</h4><span class="service-purpose">Подготовка команды к общему старту</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/coaching.webp" width="960" height="720" loading="lazy" decoding="async" alt="Обсуждение тренировки со спортсменами на стадионе"><div><p>Очные групповые тренировки и общий план подготовки к командному старту. Формат и стоимость обсудим с учётом целей вашей команды.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Обсудить командную подготовку</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">06</span><h3>Сопровождение на стартах</h3><span class="service-purpose">Помощь на выбранной гонке или заплыве</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><h4 class="service-title">Сопровождение на стартах</h4><span class="service-purpose">Помощь на выбранной гонке или заплыве</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/race-support.webp" width="1200" height="959" loading="lazy" decoding="async" alt="Екатерина со спортсменами на соревнованиях"><div><p>Экстремальный триатлон, велогонки и заплывы. Для тех, кто задумал что-то особенное и ищет опытного человека в команду поддержки.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Рассказать о своём старте</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
-          <summary><span class="service-number">07</span><h3>Тренировочные сборы</h3><span class="service-purpose">Поездка с программой тренировок</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
+          <summary><h4 class="service-title">Тренировочные сборы</h4><span class="service-purpose">Поездка с программой тренировок</span><span class="service-price service-price-text">По запросу</span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/camp.webp" width="1080" height="720" loading="lazy" decoding="async" alt="Участники тренировочного сбора с велосипедами"><div><p>Организация тренировочных сборов в России и за рубежом — индивидуально или в группе. Место, программу и стоимость обсудим с учётом ваших целей.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Обсудить сборы</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a></div></div>
         </details>
+          </div>
+        </details>
       </div>
-</div>
-</section>
+    </section>
 
     <section class="results" id="results" aria-labelledby="results-title" tabindex="-1">
       <div class="results-head">
@@ -357,7 +383,7 @@
         <p>И в цифрах, и в ощущениях.</p>
       </div>
       <div class="results-cases">
-        <article class="video-review review-card" id="andrey-review" aria-labelledby="andrey-review-title">
+        <article class="video-review review-card" id="andrey-review" tabindex="-1" aria-labelledby="andrey-review-title">
           <div class="video-review-copy">
             <h3 class="review-name" id="andrey-review-title">Андрей Филиппов</h3>
             <a class="text-link link" href="https://www.instagram.com/phil.philippov/"><span class="link-label">@phil.philippov</span></a>
