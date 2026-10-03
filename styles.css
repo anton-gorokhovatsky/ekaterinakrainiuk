@@ -540,7 +540,8 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .button .link-icon { width: 1.25rem; height: 1.25rem; }
 .contact-links { grid-column: 8 / -1; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); font-size: var(--text-small); }
 .contact-links a { min-height: 2.75rem; }
-.channel-note { display: grid; grid-template-columns: var(--grid); gap: var(--space-6) var(--gap); align-items: start; margin-inline: var(--pad); padding-block: var(--space-12); }
+.channel-note { margin-inline: var(--pad); padding-block: var(--space-12); }
+.channel-link { display: grid; grid-template-columns: var(--grid); gap: var(--space-6) var(--gap); align-items: start; width: 100%; }
 .channel-photo { grid-column: 1 / span 2; width: 100%; max-width: 20rem; aspect-ratio: 1; object-fit: contain; }
 .channel-heading { grid-column: 3 / span 5; }
 .channel-kicker { display: inline-block; padding: var(--space-1) var(--space-2); margin-bottom: var(--space-4); background: var(--acid); color: #101216; font-size: var(--text-label); line-height: var(--leading-small); }
@@ -840,12 +841,13 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .contact-channels { grid-row: auto; margin-top: var(--space-2); }
   .contact-main { margin-top: var(--space-2); }
   .contact-links { gap: var(--space-1) var(--space-5); font-size: var(--text-small); }
-  .channel-note { grid-template-columns: 5rem minmax(0, 1fr); gap: var(--space-5) var(--space-4); padding-block: var(--space-8); }
-  .channel-photo { grid-column: 1; grid-row: 1; }
-  .channel-heading { display: contents; }
-  .channel-kicker { grid-column: 2; grid-row: 1; justify-self: start; align-self: center; margin-bottom: 0; }
-  .channel-heading h2 { grid-column: 1 / -1; grid-row: 2; }
-  .channel-copy { grid-column: 1 / -1; grid-row: 3; }
+  .channel-note { padding-block: var(--space-8); }
+  .channel-link { grid-template-columns: 4rem minmax(0, 1fr); gap: var(--space-4); }
+  .channel-photo { grid-column: 1; grid-row: 1; align-self: center; }
+  .channel-heading { grid-column: 2; grid-row: 1; }
+  .channel-kicker { padding: 0; margin-bottom: var(--space-2); background: transparent; color: var(--muted); }
+  .channel-heading h2 { font-size: var(--text-ui-title); }
+  .channel-copy { grid-column: 1 / -1; grid-row: 2; }
   .daylight summary { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) 1rem; gap: var(--space-1) var(--space-2); font-size: var(--text-label); }
   .daylight-mark { grid-column: 1; grid-row: 1 / 3; }
   .daylight .disclosure-label { grid-column: 2; grid-row: 1; }

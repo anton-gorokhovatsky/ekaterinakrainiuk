@@ -33,7 +33,7 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=20261003-contact">
-  <link rel="stylesheet" href="styles.css?v=20261003-verified-results">
+  <link rel="stylesheet" href="styles.css?v=20261003-channel-mobile">
   <link rel="stylesheet" href="tarot.css?v=20260927-actions">
   <script src="script.js?v=20261003-training-preview" defer></script>
   <script src="video.js?v=20261003-video-tap" defer></script>
@@ -486,14 +486,16 @@
       </div>
     </section>
       <aside class="channel-note" id="channel" aria-labelledby="channel-title">
-        <img class="channel-photo" src="assets/images/telegram-channel.jpg" width="320" height="320" loading="lazy" decoding="async" alt="Чёрно-белый портрет Кати из её Telegram-канала">
-        <div class="channel-heading">
-          <span class="channel-kicker">Мой Telegram-канал</span>
-          <h2 id="channel-title"><a class="channel-link link" href="https://t.me/ekatyulyaslife"><span class="link-label">Веселей, малыш,<br>будем танцевать</span></a></h2>
-        </div>
-        <div class="channel-copy">
-          <p>Пишу о своих тренировках, стартах и поездках. Делюсь тем, что получается, что даётся непросто и что хочется попробовать.</p>
-        </div>
+        <a class="channel-link link" href="https://t.me/ekatyulyaslife" aria-labelledby="channel-kicker channel-title">
+          <img class="channel-photo" src="assets/images/telegram-channel.jpg" width="320" height="320" loading="lazy" decoding="async" alt="Чёрно-белый портрет Кати из её Telegram-канала">
+          <div class="channel-heading">
+            <span class="channel-kicker" id="channel-kicker">Мой Telegram-канал</span>
+            <h2 id="channel-title"><span class="link-label">Веселей, малыш,<br>будем танцевать</span></h2>
+          </div>
+          <div class="channel-copy">
+            <p>Пишу о своих тренировках, стартах и поездках. Делюсь тем, что получается, что даётся непросто и что хочется попробовать.</p>
+          </div>
+        </a>
       </aside>
     <div class="livebar">
       <details class="daylight" id="daylight">
