@@ -10,6 +10,9 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
 errors = []
+TEXT_BLOCKS = {'p', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}
+VOID_TAGS = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+             'link', 'meta', 'param', 'source', 'track', 'wbr'}
 
 
 class Page(HTMLParser):
@@ -24,9 +27,18 @@ class Page(HTMLParser):
         self.viewport = False
         self.meta = {}
         self.canonical = None
+        self.elements = []
 
     def handle_starttag(self, tag, pairs):
         attrs = dict(pairs)
+        if tag not in VOID_TAGS:
+            self.elements.append({'tag': tag, 'classes': attrs.get('class', '').split(),
+                                  'has_text': False})
+        elif tag == 'br':
+            for element in reversed(self.elements):
+                if element['tag'] in TEXT_BLOCKS:
+                    element['has_text'] = False
+                    break
         if tag == 'html':
             self.lang = attrs.get('lang')
         if tag == 'h1':
@@ -54,6 +66,30 @@ class Page(HTMLParser):
         for candidate in attrs.get('srcset', '').split(','):
             if candidate.strip():
                 self.check_reference(candidate.strip().split()[0])
+
+    def handle_endtag(self, tag):
+        for index in range(len(self.elements) - 1, -1, -1):
+            if self.elements[index]['tag'] == tag:
+                del self.elements[index:]
+                break
+
+    def handle_data(self, data):
+        text = data.lstrip()
+        if not text:
+            return
+        for index in range(len(self.elements) - 1, -1, -1):
+            element = self.elements[index]
+            if element['tag'] not in TEXT_BLOCKS:
+                continue
+            if not element['has_text'] and text[0] in '«“„—':
+                has_mark = any('hanging-mark' in item['classes']
+                               for item in self.elements[index + 1:])
+                if 'hanging-text' not in element['classes'] or not has_mark:
+                    errors.append(f'{self.path.name}:{self.getpos()[0]}: '
+                                  'leading quotation/dialogue punctuation must hang '
+                                  'using hanging-text and hanging-mark')
+            element['has_text'] = True
+            break
 
     def check_reference(self, value):
         if not value or value == '#':
@@ -119,4 +155,4 @@ if not (ROOT / '.nojekyll').exists():
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print('Static checks passed: HTML, anchors, local assets, share metadata and image, sitemap, Pages marker.')
+print('Static checks passed: HTML, hanging punctuation, anchors, local assets, share metadata and image, sitemap, Pages marker.')

@@ -33,7 +33,7 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=20261002-palette">
-  <link rel="stylesheet" href="styles.css?v=20261003-stories">
+  <link rel="stylesheet" href="styles.css?v=20261003-editorial">
   <link rel="stylesheet" href="tarot.css?v=20260927-actions">
   <script src="script.js?v=20261003-stories" defer></script>
   <script src="tarot.js?v=20260928-scroll" defer></script>
@@ -146,20 +146,20 @@
 </span>
 </summary>
         <div class="route-content water-content">
+<div class="water-story">
+<p class="story-headline">Когда вода<br>становится своей.</p>
+<p>Освоить технику плавания в бассейне, решиться на первый заплыв на открытой воде или подготовиться к новой дистанции. Встретимся на тренировке или разберём вашу технику по видео.</p>
+<a class="story-cta link" href="https://t.me/ekatyulya"><span class="link-label">Хочу в воду</span> <svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg>
+</a>
 <div class="water-portrait">
 <img src="assets/images/open-water.webp" width="625" height="625" loading="lazy" decoding="async" alt="Катя смеётся в воде после заплыва">
 <p>В детстве — КМС по плаванию.<br>Сейчас — всё та же любовь к воде.</p>
 </div>
-<div class="water-story">
-<p class="story-headline">Когда вода<br>становится<br>своей.</p>
-<p>Освоить технику плавания в бассейне, решиться на первый заплыв на открытой воде или подготовиться к новой дистанции. Встретимся на тренировке или разберём вашу технику по видео.</p>
-<a class="story-cta link" href="https://t.me/ekatyulya"><span class="link-label">Хочу в воду</span> <svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg>
-</a>
-<figure>
+</div>
+<figure class="water-training">
 <img src="assets/images/swimming.webp" width="1080" height="720" loading="lazy" decoding="async" alt="Отработка техники плавания в бассейне">
 <figcaption>Разбираем движения. Учимся чувствовать воду.</figcaption>
 </figure>
-</div>
 </div>
       </details>
       <details class="route route-ride" id="ride">
@@ -242,7 +242,7 @@
 </div>
 <figure class="strava-medal">
 <img src="assets/images/mm10-medal.webp" width="720" height="1280" loading="lazy" decoding="async" alt="Катя держит золотистую медаль Московского марафона за 10 километров">
-<figcaption>«Одна из самых красивых в коллекцию!»<span>Моя медаль ММ 10</span></figcaption>
+<figcaption class="hanging-text"><span class="hanging-mark">«</span>Одна из самых красивых в коллекцию!»<span class="medal-caption-label">Моя медаль ММ 10</span></figcaption>
 </figure>
 </article>
 </div>
@@ -265,13 +265,15 @@
 <div>
 <span class="eyebrow">Мой второй чемпионат мира</span>
 <blockquote>
-<p><span class="quote-open">«</span>Последние 3 километра улыбалась так, что было видно из космоса».</p>
+<p class="hanging-text"><span class="hanging-mark">«</span>Последние 3 километра улыбалась так, что было видно из космоса».</p>
 </blockquote>
 <p>Это мой второй чемпионат мира по триатлону и первый в серии IRONMAN. За плечами — дистанции от суперспринта до экстремального триатлона, а ещё трейлы, заплывы и свимраны.</p>
-<a class="text-link link" href="https://www.instagram.com/ekatyulya/reel/DdUi0mQNSmX/"><span class="link-label">История этого финиша</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg>
-</a>
+<div class="triathlon-actions">
 <a class="story-cta link" href="https://t.me/ekatyulya"><span class="link-label">Хочу всё сразу</span> <svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg>
 </a>
+<a class="text-link link" href="https://www.instagram.com/ekatyulya/reel/DdUi0mQNSmX/"><span class="link-label">История этого финиша</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg>
+</a>
+</div>
 </div>
 </div>
       </details>
@@ -350,15 +352,14 @@
     <section class="results" id="results" aria-labelledby="results-title" tabindex="-1">
 <div class="results-head">
 <span class="eyebrow">Слова спортсменов</span>
-<h2 id="results-title">Получается.</h2>
+<h2 id="results-title">Получается</h2>
 <p>И в цифрах, и в ощущениях.</p>
 </div>
       <article class="video-review" id="andrey-review" aria-labelledby="andrey-review-title">
         <div class="video-review-copy">
-          <span class="eyebrow">После финиша</span>
           <h3 id="andrey-review-title">Андрей Филиппов</h3>
           <a class="text-link link" href="https://www.instagram.com/phil.philippov/"><span class="link-label">@phil.philippov</span></a>
-          <blockquote><p><span class="quote-open">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга».</p></blockquote>
+          <blockquote><p class="hanging-text"><span class="hanging-mark">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга».</p></blockquote>
           <p>Первое место в группе М20–29 на миле SWIMSTAR в Сириусе. Результат — 29:59.</p>
           <p class="video-review-note">В двух сторис Андрей делится эмоциями и рассказывает, как прошёл заплыв по нашему плану.</p>
         </div>
@@ -382,10 +383,10 @@
         </div>
       </article>
       <div class="testimonials">
-        <figure class="testimonial testimonial-wide"><blockquote><p>«Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!»</p></blockquote><figcaption><img src="assets/images/alexander.webp" width="366" height="400" loading="lazy" decoding="async" alt=""><span>Александр<small>О подготовке и поддержке</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь отзыв</span><span class="review-collapse">Свернуть отзыв</span></summary><p>Хочется подвести какой-то итог году и сказать тебе спасибо. Потому что прям всё хорошо, даже с учетом моей лени и халтуры, все запланированные важные старты вполне удались. И из самого конца списка участников я уверенно переполз в середину, и даже есть удовлетворение — начало что-то получаться! Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!</p></details></figure>
+        <figure class="testimonial testimonial-wide"><blockquote><p class="hanging-text"><span class="hanging-mark">«</span>Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!»</p></blockquote><figcaption><img src="assets/images/alexander.webp" width="366" height="400" loading="lazy" decoding="async" alt=""><span>Александр<small>О подготовке и поддержке</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь отзыв</span><span class="review-collapse">Свернуть отзыв</span></summary><p>Хочется подвести какой-то итог году и сказать тебе спасибо. Потому что прям всё хорошо, даже с учетом моей лени и халтуры, все запланированные важные старты вполне удались. И из самого конца списка участников я уверенно переполз в середину, и даже есть удовлетворение — начало что-то получаться! Тренировки работают, общение и поддержка — супер. Нет слов, насколько всё позитивно. Спасибо тебе!</p></details></figure>
         <div class="testimonials-aside">
-        <figure class="testimonial"><blockquote><p>«Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))»</p></blockquote><figcaption><img src="assets/images/denis.webp" width="400" height="400" loading="lazy" decoding="async" alt=""><span>Денис<small>О прогрессе в тренировках</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь разговор</span><span class="review-collapse">Свернуть разговор</span></summary><p>— Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))<br>— Только спросить хотела по ощущениям как тебе, стало посильнее?<br>— Да, сто процентов. Ну и запас какой-то всё равно чувствуется. Думал, что all out ехал, но в конце даже немного осталось сил придавить.</p></details></figure>
-        <figure class="testimonial"><blockquote><p>«Прошло, считаю, неплохо. Выложился я прям хорошо вчера».</p></blockquote><figcaption><img src="assets/images/dmitry.webp" width="400" height="400" loading="lazy" decoding="async" alt=""><span>Дмитрий<small>После заплыва на 3 км</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь отзыв</span><span class="review-collapse">Свернуть отзыв</span></summary><p>Екатерина, добрый вечер! Прошло, считаю, неплохо. Выложился я прям хорошо вчера. Время 1:01, но расстояние не известно и трека нет. Не только у меня, из-за атомной станции gps видимо глушится. Часы не работали нормально. Всего 64/138, мужском зачёте 49/84. В прошлом году было 86/111, 61/67 в мужском.</p></details></figure>
+        <figure class="testimonial"><blockquote><p class="hanging-text"><span class="hanging-mark">«</span>Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))»</p></blockquote><figcaption><img src="assets/images/denis.webp" width="400" height="400" loading="lazy" decoding="async" alt=""><span>Денис<small>О прогрессе в тренировках</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь разговор</span><span class="review-collapse">Свернуть разговор</span></summary><div class="review-dialogue"><p class="hanging-text"><span class="hanging-mark">— </span>Но в целом, конечно, силищу чувствую по сравнению с тем, что было буквально месяца 3 назад) приятное чувство))</p><p class="hanging-text"><span class="hanging-mark">— </span>Только спросить хотела по ощущениям как тебе, стало посильнее?</p><p class="hanging-text"><span class="hanging-mark">— </span>Да, сто процентов. Ну и запас какой-то всё равно чувствуется. Думал, что all out ехал, но в конце даже немного осталось сил придавить.</p></div></details></figure>
+        <figure class="testimonial"><blockquote><p class="hanging-text"><span class="hanging-mark">«</span>Прошло, считаю, неплохо. Выложился я прям хорошо вчера».</p></blockquote><figcaption><img src="assets/images/dmitry.webp" width="400" height="400" loading="lazy" decoding="async" alt=""><span>Дмитрий<small>После заплыва на 3 км</small></span></figcaption><details class="review-full"><summary><span class="review-expand">Весь отзыв</span><span class="review-collapse">Свернуть отзыв</span></summary><p>Екатерина, добрый вечер! Прошло, считаю, неплохо. Выложился я прям хорошо вчера. Время 1:01, но расстояние не известно и трека нет. Не только у меня, из-за атомной станции gps видимо глушится. Часы не работали нормально. Всего 64/138, мужском зачёте 49/84. В прошлом году было 86/111, 61/67 в мужском.</p></details></figure>
         </div>
       </div>
 <details class="result-details">
@@ -422,17 +423,17 @@
           <a href="https://www.strava.com/athletes/26974925" class="link"><span class="link-label">Strava</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
         </div>
       </div>
+    </section>
       <aside class="channel-note" aria-labelledby="channel-title">
         <div class="channel-heading">
           <span class="eyebrow">Мой Telegram-канал</span>
-          <h3 id="channel-title">Веселей, малыш,<br>будем танцевать</h3>
+          <h2 id="channel-title">Веселей, малыш,<br>будем танцевать</h2>
         </div>
         <div class="channel-copy">
           <p>Пишу о своих тренировках, стартах и поездках. Делюсь тем, что получается, что даётся непросто и что хочется попробовать.</p>
-          <a class="text-link link" href="https://t.me/ekatyulyaslife"><span class="link-label">Читать канал</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
+          <a class="button channel-link link" href="https://t.me/ekatyulyaslife"><span class="link-label">Читать канал</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
         </div>
       </aside>
-    </section>
     <div class="livebar">
       <details class="daylight" id="daylight">
         <summary><svg class="daylight-mark" viewBox="0 0 24 24" aria-hidden="true"><use data-weather-icon href="assets/icons/tabler.svg#cloud"/></svg><span class="disclosure-label">За окном в Москве</span><span class="daylight-summary-end"><span data-weather-summary>Здесь мы тренируемся</span><span class="disclosure daylight-expand" aria-hidden="true"></span></span></summary>
@@ -469,7 +470,7 @@
   </main>
   <footer class="site-footer">
     <section class="tarot" id="tarot" aria-labelledby="tarot-title" tabindex="-1">
-      <div class="tarot-header"><div><span class="eyebrow">Бюро спортивных предсказаний</span><h2 id="tarot-title">Карты<br>на старт.</h2></div><div class="tarot-intro"><p>А вдруг впереди<br>что-то классное?</p><p data-tarot-instruction>Один из возможных раскладов на ваш следующий старт.</p></div></div>
+      <div class="tarot-header"><div><span class="eyebrow">Бюро спортивных предсказаний</span><h2 id="tarot-title">Карты<br>на старт</h2></div><div class="tarot-intro"><p>А вдруг впереди<br>что-то классное?</p><p data-tarot-instruction>Один из возможных раскладов на ваш следующий старт.</p></div></div>
       <p class="tarot-swipe">Листайте карты и открывайте по одной <svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-right"/></svg></p>
       <div class="tarot-spread">
           <article class="tarot-card tarot-card-1" aria-label="Дисциплина">
@@ -522,7 +523,7 @@
       <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-tarot-status></p>
     </section>
     <div class="footer-invitation">
-      <p class="footer-heading">Ваш ход.</p>
+      <p class="footer-heading">Ваш ход</p>
       <div class="footer-next">
         <p>Начать можно с разговора.</p>
         <a class="footer-contact link" href="https://t.me/ekatyulya"><span class="link-label">Написать мне</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=20260927-arrows#arrow-up-right"/></svg></a>
