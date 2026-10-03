@@ -392,7 +392,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .training-heading h2 { font-size: var(--text-title); margin: var(--space-6) 0; }
 .training-heading > p { font-size: var(--text-small); color: var(--muted); max-width: 32ch; }
 .training-program { grid-column: 5 / -1; grid-row: 1; min-width: 0; }
-.training-program > .eyebrow { color: var(--muted); }
+.training-program > .eyebrow, .training-group-title { color: var(--muted); }
 .training-program-heading { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); margin-block: var(--space-5) var(--space-6); }
 .training-program-heading h3 { min-width: 0; font-size: var(--text-lead); line-height: var(--leading-heading); }
 .training-program-body { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
@@ -403,7 +403,13 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .training-proof { grid-column: 1 / span 4; grid-row: 2; margin: 0; padding-top: var(--space-6); border-top: 1px solid var(--line); }
 .training-proof > p { max-width: 34ch; font-size: var(--text-small); }
 .training-proof .text-link { font-size: var(--text-small); }
-.training-group-title { font-size: var(--text-ui-title); line-height: var(--leading-heading); font-weight: 600; }
+.training-preview { display: none; }
+@media (min-width: 1001px) and (hover: hover) and (pointer: fine) {
+  .training-proof { position: sticky; top: calc(var(--header-height, 5.5rem) + var(--space-6)); }
+  .training-preview { display: block; width: min(100%, 18rem); aspect-ratio: 4 / 3; max-height: 27svh; margin-top: var(--space-6); opacity: 0; visibility: hidden; transform: translateY(.5rem); transition: opacity 180ms var(--ease-enter), transform 320ms var(--ease-enter), visibility 180ms; pointer-events: none; }
+  .training-preview.is-visible { opacity: 1; visibility: visible; transform: none; }
+  .training-preview img { display: block; width: 100%; height: 100%; object-fit: cover; }
+}
 .training-options > .training-group-title, .training-extra > .training-group-title { margin-bottom: var(--space-5); }
 .training-extra { border-top: 1px solid var(--line); margin-top: var(--space-5); padding-top: var(--space-6); }
 .service { --service-gap: var(--space-4); }
