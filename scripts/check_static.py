@@ -146,7 +146,7 @@ for path in ROOT.glob('*.html'):
                         errors.append('index.html: declared share image dimensions do not match the file')
 
 for value in re.findall(r'url\(["\']?([^"\')]+)', (ROOT / 'styles.css').read_text()):
-    if not (ROOT / value).is_file():
+    if not (ROOT / unquote(urlsplit(value).path)).is_file():
         errors.append(f'styles.css: missing {value}')
 
 ET.parse(ROOT / 'sitemap.xml')
