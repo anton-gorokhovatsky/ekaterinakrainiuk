@@ -136,14 +136,24 @@ test('theme choices persist, follow the system and apply on the 404 page', async
   await expect.poll(background).toBe(light);
 });
 
-test('one action plays actual video, switches audio and keeps captions and focus', async ({ page }) => {
-  const downloads = [];
-  page.on('request', request => { if (/\.mp4(?:\?|$)/.test(request.url())) downloads.push(request.url()); });
+test('one action plays actual video, switches audio and keeps captions and focus', async ({ page, browserName }) => {
+  const mediaRequests = [];
+  page.on('request', request => { if (/\.mp4(?:\?|$)/.test(request.url())) mediaRequests.push(request.url()); });
   await page.goto('./#results');
-  expect(downloads, 'Videos must not download before the visitor chooses one').toEqual([]);
   const stories = page.locator('.video-story');
   const first = page.locator('#andrey-finish-video');
   const second = page.locator('#andrey-coaching-video');
+  for (const video of [first, second]) {
+    await expect(video).toHaveAttribute('preload', 'none');
+    await expect(video).toHaveJSProperty('autoplay', false);
+    await expect(video).toHaveJSProperty('paused', true);
+    await expect(video).toHaveJSProperty('currentTime', 0);
+  }
+  // preload is a native hint, not a network guarantee. Linux WebKit can issue
+  // early media requests; Chromium must still defer them until user activation.
+  if (browserName === 'chromium') {
+    expect(mediaRequests, 'Chromium defers MP4 requests until the visitor chooses a video').toEqual([]);
+  }
   const compact = page.viewportSize().width <= 760;
   const trigger = index => stories.nth(index).locator(compact ? ':scope > summary' : '.video-play');
   await trigger(0).focus();
