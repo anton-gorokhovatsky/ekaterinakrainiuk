@@ -429,7 +429,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .service-body img { width: 100%; aspect-ratio: 1; object-fit: cover; }
 .service-body p { font-size: var(--text-body); }
 .service-body .service-note { margin-top: var(--space-3); color: var(--muted); font-size: var(--text-small); }
-.service-body .text-link { font-size: var(--text-small); margin-top: var(--space-3); }
+.service-body .text-link { min-height: 2.75rem; font-size: var(--text-small); margin-top: var(--space-3); }
 .results { --results-columns: var(--grid); background: var(--surface); padding: var(--section-space-compact) var(--pad); }
 .results-head { display: grid; grid-template-columns: var(--results-columns); align-items: end; gap: var(--space-6) var(--gap); margin-bottom: var(--space-10); }
 .results-head > .eyebrow { grid-column: 1 / -1; }
