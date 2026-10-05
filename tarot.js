@@ -61,7 +61,7 @@
       const value = values[index];
       card.querySelector('h3').textContent = type(value.title);
       card.querySelector('.tarot-description').textContent = type(value.detail);
-      card.querySelector('.tarot-front use').setAttribute('href', `assets/icons/tabler.svg#${value.icon}`);
+      card.querySelector('.tarot-front use').setAttribute('href', `assets/icons/tabler.svg?v=387d19c195b0#${value.icon}`);
       card.querySelector('.tarot-front').setAttribute('aria-hidden', 'true');
       const toggle = card.querySelector('button');
       toggle.hidden = false;

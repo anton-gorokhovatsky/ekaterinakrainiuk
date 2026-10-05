@@ -1,6 +1,6 @@
 @font-face {
   font-family: Ambidexter;
-  src: url("assets/fonts/ambidexter-regular.woff2") format('woff2');
+  src: url("assets/fonts/ambidexter-regular.woff2?v=25261bcad24d") format('woff2');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -72,10 +72,10 @@
     border-radius: 0;
     --corner-tile: calc(2 * var(--smooth-corner));
     mask:
-      url("assets/illustrations/smooth-corner.svg") top left / var(--corner-tile) var(--corner-tile) no-repeat,
-      url("assets/illustrations/smooth-corner.svg") top right / var(--corner-tile) var(--corner-tile) no-repeat,
-      url("assets/illustrations/smooth-corner.svg") bottom right / var(--corner-tile) var(--corner-tile) no-repeat,
-      url("assets/illustrations/smooth-corner.svg") bottom left / var(--corner-tile) var(--corner-tile) no-repeat,
+      url("assets/illustrations/smooth-corner.svg?v=1b3625cc0ccb") top left / var(--corner-tile) var(--corner-tile) no-repeat,
+      url("assets/illustrations/smooth-corner.svg?v=1b3625cc0ccb") top right / var(--corner-tile) var(--corner-tile) no-repeat,
+      url("assets/illustrations/smooth-corner.svg?v=1b3625cc0ccb") bottom right / var(--corner-tile) var(--corner-tile) no-repeat,
+      url("assets/illustrations/smooth-corner.svg?v=1b3625cc0ccb") bottom left / var(--corner-tile) var(--corner-tile) no-repeat,
       linear-gradient(#000 0 0) center / calc(100% - var(--corner-tile)) 100% no-repeat,
       linear-gradient(#000 0 0) center / 100% calc(100% - var(--corner-tile)) no-repeat;
   }

@@ -1,29 +1,64 @@
-name: Static checks
+name: Verify and publish
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'codex/**']
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - name: Check HTML and local assets
-        run: python3 scripts/check_static.py
-      - name: Check JavaScript syntax
-        run: |
-          node --check script.js
-          node --check theme.js
-          node --check video.js
-          node --check tarot.js
-          node --check daylight.js
-      - name: Check theme, video, tarot and weather behavior
-        run: node --test scripts/*.test.cjs
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Install test browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Check content, resource graph, versions and unit tests
+        run: npm run check
+      - name: Test the Pages artifact in real browser engines
+        run: npm run test:browser
       - name: Check whitespace
         run: git show --format= --check HEAD
+      - name: Keep browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      - name: Package verified public files
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site/ekaterinakrainiuk
+
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish the verified artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

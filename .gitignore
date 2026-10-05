@@ -4,3 +4,7 @@
 __pycache__/
 *.pyc
 .qa/
+node_modules/
+_site/
+test-results/
+playwright-report/

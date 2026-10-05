@@ -3,10 +3,10 @@
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
-import re
 import struct
 import sys
 import xml.etree.ElementTree as ET
+from site_files import check_supporting_resources, validate_reference
 
 ROOT = Path(__file__).resolve().parent.parent
 errors = []
@@ -103,12 +103,10 @@ class Page(HTMLParser):
         if not url.path and url.fragment:
             self.fragments.append(unquote(url.fragment))
             return
-        if url.path.startswith('/ekaterinakrainiuk/'):
-            target = ROOT / unquote(url.path.removeprefix('/ekaterinakrainiuk/'))
-        else:
-            target = self.path.parent / unquote(url.path)
-        if not target.exists():
-            errors.append(f'{self.path.name}: missing local file {url.path}')
+        try:
+            validate_reference(value, self.path, ROOT)
+        except (ValueError, OSError) as error:
+            errors.append(str(error))
 
 
 for path in ROOT.glob('*.html'):
@@ -145,9 +143,7 @@ for path in ROOT.glob('*.html'):
                     if dimensions != (page.meta.get('og:image:width'), page.meta.get('og:image:height')):
                         errors.append('index.html: declared share image dimensions do not match the file')
 
-for value in re.findall(r'url\(["\']?([^"\')]+)', (ROOT / 'styles.css').read_text()):
-    if not (ROOT / unquote(urlsplit(value).path)).is_file():
-        errors.append(f'styles.css: missing {value}')
+errors.extend(check_supporting_resources(ROOT))
 
 ET.parse(ROOT / 'sitemap.xml')
 if not (ROOT / '.nojekyll').exists():
@@ -155,4 +151,4 @@ if not (ROOT / '.nojekyll').exists():
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print('Static checks passed: HTML, hanging punctuation, anchors, local assets, share metadata and image, sitemap, Pages marker.')
+print('Static checks passed: HTML, hanging punctuation, anchors, local assets, all CSS, SVG symbols, share metadata and image, sitemap, Pages marker.')

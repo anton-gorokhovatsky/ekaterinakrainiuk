@@ -8,6 +8,15 @@ if (menuButton && navigation && headerShell) {
   const mobileLayout = window.matchMedia('(max-width: 1000px)');
   const pageRegions = document.querySelectorAll('.skip-link, main, footer');
   const menuIsOpen = () => menuButton.getAttribute('aria-expanded') === 'true';
+  let headerFocus = null;
+  document.addEventListener('focusin', event => {
+    if (event.target !== document.body) {
+      headerFocus = headerShell.contains(event.target) ? event.target : null;
+    }
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!headerShell.contains(event.target)) headerFocus = null;
+  });
 
   const closeMenu = (restoreFocus = false) => {
     menuButton.setAttribute('aria-expanded', 'false');
@@ -67,9 +76,10 @@ if (menuButton && navigation && headerShell) {
   });
 
   mobileLayout.addEventListener('change', () => {
-    const focused = document.activeElement;
+    // CSS may hide and blur the old control before the media-query event arrives.
+    const focused = document.activeElement === document.body ? headerFocus : document.activeElement;
     closeMenu();
-    if (headerShell.contains(focused) && !focused.getClientRects().length) {
+    if (focused && headerShell.contains(focused) && !focused.getClientRects().length) {
       (mobileLayout.matches ? menuButton : navigation.querySelector('.nav-main a')).focus({ preventScroll: true });
     }
   });
@@ -127,7 +137,15 @@ if (header && 'ResizeObserver' in window) {
     header.style.setProperty('--menu-height', `${Math.ceil(menuHeight)}px`);
     header.dataset.sharedGlass = '';
   };
-  const headerObserver = new ResizeObserver(updateHeaderLayout);
+  let layoutFrame = 0;
+  const headerObserver = new ResizeObserver(() => {
+    if (layoutFrame) return;
+    // Writing layout variables inside ResizeObserver can trigger a loop in WebKit.
+    layoutFrame = requestAnimationFrame(() => {
+      layoutFrame = 0;
+      updateHeaderLayout();
+    });
+  });
   headerObserver.observe(header);
   if (navigation) headerObserver.observe(navigation);
   updateHeaderLayout();
