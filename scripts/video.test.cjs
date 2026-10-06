@@ -64,21 +64,16 @@ function visit() {
     });
     const button = element({ className: 'video-play', hidden: true });
     const status = element({ className: 'video-status', hidden: true, textContent: '' });
-    const caption = element({ tagName: index === 0 ? 'FIGCAPTION' : 'SUMMARY' });
+    const caption = element({ tagName: 'FIGCAPTION' });
     caption.append(element({ selector: '.video-story-title > span', textContent: title }));
     const player = element({ className: 'video-player' });
     player.append(video, button);
-    const story = element({ tagName: index === 0 ? 'FIGURE' : 'DETAILS', className: 'video-story', ...(index === 1 ? { open: true } : {}) });
+    const story = element({ tagName: 'FIGURE', className: 'video-story' });
     story.append(caption, player, status);
     roots.push(story);
     return {
       video, button, status,
       get tagName() { return roots[index].tagName; },
-      get summary() { return roots[index].querySelector('summary'); },
-      get open() { return roots[index].open; },
-      get scrollRequest() { return roots[index].scrollRequest; },
-      set open(value) { roots[index].open = value; },
-      emit(name) { return roots[index].emit(name); },
     };
   });
   document.querySelectorAll = () => roots;
@@ -135,53 +130,44 @@ test('failed starts remain retryable, while a cancelled start is not announced a
   }
 });
 
-test('supporting clip opens and plays in the same activation, while the featured clip stays visible', async () => {
+test('the supporting poster starts once in the same activation and pauses the first video', async () => {
   const { document, stories: [first, second] } = visit();
   assert.equal(first.tagName, 'FIGURE');
-  assert.equal(first.summary, null);
-  assert.equal(second.open, false);
-  assert.equal(second.summary['aria-label'], 'Смотреть видео «Как прошёл заплыв»');
+  assert.equal(second.tagName, 'FIGURE');
+  assert.equal(second.button['aria-label'], 'Смотреть видео «Как прошёл заплыв»');
   await first.button.emit('click');
-  let prevented = 0;
-  second.summary.focus();
-  const playing = second.summary.emit('click', { preventDefault() { prevented++; } });
+  second.button.focus();
+  const playing = second.button.emit('click');
   // play() must run before the event returns, not from a later toggle or timer.
-  assert.equal(second.open, true);
   assert.equal(second.video.paused, false);
   assert.equal(second.video.playCalls, 1);
   assert.equal(first.video.paused, true);
-  assert.equal(second.scrollRequest.block, 'start');
   assert.equal(document.activeElement, second.video);
-  assert.equal(second.summary['aria-label'], 'Свернуть видео «Как прошёл заплыв»');
   await playing;
-  second.emit('toggle');
   assert.equal(second.video.playCalls, 1);
-  assert.equal(prevented, 1);
 });
 
-test('closing a supporting clip restores focus, and reopening resumes with one activation', async () => {
+test('pausing the supporting clip restores its poster control and preserves playback position', async () => {
   const { document, stories: [, second] } = visit();
-  const click = { preventDefault() {} };
-  second.summary.focus();
-  await second.summary.emit('click', click);
+  second.button.focus();
+  await second.button.emit('click');
   second.video.currentTime = 6;
-  await second.summary.emit('click', click);
-  assert.equal(second.open, false);
+  second.video.pause();
   assert.equal(second.video.paused, true);
   assert.equal(second.video.playCalls, 1);
-  assert.equal(document.activeElement, second.summary);
-  assert.equal(second.summary['aria-label'], 'Продолжить видео «Как прошёл заплыв»');
-  await second.summary.emit('click', click);
+  assert.equal(document.activeElement, second.video);
+  assert.equal(second.button.hidden, false);
+  assert.equal(second.button['aria-label'], 'Продолжить видео «Как прошёл заплыв»');
+  await second.button.emit('click');
   assert.equal(second.video.paused, false);
   assert.equal(second.video.currentTime, 6);
   assert.equal(second.video.playCalls, 2);
 });
 
-test('a failed supporting start leaves the player open with a working retry control', async () => {
+test('a failed supporting start leaves a working retry control beside the error', async () => {
   const { stories: [, second] } = visit();
   second.video.failure = { name: 'NotAllowedError' };
-  await second.summary.emit('click', { preventDefault() {} });
-  assert.equal(second.open, true);
+  await second.button.emit('click');
   assert.equal(second.video.paused, true);
   assert.equal(second.button.hidden, false);
   assert.equal(second.status.hidden, false);
@@ -191,12 +177,12 @@ test('a failed supporting start leaves the player open with a working retry cont
   assert.equal(second.status.hidden, true);
 });
 
-test('returning to the featured clip closes and pauses the supporting clip', async () => {
+test('returning to the featured clip pauses the supporting clip without hiding it', async () => {
   const { document, stories: [first, second] } = visit();
-  await second.summary.emit('click', { preventDefault() {} });
+  await second.button.emit('click');
   first.button.focus();
   await first.button.emit('click');
-  assert.equal(second.open, false);
+  assert.equal(second.tagName, 'FIGURE');
   assert.equal(second.video.paused, true);
   assert.equal(first.video.paused, false);
   assert.equal(document.activeElement, first.video);

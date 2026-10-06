@@ -131,7 +131,7 @@ h3 { line-height: var(--leading-heading); }
 /* Focus belongs to the label or control, never a frame around the composition. */
 a:focus, button:focus, summary:focus, select:focus, [tabindex]:focus { outline: none; }
 select:focus-visible { box-shadow: inset 0 -1px currentColor; }
-:is(.menu-toggle:focus-visible [data-menu-label], summary:focus-visible h2, summary:focus-visible h3, summary:focus-visible .service-title, summary:focus-visible .disclosure-label, .video-story > summary:focus-visible .video-story-title > span, .review-full > summary:focus-visible) { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
+:is(.menu-toggle:focus-visible [data-menu-label], summary:focus-visible h2, summary:focus-visible h3, summary:focus-visible .service-title, summary:focus-visible .disclosure-label, .review-full > summary:focus-visible) { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
 summary { cursor: pointer; list-style: none; }
 summary::-webkit-details-marker { display: none; }
 .skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; background: var(--acid); color: #101216; padding: var(--space-3); transform: translateY(-200%); }
@@ -281,7 +281,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .route-content p { max-width: 48ch; }
 /* Native height transitions keep links, keyboard controls and rapid reversals intact. */
 @supports (interpolate-size: allow-keywords) and (transition-behavior: allow-discrete) and selector(details::details-content) {
-  details:not(.theme-picker, .video-story)::details-content {
+  details:not(.theme-picker)::details-content {
     interpolate-size: allow-keywords;
     display: flow-root;
     block-size: 0;
@@ -292,7 +292,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
       opacity var(--accordion-close) var(--ease-exit),
       content-visibility var(--accordion-close) allow-discrete;
   }
-  details[open]:not(.theme-picker, .video-story)::details-content {
+  details[open]:not(.theme-picker)::details-content {
     block-size: auto;
     opacity: 1;
     transition:
@@ -436,7 +436,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .results-head h2 { grid-column: 1 / -1; font-size: var(--text-title); }
 .results-cases { display: grid; gap: var(--space-12); }
 .video-review { display: grid; grid-template-columns: var(--results-columns); gap: var(--gap); align-items: start; }
-.video-story-featured { grid-column: 1 / span 4; display: flex; flex-direction: column; }
+.video-review-media { grid-column: 1 / span 4; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr)); align-items: start; gap: var(--space-3); }
 .video-review-copy { grid-column: 5 / -1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-6); }
 .review-name { display: block; font-size: var(--text-body); font-weight: 600; line-height: var(--leading-small); }
 .video-review-quote { max-width: 17ch; font-size: clamp(2.125rem, 1rem + 4.5vw, 5rem); font-weight: 600; line-height: var(--leading-display); letter-spacing: -.025em; }
@@ -449,21 +449,9 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-review-event time { color: var(--muted); }
 .review-source { display: inline-block; margin-top: var(--space-2); font-size: var(--text-label); }
 .video-story { min-width: 0; }
-.video-story > :is(figcaption, summary) { display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
-.video-story-featured > figcaption { margin: var(--space-2) 0 0; }
-.video-story-featured .video-story-title { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-3); }
-.video-story-secondary { max-width: 22rem; margin-top: var(--space-2); }
-.video-story-secondary > summary { min-height: 2.75rem; gap: var(--space-2); margin: 0; padding-block: var(--space-2); }
-.video-story-secondary .video-player { margin-top: var(--space-4); }
-.video-story-title { flex: 1; min-width: 0; display: grid; gap: var(--space-1); }
-.video-story-secondary .video-story-title { flex: 0 1 auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); }
+.video-story > figcaption { padding-block: var(--space-2); margin-top: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
+.video-story-title { min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
 .video-story-title small { color: var(--muted); font-size: inherit; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.video-story-secondary .video-story-title small { white-space: normal; }
-.video-story .disclosure { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
-.video-story-action svg { display: block; width: 100%; height: 100%; stroke-width: 1.75; }
-.video-story-action::before, .video-story-action::after { display: none; }
-.video-story[open] .video-story-action::before { display: block; }
-.video-story[open] .video-story-action svg { display: none; }
 .video-player { position: relative; }
 .video-story video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; background: #101216; object-fit: contain; }
 .video-story video:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
@@ -482,7 +470,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
   .video-play-icon::before { display: none; }
   .video-play-icon svg { visibility: visible; }
 }
-.video-play:focus-visible .video-play-icon { outline: 2px solid var(--action-ink); outline-offset: -6px; }
+.video-play:focus-visible .video-play-icon::after { content: ""; position: absolute; inset: 6px; border: 2px solid var(--action-ink); border-radius: 50%; }
 .video-play:active .video-play-icon { transform: scale(.94); }
 .video-status { margin-top: var(--space-2); font-size: var(--text-label); }
 @media (forced-colors: active) {
@@ -656,7 +644,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .footer-top:hover > .link-icon { translate: 0 -2px; }
   .hero-training:hover > .link-icon, .portal:hover .link-icon, .hero-after > a:hover .link-icon { translate: 0 2px; }
   .nav-main > a:hover .nav-label { text-decoration-color: currentColor; }
-  .js .menu-toggle:hover [data-menu-label], .service > summary:hover .service-title, .video-story > summary:hover .video-story-title > span, .bio-details > summary:hover .disclosure-label, .daylight > summary:hover .disclosure-label { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
+  .js .menu-toggle:hover [data-menu-label], .service > summary:hover .service-title, .bio-details > summary:hover .disclosure-label, .daylight > summary:hover .disclosure-label { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
   .theme-control select:hover { box-shadow: inset 0 -1px currentColor; }
   .theme-picker > summary:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
   .theme-options label:not(:has(:checked)):hover { --option-fill: color-mix(in srgb, var(--ink) 6%, transparent); }
@@ -819,8 +807,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .service-body img { aspect-ratio: 1.7; }
   .results { --results-columns: minmax(0, 1fr); }
   .video-review { gap: var(--space-8); }
-  .video-story-featured, .video-review-copy, .result-review-copy, .result-review-data { grid-column: 1; }
-  .video-story-featured { width: min(100%, 20rem); justify-self: center; }
+  .video-review-media, .video-review-copy, .result-review-copy, .result-review-data { grid-column: 1; }
   .video-review-quote { max-width: 18ch; }
   .result-review { gap: var(--space-6); padding-block: var(--space-8); }
   .testimonials { row-gap: var(--space-8); margin-top: var(--space-8); }

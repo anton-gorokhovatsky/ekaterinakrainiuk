@@ -155,9 +155,10 @@ test('one action plays actual video, switches audio and keeps captions and focus
     expect(mediaRequests, 'Chromium defers MP4 requests until the visitor chooses a video').toEqual([]);
   }
   const compact = page.viewportSize().width <= 760;
-  const trigger = index => stories.nth(index).locator(index === 0 ? '.video-play' : ':scope > summary');
-  await expect(page.locator('.video-story-featured')).toHaveJSProperty('tagName', 'FIGURE');
-  await expect(stories.nth(1)).toHaveJSProperty('open', false);
+  const trigger = index => stories.nth(index).locator('.video-play');
+  await expect(page.locator('figure.video-story')).toHaveCount(2);
+  await expect(first).toBeVisible();
+  await expect(second).toBeVisible();
   await trigger(0).focus();
   await trigger(0).press('Enter');
   await expect.poll(() => first.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
@@ -168,12 +169,20 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await expect.poll(() => first.evaluate(video => video.textTracks[0]?.cues?.length || 0)).toBeGreaterThan(0);
   await expect(first).toHaveJSProperty('videoWidth', 720);
   await expect(first).toHaveJSProperty('videoHeight', 1280);
+  if (!compact) {
+    await trigger(1).hover();
+    await test.info().attach('andrey-poster-hover', {
+      body: await page.locator('#andrey-review').screenshot(), contentType: 'image/png',
+    });
+  }
   await trigger(1).click();
   await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
   await expect(first).toHaveJSProperty('paused', true);
-  await trigger(1).click();
+  // Switching through the visible poster pauses the other real player.
+  // Native video keyboard shortcuts differ between Chromium and WebKit.
+  await trigger(0).click();
   await expect(second).toHaveJSProperty('paused', true);
-  await expect(trigger(1)).toBeFocused();
+  await expect(trigger(1)).toBeVisible();
   await trigger(1).press('Enter');
   await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
   await expect(second).toBeFocused();
@@ -183,7 +192,9 @@ test('one action plays actual video, switches audio and keeps captions and focus
   expect(await second.evaluate((video, original) => video === original, secondPlayer)).toBe(true);
   await expect(second).toHaveJSProperty('paused', false);
   await expect(second).toBeFocused();
-  await trigger(1).click();
+  // Switching through the visible poster pauses the other real player.
+  // Native video keyboard shortcuts differ between Chromium and WebKit.
+  await trigger(0).click();
   await expect(second).toHaveJSProperty('paused', true);
   await noOverflow(page);
 });
@@ -247,8 +258,8 @@ test('native content, navigation, video controls and system theme work without J
     const service = page.locator('.service').first();
     await service.locator('summary').click();
     await expect(service.locator('.service-body')).toBeVisible();
-    await expect(page.locator('figure.video-story')).toHaveCount(1);
-    await expect(page.locator('details.video-story')).toHaveJSProperty('open', true);
+    await expect(page.locator('figure.video-story')).toHaveCount(2);
+    await expect(page.locator('details.video-story')).toHaveCount(0);
     await expect(page.locator('#andrey-coaching-video')).toBeVisible();
     await expect(page.locator('video').first()).toHaveAttribute('controls', '');
     await expect(page.locator('.video-play').first()).toBeHidden();
