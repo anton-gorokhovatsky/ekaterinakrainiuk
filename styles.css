@@ -232,8 +232,9 @@ summary::-webkit-details-marker { display: none; }
 }
 .hero-after { display: flex; justify-content: space-between; align-items: last baseline; gap: var(--space-6); padding-block: var(--space-6) var(--space-14); font-size: var(--text-small); }
 .hero-after > p { color: var(--muted); }
-.hero-after > a { text-align: right; padding: var(--space-2) 0; }
+.hero-after > a { text-align: left; padding: var(--space-2) 0; }
 .hero-after strong { display: flex; align-items: center; justify-content: end; gap: .45em; font-size: var(--text-ui-title); font-weight: 500; }
+.hero-after > a > strong { justify-content: start; }
 
 /* The header and the complete invitation share one desktop viewport. */
 @media (min-width: 1001px) {
@@ -448,6 +449,12 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-review-event { font-size: var(--text-small); }
 .video-review-event time { color: var(--muted); }
 .review-source { display: inline-block; margin-top: var(--space-2); font-size: var(--text-label); }
+@media (min-width: 761px) {
+  .video-review-quote { font-size: clamp(2.125rem, 1rem + 4.5vw, 4rem); }
+  .video-review .review-name { font-size: var(--text-ui-title); }
+  .video-review-facts { font-size: var(--text-body); }
+  .video-review-time { font-size: clamp(1.5rem, 1rem + 1.4vw, 2.5rem); }
+}
 .video-story { min-width: 0; }
 .video-story > figcaption { padding-block: var(--space-2); margin-top: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
 .video-story-title { min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
