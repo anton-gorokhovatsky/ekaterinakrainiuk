@@ -452,12 +452,11 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-story > :is(figcaption, summary) { display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
 .video-story-featured > figcaption { margin: var(--space-2) 0 0; }
 .video-story-featured .video-story-title { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-3); }
-.video-story-secondary { max-width: 28rem; }
-.video-story-secondary > summary { gap: var(--space-4); margin: 0; padding: 0; }
-.video-story-secondary > summary > img { display: block; width: 5rem; height: auto; aspect-ratio: 3 / 4; object-fit: cover; }
-.video-story-secondary .video-player { max-width: 22rem; margin-top: var(--space-4); }
+.video-story-secondary { max-width: 22rem; margin-top: var(--space-2); }
+.video-story-secondary > summary { min-height: 2.75rem; gap: var(--space-2); margin: 0; padding-block: var(--space-2); }
+.video-story-secondary .video-player { margin-top: var(--space-4); }
 .video-story-title { flex: 1; min-width: 0; display: grid; gap: var(--space-1); }
-.video-story-secondary .video-story-title { flex: 0 1 auto; font-size: var(--text-small); }
+.video-story-secondary .video-story-title { flex: 0 1 auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); }
 .video-story-title small { color: var(--muted); font-size: inherit; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .video-story-secondary .video-story-title small { white-space: normal; }
 .video-story .disclosure { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
@@ -824,8 +823,6 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .video-story-featured { width: min(100%, 20rem); justify-self: center; }
   .video-review-quote { max-width: 18ch; }
   .result-review { gap: var(--space-6); padding-block: var(--space-8); }
-  .video-story-secondary > summary { gap: var(--space-3); }
-  .video-story-secondary > summary > img { width: min(4rem, 20vw); }
   .testimonials { row-gap: var(--space-8); margin-top: var(--space-8); }
   .testimonial figcaption { grid-column: 1; grid-row: auto; margin-bottom: var(--space-4); }
   .testimonial blockquote, .testimonial > .review-full { grid-column: 1; }
