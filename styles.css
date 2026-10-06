@@ -439,7 +439,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-review-media { grid-column: 1 / span 4; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr)); align-items: start; gap: var(--space-3); }
 .video-review-copy { grid-column: 5 / -1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-6); }
 .review-name { display: block; font-size: var(--text-body); font-weight: 600; line-height: var(--leading-small); }
-.video-review-quote { max-width: 17ch; font-size: clamp(2.125rem, 1rem + 4.5vw, 5rem); font-weight: 600; line-height: var(--leading-display); letter-spacing: -.025em; }
+.video-review-quote { margin-top: -.18em; max-width: 17ch; font-size: clamp(2.125rem, 1rem + 4.5vw, 5rem); font-weight: 600; line-height: var(--leading-display); letter-spacing: -.025em; }
 /* Owner-approved exception: the large lead quote keeps its opening mark inline. */
 .video-review-quote .hanging-mark { position: static; transform: none; }
 .review-profile { font-size: var(--text-label); }
@@ -808,7 +808,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .results { --results-columns: minmax(0, 1fr); }
   .video-review { gap: var(--space-8); }
   .video-review-media, .video-review-copy, .result-review-copy, .result-review-data { grid-column: 1; }
-  .video-review-quote { max-width: 18ch; }
+  .video-review-quote { margin-top: 0; max-width: 18ch; }
   .result-review { gap: var(--space-6); padding-block: var(--space-8); }
   .testimonials { row-gap: var(--space-8); margin-top: var(--space-8); }
   .testimonial figcaption { grid-column: 1; grid-row: auto; margin-bottom: var(--space-4); }
