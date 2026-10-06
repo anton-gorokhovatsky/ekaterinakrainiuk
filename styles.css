@@ -437,16 +437,16 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .results-cases { display: grid; gap: var(--space-12); }
 .video-review { display: grid; grid-template-columns: var(--results-columns); gap: var(--gap); align-items: start; }
 .video-story-featured { grid-column: 1 / span 4; display: flex; flex-direction: column; }
-.video-review-copy { grid-column: 5 / -1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-8); }
+.video-review-copy { grid-column: 5 / -1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-6); }
 .review-name { display: block; font-size: var(--text-body); font-weight: 600; line-height: var(--leading-small); }
 .video-review-quote { max-width: 17ch; font-size: clamp(2.125rem, 1rem + 4.5vw, 5rem); font-weight: 600; line-height: var(--leading-display); letter-spacing: -.025em; }
 /* Owner-approved exception: the large lead quote keeps its opening mark inline. */
 .video-review-quote .hanging-mark { position: static; transform: none; }
 .review-profile { font-size: var(--text-label); }
-.video-review-facts { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-block: var(--space-4) var(--space-3); }
-.video-review-time { font-size: var(--text-stat); line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.video-review-facts p { font-size: var(--text-small); }
-.video-review-note { max-width: 43ch; margin-bottom: var(--space-4); font-size: var(--text-small); color: var(--muted); }
+.video-review-facts { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-block: var(--space-4) var(--space-2); font-size: var(--text-small); }
+.video-review-time { font-size: var(--text-lead); line-height: var(--leading-heading); letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+.video-review-event { font-size: var(--text-small); }
+.video-review-event time { color: var(--muted); }
 .review-source { display: inline-block; margin-top: var(--space-2); font-size: var(--text-label); }
 .video-story { min-width: 0; }
 .video-story > :is(figcaption, summary) { display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); margin-bottom: var(--space-2); font-size: var(--text-label); line-height: var(--leading-small); }
@@ -457,7 +457,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-story-secondary > summary > img { display: block; width: 5rem; height: auto; aspect-ratio: 3 / 4; object-fit: cover; }
 .video-story-secondary .video-player { max-width: 22rem; margin-top: var(--space-4); }
 .video-story-title { flex: 1; min-width: 0; display: grid; gap: var(--space-1); }
-.video-story-secondary .video-story-title { font-size: var(--text-small); }
+.video-story-secondary .video-story-title { flex: 0 1 auto; font-size: var(--text-small); }
 .video-story-title small { color: var(--muted); font-size: inherit; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .video-story-secondary .video-story-title small { white-space: normal; }
 .video-story .disclosure { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
