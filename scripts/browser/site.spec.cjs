@@ -155,7 +155,9 @@ test('one action plays actual video, switches audio and keeps captions and focus
     expect(mediaRequests, 'Chromium defers MP4 requests until the visitor chooses a video').toEqual([]);
   }
   const compact = page.viewportSize().width <= 760;
-  const trigger = index => stories.nth(index).locator(compact ? ':scope > summary' : '.video-play');
+  const trigger = index => stories.nth(index).locator(index === 0 ? '.video-play' : ':scope > summary');
+  await expect(page.locator('.video-story-featured')).toHaveJSProperty('tagName', 'FIGURE');
+  await expect(stories.nth(1)).toHaveJSProperty('open', false);
   await trigger(0).focus();
   await trigger(0).press('Enter');
   await expect.poll(() => first.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
@@ -169,14 +171,19 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await trigger(1).click();
   await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
   await expect(first).toHaveJSProperty('paused', true);
-  if (compact) {
-    await expect(stories.nth(0)).toHaveJSProperty('open', false);
-    await trigger(1).click();
-    await expect(second).toHaveJSProperty('paused', true);
-    await expect(trigger(1)).toBeFocused();
-  }
+  await trigger(1).click();
+  await expect(second).toHaveJSProperty('paused', true);
+  await expect(trigger(1)).toBeFocused();
+  await trigger(1).press('Enter');
+  await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
+  await expect(second).toBeFocused();
+  const secondPlayer = await second.elementHandle();
   await page.setViewportSize({ width: compact ? 1440 : 390, height: 900 });
   await expect(page.locator('video')).toHaveCount(2);
+  expect(await second.evaluate((video, original) => video === original, secondPlayer)).toBe(true);
+  await expect(second).toHaveJSProperty('paused', false);
+  await expect(second).toBeFocused();
+  await trigger(1).click();
   await expect(second).toHaveJSProperty('paused', true);
   await noOverflow(page);
 });
@@ -240,7 +247,9 @@ test('native content, navigation, video controls and system theme work without J
     const service = page.locator('.service').first();
     await service.locator('summary').click();
     await expect(service.locator('.service-body')).toBeVisible();
-    await expect(page.locator('figure.video-story')).toHaveCount(2);
+    await expect(page.locator('figure.video-story')).toHaveCount(1);
+    await expect(page.locator('details.video-story')).toHaveJSProperty('open', true);
+    await expect(page.locator('#andrey-coaching-video')).toBeVisible();
     await expect(page.locator('video').first()).toHaveAttribute('controls', '');
     await expect(page.locator('.video-play').first()).toBeHidden();
     await expect(page.locator('.tarot-card-toggle').first()).toBeHidden();
@@ -251,4 +260,22 @@ test('native content, navigation, video controls and system theme work without J
   } finally {
     await context.close();
   }
+});
+
+test('reviews keep text readable across widths and at 200%', async ({ page }) => {
+  await page.goto('./#results');
+  await page.evaluate(() => document.fonts.ready);
+  const overflowingReviewText = () => page.locator('#results').evaluate(section =>
+    [...section.querySelectorAll('h2, h3, p, blockquote, .result-entry-times, .video-story-title')]
+      .filter(element => element.getClientRects().length && element.scrollWidth > element.clientWidth + 1)
+      .map(element => element.textContent.trim()));
+  for (const width of [320, 760, 980, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(await overflowingReviewText(), `review text fits at ${width}px`).toEqual([]);
+  }
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.addStyleTag({ content: ':root { font-size: 200%; }' });
+  expect(await overflowingReviewText(), 'review text stays readable at 200%').toEqual([]);
+  await expect(page.locator('.result-records table')).toBeVisible();
+  await expect(page.locator('.video-story-featured video')).toBeVisible();
 });

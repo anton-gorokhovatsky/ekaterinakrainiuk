@@ -33,10 +33,10 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2?v=2f175b8fc40e" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2?v=f8d71091110f" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=8f61af6cddcc">
-  <link rel="stylesheet" href="styles.css?v=1678babaa24b">
+  <link rel="stylesheet" href="styles.css?v=6454faa24c14">
   <link rel="stylesheet" href="tarot.css?v=43c318fd2ea9">
   <script src="script.js?v=12b55740b290" defer></script>
-  <script src="video.js?v=99defae38151" defer></script>
+  <script src="video.js?v=e9abc8091155" defer></script>
   <script src="tarot.js?v=9dfa8fea7d0a" defer></script>
   <script src="daylight.js?v=65087d3a4fe5" defer></script>
 </head>
@@ -378,54 +378,58 @@
     <section class="results" id="results" aria-labelledby="results-title" tabindex="-1">
       <div class="results-head">
         <span class="eyebrow">Результаты и слова спортсменов</span>
-        <h2 id="results-title">Получается</h2>
-        <p>И в цифрах, и в ощущениях.</p>
+        <h2 id="results-title">После финиша.</h2>
       </div>
       <div class="results-cases">
-        <article class="video-review review-card" id="andrey-review" tabindex="-1" aria-labelledby="andrey-review-title">
+        <article class="video-review" id="andrey-review" tabindex="-1" aria-labelledby="andrey-review-title">
+          <figure class="video-story video-story-featured">
+            <div class="video-player">
+              <video id="andrey-finish-video" controls playsinline preload="none" poster="assets/images/andrey-filippov-finish.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-finish-caption">
+                <source src="assets/videos/andrey-filippov-finish.mp4?v=8e3c224954e6" type="video/mp4">
+                <track kind="captions" src="assets/videos/andrey-filippov-finish.ru.vtt?v=2a2c756c1593" srclang="ru" label="Русские" default>
+                <a href="assets/videos/andrey-filippov-finish.mp4?v=8e3c224954e6">Смотреть первую сторис Андрея</a>
+              </video>
+              <button class="video-play" type="button" aria-controls="andrey-finish-video" aria-label="Смотреть видео «Сразу после финиша»" hidden><span class="video-play-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><use href="assets/icons/tabler.svg?v=387d19c195b0#player-play"/></svg></span></button>
+            </div>
+            <p class="video-status" role="status" hidden></p>
+            <figcaption>
+              <span class="video-story-title" id="andrey-finish-caption"><span>Сразу после финиша</span><small>Видео · 0:16</small></span>
+            </figcaption>
+          </figure>
           <div class="video-review-copy">
-            <h3 class="review-name" id="andrey-review-title">Андрей Филиппов</h3>
-            <a class="text-link link" href="https://www.instagram.com/phil.philippov/"><span class="link-label">@phil.philippov</span></a>
-            <p><strong>Первое место</strong> в группе <span class="age-group">М20–29</span> на миле SWIMSTAR в Сириусе <time datetime="2026-10-02">2 октября 2026 года</time>. Результат — <strong>29:59.</strong><br><a class="link review-source" href="https://iron-star.com/local/results/download/497690?locale=ru"><span class="link-label">Сертификат Андрея (PDF)</span></a></p>
-            <blockquote><p class="hanging-text"><span class="hanging-mark">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга».</p></blockquote>
-            <p class="video-review-note">В двух сторис Андрей делится эмоциями и рассказывает, как прошёл заплыв по нашему плану.</p>
-          </div>
-          <div class="video-stories">
-            <figure class="video-story">
-              <figcaption>
-                <img src="assets/images/andrey-filippov-finish.webp" width="720" height="1280" loading="lazy" decoding="async" alt="">
-                <span class="video-story-title" id="andrey-finish-caption"><span>Сразу после финиша</span><small>Видео · 0:16</small></span>
-                <span class="disclosure video-story-action" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><use href="assets/icons/tabler.svg?v=387d19c195b0#player-play"/></svg></span>
-              </figcaption>
-              <div class="video-player">
-                <video id="andrey-finish-video" controls playsinline preload="none" poster="assets/images/andrey-filippov-finish.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-finish-caption">
-                  <source src="assets/videos/andrey-filippov-finish.mp4?v=8e3c224954e6" type="video/mp4">
-                  <track kind="captions" src="assets/videos/andrey-filippov-finish.ru.vtt?v=2a2c756c1593" srclang="ru" label="Русские" default>
-                  <a href="assets/videos/andrey-filippov-finish.mp4?v=8e3c224954e6">Смотреть первую сторис Андрея</a>
-                </video>
-                <button class="video-play" type="button" aria-controls="andrey-finish-video" aria-label="Смотреть видео «Сразу после финиша»" hidden><span class="video-play-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><use href="assets/icons/tabler.svg?v=387d19c195b0#player-play"/></svg></span></button>
+            <blockquote class="video-review-quote"><p class="hanging-text"><span class="hanging-mark">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга».</p></blockquote>
+            <div class="video-review-result">
+              <h3 class="review-name" id="andrey-review-title">Андрей Филиппов</h3>
+              <a class="text-link link review-profile" href="https://www.instagram.com/phil.philippov/"><span class="link-label">@phil.philippov</span></a>
+              <div class="video-review-facts">
+                <strong class="video-review-time">29:59</strong>
+                <p><strong>1-е место</strong> в группе <span class="age-group">М20–29</span><br>SWIMSTAR · 1 миля · Сириус</p>
               </div>
-              <p class="video-status" role="status" hidden></p>
-            </figure>
-            <figure class="video-story">
-              <figcaption>
-                <img src="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" loading="lazy" decoding="async" alt="">
-                <span class="video-story-title" id="andrey-coaching-caption"><span>Как прошёл заплыв</span><small>Видео · 0:46</small></span>
-                <span class="disclosure video-story-action" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><use href="assets/icons/tabler.svg?v=387d19c195b0#player-play"/></svg></span>
-              </figcaption>
-              <div class="video-player">
-                <video id="andrey-coaching-video" controls playsinline preload="none" poster="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-coaching-caption">
-                  <source src="assets/videos/andrey-filippov-coaching.mp4?v=f3c9738a97f7" type="video/mp4">
-                  <track kind="captions" src="assets/videos/andrey-filippov-coaching.ru.vtt?v=fde1cf8f47bb" srclang="ru" label="Русские" default>
-                  <a href="assets/videos/andrey-filippov-coaching.mp4?v=f3c9738a97f7">Смотреть вторую сторис Андрея</a>
-                </video>
-                <button class="video-play" type="button" aria-controls="andrey-coaching-video" aria-label="Смотреть видео «Как прошёл заплыв»" hidden><span class="video-play-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><use href="assets/icons/tabler.svg?v=387d19c195b0#player-play"/></svg></span></button>
-              </div>
-              <p class="video-status" role="status" hidden></p>
-            </figure>
+              <p class="review-context"><time datetime="2026-10-02">2 октября 2026 года</time></p>
+              <a class="link review-source" href="https://iron-star.com/local/results/download/497690?locale=ru"><span class="link-label">Сертификат Андрея (PDF)</span></a>
+            </div>
+            <div class="video-review-more">
+              <p class="video-review-note">В двух сторис Андрей делится эмоциями и рассказывает, как прошёл заплыв по нашему плану.</p>
+              <details class="video-story video-story-secondary" open>
+                <summary>
+                  <img src="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" loading="lazy" decoding="async" alt="">
+                  <span class="video-story-title" id="andrey-coaching-caption"><span>Как прошёл заплыв</span><small>Видео · 0:46</small></span>
+                  <span class="disclosure video-story-action" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><use href="assets/icons/tabler.svg?v=387d19c195b0#player-play"/></svg></span>
+                </summary>
+                <div class="video-player">
+                  <video id="andrey-coaching-video" controls playsinline preload="none" poster="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-coaching-caption">
+                    <source src="assets/videos/andrey-filippov-coaching.mp4?v=f3c9738a97f7" type="video/mp4">
+                    <track kind="captions" src="assets/videos/andrey-filippov-coaching.ru.vtt?v=fde1cf8f47bb" srclang="ru" label="Русские" default>
+                    <a href="assets/videos/andrey-filippov-coaching.mp4?v=f3c9738a97f7">Смотреть вторую сторис Андрея</a>
+                  </video>
+                  <button class="video-play" type="button" aria-controls="andrey-coaching-video" aria-label="Смотреть видео «Как прошёл заплыв»" hidden><span class="video-play-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><use href="assets/icons/tabler.svg?v=387d19c195b0#player-play"/></svg></span></button>
+                </div>
+                <p class="video-status" role="status" hidden></p>
+              </details>
+            </div>
           </div>
         </article>
-        <article class="result-review review-card" aria-labelledby="evgenia-review-title">
+        <article class="result-review" aria-labelledby="evgenia-review-title">
           <div class="result-review-copy">
             <div class="review-person">
               <img src="assets/images/evgenia.webp" width="400" height="400" loading="lazy" decoding="async" alt="">
@@ -435,13 +439,13 @@
               </div>
             </div>
             <p class="result-story-label">380 м плавания, 20,5 км велосипеда и 5 км бега.</p>
+          </div>
+          <div class="result-review-data">
             <div class="result-entry-times">
               <span class="result-entry-metric"><small>2023</small><span>1:19:43</span></span>
               <svg class="link-icon result-entry-arrow" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=387d19c195b0#arrow-right"/></svg>
               <span class="result-entry-metric result-entry-after"><small>2025</small><span>1:12:35</span></span>
             </div>
-          </div>
-          <div class="result-review-data">
             <div class="result-records">
               <div class="table-scroll" tabindex="0" role="region" aria-label="Результаты Евгении на Ironstar 1/8 Лужники">
                 <table>

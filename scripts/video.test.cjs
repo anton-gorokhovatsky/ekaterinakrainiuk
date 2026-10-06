@@ -6,7 +6,7 @@ const { runInNewContext } = require('node:vm');
 
 const source = readFileSync(resolve(__dirname, '../video.js'), 'utf8');
 
-function visit({ mobile = false } = {}) {
+function visit() {
   const roots = [];
   const document = { activeElement: null };
   const element = properties => {
@@ -64,11 +64,11 @@ function visit({ mobile = false } = {}) {
     });
     const button = element({ className: 'video-play', hidden: true });
     const status = element({ className: 'video-status', hidden: true, textContent: '' });
-    const caption = element({ tagName: 'FIGCAPTION' });
+    const caption = element({ tagName: index === 0 ? 'FIGCAPTION' : 'SUMMARY' });
     caption.append(element({ selector: '.video-story-title > span', textContent: title }));
     const player = element({ className: 'video-player' });
     player.append(video, button);
-    const story = element({ tagName: 'FIGURE', className: 'video-story' });
+    const story = element({ tagName: index === 0 ? 'FIGURE' : 'DETAILS', className: 'video-story', ...(index === 1 ? { open: true } : {}) });
     story.append(caption, player, status);
     roots.push(story);
     return {
@@ -83,9 +83,8 @@ function visit({ mobile = false } = {}) {
   });
   document.querySelectorAll = () => roots;
   document.createElement = tag => element({ tagName: tag.toUpperCase(), ...(tag === 'details' ? { open: false } : {}) });
-  const compact = element({ matches: mobile });
-  runInNewContext(source, { document, window: { matchMedia: () => compact } });
-  return { document, stories, compact };
+  runInNewContext(source, { document });
+  return { document, stories };
 }
 
 test('large poster control transfers keyboard focus and follows pause and replay states', async () => {
@@ -136,109 +135,70 @@ test('failed starts remain retryable, while a cancelled start is not announced a
   }
 });
 
-test('one mobile row activation opens and starts immediately, and switching stops the first story', async () => {
-  const { document, stories: [first, second] } = visit({ mobile: true });
-  assert.equal(first.open, false);
+test('supporting clip opens and plays in the same activation, while the featured clip stays visible', async () => {
+  const { document, stories: [first, second] } = visit();
+  assert.equal(first.tagName, 'FIGURE');
+  assert.equal(first.summary, null);
   assert.equal(second.open, false);
-  assert.equal(first.summary['aria-label'], 'Смотреть видео «Сразу после финиша»');
+  assert.equal(second.summary['aria-label'], 'Смотреть видео «Как прошёл заплыв»');
+  await first.button.emit('click');
   let prevented = 0;
-  const click = { preventDefault() { prevented++; } };
-  first.summary.focus();
-  const playing = first.summary.emit('click', click);
-  // play() must run before the event returns, not from a later toggle or timer.
-  assert.equal(first.open, true);
-  assert.equal(first.video.paused, false);
-  assert.equal(first.video.playCalls, 1);
-  assert.equal(first.scrollRequest.block, 'start');
-  assert.equal(document.activeElement, first.video);
-  assert.equal(first.summary['aria-label'], 'Свернуть видео «Сразу после финиша»');
-  await playing;
-  first.emit('toggle');
-  assert.equal(first.video.playCalls, 1);
   second.summary.focus();
-  await second.summary.emit('click', click);
-  second.emit('toggle');
-  assert.equal(first.video.paused, true);
-  assert.equal(first.open, false);
+  const playing = second.summary.emit('click', { preventDefault() { prevented++; } });
+  // play() must run before the event returns, not from a later toggle or timer.
   assert.equal(second.open, true);
   assert.equal(second.video.paused, false);
   assert.equal(second.video.playCalls, 1);
-  assert.equal(prevented, 2);
+  assert.equal(first.video.paused, true);
+  assert.equal(second.scrollRequest.block, 'start');
   assert.equal(document.activeElement, second.video);
+  assert.equal(second.summary['aria-label'], 'Свернуть видео «Как прошёл заплыв»');
+  await playing;
+  second.emit('toggle');
+  assert.equal(second.video.playCalls, 1);
+  assert.equal(prevented, 1);
 });
 
-test('closing a mobile row pauses playback and reopening resumes with one activation', async () => {
-  const { stories: [first] } = visit({ mobile: true });
+test('closing a supporting clip restores focus, and reopening resumes with one activation', async () => {
+  const { document, stories: [, second] } = visit();
   const click = { preventDefault() {} };
-  await first.summary.emit('click', click);
-  first.video.currentTime = 6;
-  await first.summary.emit('click', click);
-  assert.equal(first.open, false);
-  assert.equal(first.video.paused, true);
-  assert.equal(first.video.playCalls, 1);
-  assert.equal(first.summary['aria-label'], 'Продолжить видео «Сразу после финиша»');
-  await first.summary.emit('click', click);
-  assert.equal(first.video.paused, false);
-  assert.equal(first.video.currentTime, 6);
-  assert.equal(first.video.playCalls, 2);
-});
-
-test('a failed mobile start exposes the player and a working retry control', async () => {
-  const { stories: [first] } = visit({ mobile: true });
-  first.video.failure = { name: 'NotAllowedError' };
-  await first.summary.emit('click', { preventDefault() {} });
-  assert.equal(first.open, true);
-  assert.equal(first.video.paused, true);
-  assert.equal(first.button.hidden, false);
-  assert.equal(first.status.hidden, false);
-  delete first.video.failure;
-  await first.button.emit('click');
-  assert.equal(first.video.paused, false);
-  assert.equal(first.status.hidden, true);
-});
-
-test('collapsing a focused player at the mobile breakpoint preserves a visible focus target', async () => {
-  const { document, compact, stories: [first, second] } = visit();
-  await first.video.play();
-  first.video.focus();
-  compact.matches = true;
-  compact.emit('change');
-  assert.equal(first.video.paused, true);
-  assert.equal(first.open, false);
+  second.summary.focus();
+  await second.summary.emit('click', click);
+  second.video.currentTime = 6;
+  await second.summary.emit('click', click);
   assert.equal(second.open, false);
-  assert.equal(document.activeElement, first.summary);
-  compact.matches = false;
-  compact.emit('change');
-  assert.equal(first.tagName, 'FIGURE');
-  assert.equal(second.tagName, 'FIGURE');
-  assert.equal(first.summary, null);
-  assert.equal(first.video.paused, true);
-  assert.equal(document.activeElement, first.button);
+  assert.equal(second.video.paused, true);
+  assert.equal(second.video.playCalls, 1);
+  assert.equal(document.activeElement, second.summary);
+  assert.equal(second.summary['aria-label'], 'Продолжить видео «Как прошёл заплыв»');
+  await second.summary.emit('click', click);
+  assert.equal(second.video.paused, false);
+  assert.equal(second.video.currentTime, 6);
+  assert.equal(second.video.playCalls, 2);
 });
 
-test('desktop stories are static figures and repeated resizing keeps the same working players', async () => {
-  const { stories, compact } = visit();
-  const videos = stories.map(story => story.video);
-  for (const story of stories) {
-    assert.equal(story.tagName, 'FIGURE');
-    assert.equal(story.summary, null);
-  }
-  for (let cycle = 0; cycle < 3; cycle++) {
-    compact.matches = true;
-    compact.emit('change');
-    for (const story of stories) {
-      assert.equal(story.tagName, 'DETAILS');
-      assert.equal(story.open, false);
-    }
-    await stories[0].summary.emit('click', { preventDefault() {} });
-    assert.equal(stories[0].video.paused, false);
-    compact.matches = false;
-    compact.emit('change');
-    assert.equal(stories[0].video.paused, true);
-    stories.forEach((story, index) => {
-      assert.equal(story.video, videos[index]);
-      assert.equal(story.tagName, 'FIGURE');
-      assert.equal(story.summary, null);
-    });
-  }
+test('a failed supporting start leaves the player open with a working retry control', async () => {
+  const { stories: [, second] } = visit();
+  second.video.failure = { name: 'NotAllowedError' };
+  await second.summary.emit('click', { preventDefault() {} });
+  assert.equal(second.open, true);
+  assert.equal(second.video.paused, true);
+  assert.equal(second.button.hidden, false);
+  assert.equal(second.status.hidden, false);
+  delete second.video.failure;
+  await second.button.emit('click');
+  assert.equal(second.video.paused, false);
+  assert.equal(second.status.hidden, true);
+});
+
+test('returning to the featured clip closes and pauses the supporting clip', async () => {
+  const { document, stories: [first, second] } = visit();
+  await second.summary.emit('click', { preventDefault() {} });
+  first.button.focus();
+  await first.button.emit('click');
+  assert.equal(second.open, false);
+  assert.equal(second.video.paused, true);
+  assert.equal(first.video.paused, false);
+  assert.equal(document.activeElement, first.video);
+  assert.equal(first.tagName, 'FIGURE');
 });
