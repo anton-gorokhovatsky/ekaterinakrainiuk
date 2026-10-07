@@ -261,9 +261,8 @@ summary::-webkit-details-marker { display: none; }
 .route h2 { font-size: var(--text-lead); line-height: var(--leading-heading); }
 .route-preview { display: none; pointer-events: none; }
 @media (min-width: 1200px) {
-  .route-preview { display: block; position: absolute; right: calc(var(--pad) + 13rem); top: 50%; width: clamp(8rem, 11vw, 11rem); aspect-ratio: .85; opacity: 0; clip-path: inset(100% 0 0); transform: translateY(calc(-50% + .75rem)) rotate(-8deg) scale(.94); transition: opacity 180ms var(--ease-exit), clip-path 320ms var(--ease-exit), transform 320ms var(--ease-exit); }
-  .route-preview img { width: 100%; height: 100%; object-fit: cover; object-position: center 42%; }
-  .route-triathlon .route-preview img { object-position: center 28%; }
+  .route-preview { display: block; position: absolute; right: calc(var(--pad) + 13rem); top: 50%; width: clamp(8rem, 11vw, 11rem); opacity: 0; clip-path: inset(100% 0 0); transform: translateY(calc(-50% + .75rem)) rotate(-8deg) scale(.94); transition: opacity 180ms var(--ease-exit), clip-path 320ms var(--ease-exit), transform 320ms var(--ease-exit); }
+  .route-preview img { width: 100%; height: auto; }
   .route:not([open]) > summary:focus-visible .route-preview { opacity: 1; clip-path: inset(0); transform: translateY(-50%) rotate(-3deg); transition-timing-function: var(--ease-enter); }
 }
 .route-number, .route-kind { font-size: var(--text-label); }
@@ -314,20 +313,20 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .water-story > p:not(.story-headline) { font-size: var(--text-body); }
 .water-story .story-cta { margin-top: var(--space-4); }
 .water-training { grid-column: 7 / -1; }
-.water-training img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.water-training img { width: 100%; height: auto; }
 .route-content figcaption { font-size: var(--text-label); margin-top: var(--space-3); }
 /* One lead photograph, with the travel notes and smaller observations beside it. */
 .ride-content { display: grid; grid-template-columns: var(--grid); grid-template-rows: auto auto 1fr; gap: var(--space-6) var(--gap); align-items: start; }
 .ride-opening { grid-column: 6 / -1; grid-row: 1; }
 .ride-opening .story-headline { margin-bottom: var(--space-6); }
 .ride-lead { grid-column: 1 / span 5; grid-row: 1 / span 3; }
-.ride-lead img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.ride-lead img { width: 100%; height: auto; }
 .ride-journal { grid-column: 6 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); align-items: start; }
-.ride-journal img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.ride-journal img { width: 100%; height: auto; }
 .ride-ending { grid-column: 6 / -1; grid-row: 3; display: flex; justify-content: space-between; align-items: end; gap: var(--space-6); }
 .ride-ending p { font-size: var(--text-label); }
 .ride-ending .story-cta { flex: 0 0 auto; padding-block: 0; }
-.run-photo img { width: 100%; aspect-ratio: 2.4; object-fit: cover; object-position: center 40%; }
+.run-photo img { width: 100%; height: auto; }
 .run-bottom { display: grid; grid-template-columns: var(--grid); gap: var(--gap); margin-top: var(--space-12); }
 .run-bottom > div:first-child { grid-column: 1 / span 6; }
 .run-bottom .story-cta { margin-top: var(--space-4); }
@@ -338,7 +337,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .strava-metrics { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin: var(--space-4) 0; }
 .strava-metrics dt { font-size: var(--text-label); }
 .strava-metrics dd { margin: var(--space-1) 0 0; font-size: var(--text-body); font-variant-numeric: tabular-nums; }
-.strava-medal img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 65%; }
+.strava-medal img { width: 100%; height: auto; }
 .strava-medal figcaption { font-size: var(--text-small); }
 .strava-medal .medal-caption-label { display: block; margin-top: var(--space-2); font-size: var(--text-label); }
 .triathlon-content { display: grid; grid-template-columns: var(--grid); gap: var(--gap); align-items: center; }
@@ -370,7 +369,6 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
   }
   .run-content { display: grid; grid-template-columns: var(--grid); gap: var(--space-10) var(--gap); align-items: start; }
   .run-photo { grid-column: 7 / -1; grid-row: 1; }
-  .run-photo img { aspect-ratio: 1.65; object-position: center; }
   .run-bottom { display: contents; }
   .run-bottom > div:first-child { grid-column: 1 / span 6; grid-row: 1; }
   .strava-note { grid-column: 1 / -1; grid-row: 2; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1.65fr); align-items: start; padding-top: var(--space-8); border-top: 1px solid #10121640; }
@@ -411,9 +409,9 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .training-preview { display: none; }
 @media (min-width: 1001px) and (hover: hover) and (pointer: fine) {
   .training-proof { position: sticky; top: calc(var(--header-height, 5.5rem) + var(--space-6)); }
-  .training-preview { display: block; width: min(100%, 18rem); aspect-ratio: 4 / 3; max-height: 27svh; margin-top: var(--space-6); opacity: 0; visibility: hidden; transform: translateY(.5rem); transition: opacity 180ms var(--ease-enter), transform 320ms var(--ease-enter), visibility 180ms; pointer-events: none; }
+  .training-preview { display: block; width: min(100%, 18rem); margin-top: var(--space-6); opacity: 0; visibility: hidden; transform: translateY(.5rem); transition: opacity 180ms var(--ease-enter), transform 320ms var(--ease-enter), visibility 180ms; pointer-events: none; }
   .training-preview.is-visible { opacity: 1; visibility: visible; transform: none; }
-  .training-preview img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .training-preview img { display: block; width: auto; height: auto; max-width: 100%; max-height: 27svh; }
 }
 .training-options > .training-group-title, .training-extra > .training-group-title { margin-bottom: var(--space-5); }
 .training-extra { border-top: 1px solid var(--line); margin-top: var(--space-5); padding-top: var(--space-6); }
@@ -427,7 +425,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .service-price-text { font-size: var(--text-body); }
 .service .disclosure { grid-column: 3; grid-row: 1; width: 1rem; height: 1rem; align-self: center; }
 .service-body { display: grid; grid-template-columns: .8fr 1.5fr; gap: var(--space-6); padding: 0 0 var(--space-8); }
-.service-body img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.service-body img { width: 100%; height: auto; align-self: start; }
 .service-body p { font-size: var(--text-body); }
 .service-body .service-note { margin-top: var(--space-3); color: var(--muted); font-size: var(--text-small); }
 .service-body .text-link { min-height: 2.75rem; font-size: var(--text-small); margin-top: var(--space-3); }
@@ -778,7 +776,6 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .ride-journal { order: 2; gap: var(--space-3); }
   .ride-ending { order: 3; display: block; }
   .ride-ending .story-cta { margin-top: var(--space-5); padding-block: var(--space-3); }
-  .run-photo img { aspect-ratio: 1.2; object-position: 56% center; }
   .run-bottom { margin-top: var(--space-8); }
   .run-bottom > div:first-child { grid-column: 1 / -1; }
   .strava-note { grid-template-columns: minmax(0, 1fr); }
@@ -813,7 +810,6 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .service .service-price { grid-column: 1; grid-row: 3; text-align: left; font-size: var(--text-body); }
   .service .disclosure { grid-column: 2; grid-row: 1; }
   .service-body { grid-template-columns: 1fr; padding: 0 0 var(--space-6); gap: var(--space-4); }
-  .service-body img { aspect-ratio: 1.7; }
   .results { --results-columns: minmax(0, 1fr); }
   .video-review { gap: var(--space-8); }
   .video-review-media, .video-review-copy, .result-review-copy, .result-review-data { grid-column: 1; }

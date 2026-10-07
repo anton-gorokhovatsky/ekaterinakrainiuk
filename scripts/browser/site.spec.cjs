@@ -245,6 +245,28 @@ test('320px layout keeps open content inside the page in both themes', async ({ 
   }
 });
 
+test('editorial and service photographs retain the full source frame across widths', async ({ page }) => {
+  await page.goto('./');
+  await page.evaluate(async () => {
+    document.querySelectorAll('details.route, details.service').forEach(details => { details.open = true; });
+    await Promise.all([...document.querySelectorAll('.route-content img, .service-body img')].map(async image => {
+      image.loading = 'eager';
+      await image.decode();
+    }));
+  });
+  for (const width of [320, 760, 980, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const cropped = await page.locator('.route-content img, .service-body img').evaluateAll(images =>
+      images.filter(image => {
+        const style = getComputedStyle(image);
+        const renderedRatio = parseFloat(style.width) / parseFloat(style.height);
+        return !image.naturalWidth || Math.abs(renderedRatio - image.naturalWidth / image.naturalHeight) > .01;
+      }).map(image => image.getAttribute('src')));
+    expect(cropped, `photographs preserve their natural proportions at ${width}px`).toEqual([]);
+    await noOverflow(page);
+  }
+});
+
 test('native content, navigation, video controls and system theme work without JavaScript', async ({ browser, baseURL }, testInfo) => {
   const context = await browser.newContext({
     javaScriptEnabled: false,

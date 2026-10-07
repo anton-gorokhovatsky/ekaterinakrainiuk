@@ -238,6 +238,8 @@ if (trainingProof) {
     photo.src = source.currentSrc || source.src;
     try { await photo.decode(); } catch { return; }
     if (request !== revision) return;
+    image.width = photo.naturalWidth;
+    image.height = photo.naturalHeight;
     image.src = photo.src;
     preview.classList.add('is-visible');
   };
