@@ -24,6 +24,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --ignore-scripts
+      - name: Use Ubuntu HTTPS archives
+        run: sudo sed -i '/azure\.archive\.ubuntu\.com/d' /etc/apt/apt-mirrors.txt
       - name: Install test browsers
         run: npx playwright install --with-deps chromium webkit
       - name: Check content, resource graph, versions and unit tests
