@@ -467,9 +467,9 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-play { position: absolute; inset: 0 0 var(--space-16); display: grid; place-items: center; width: 100%; padding: var(--space-16) 0 0; border: 0; border-radius: 0; background: transparent; color: var(--action-ink); }
 .video-play-icon { position: relative; display: grid; place-items: center; width: var(--space-16); height: var(--space-16); border-radius: 50%; background: var(--play-fill); -webkit-backdrop-filter: var(--play-filter); backdrop-filter: var(--play-filter); box-shadow: 0 2px 16px #0002; transition: transform 180ms var(--ease-enter); }
 .video-play-icon svg { stroke-width: 2; transform: translateX(1px); }
-@supports (mask-image: url("assets/icons/play-glass-mask.svg?v=4da9c05c1136")) or (-webkit-mask-image: url("assets/icons/play-glass-mask.svg?v=4da9c05c1136")) {
+@supports (mask-image: url("assets/icons/play-glass-mask.svg?v=b4c390a7d948")) or (-webkit-mask-image: url("assets/icons/play-glass-mask.svg?v=b4c390a7d948")) {
   .video-play-icon { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .video-play-icon::before { content: ""; position: absolute; inset: 0; background: var(--play-fill); -webkit-backdrop-filter: var(--play-filter); backdrop-filter: var(--play-filter); -webkit-mask: url("assets/icons/play-glass-mask.svg?v=4da9c05c1136") center / contain no-repeat; mask: url("assets/icons/play-glass-mask.svg?v=4da9c05c1136") center / contain no-repeat; }
+  .video-play-icon::before { content: ""; position: absolute; inset: 0; background: var(--play-fill); -webkit-backdrop-filter: var(--play-filter); backdrop-filter: var(--play-filter); -webkit-mask: url("assets/icons/play-glass-mask.svg?v=b4c390a7d948") center / contain no-repeat; mask: url("assets/icons/play-glass-mask.svg?v=b4c390a7d948") center / contain no-repeat; }
   .video-play-icon svg { visibility: hidden; }
 }
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
@@ -523,6 +523,7 @@ td:last-child, th:last-child { padding-right: 0; }
 tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .record-latest :is(th, td) { font-weight: 600; }
 .record-note { color: var(--muted); }
+.ordinal { white-space: nowrap; }
 .testimonials { display: grid; grid-template-columns: var(--results-columns); row-gap: var(--space-8); margin-top: var(--space-12); }
 .testimonial { grid-column: 1 / -1; display: grid; grid-template-columns: var(--results-columns); column-gap: var(--gap); align-items: start; min-width: 0; }
 .testimonial figcaption { grid-column: 1 / span 4; grid-row: 1 / 3; }
@@ -689,7 +690,8 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .nav-main > a { justify-content: space-between; gap: var(--space-4); font: 700 clamp(1.5rem, 8.6vw, 3.5rem)/var(--leading-heading) var(--display); padding: var(--space-3) 0; white-space: normal; }
   .nav-sports { display: block; }
   .nav-sports .eyebrow { color: var(--glass-muted); }
-  .nav-sports-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr)); gap: 0 var(--space-6); margin-top: var(--space-2); }
+  /* At most two columns; large text can still reduce the grid to one. */
+  .nav-sports-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, max(6.5rem, calc((100% - var(--space-6)) / 2))), 1fr)); gap: 0 var(--space-6); margin-top: var(--space-2); }
   .nav-sports-links > a { width: 100%; min-height: 2.75rem; justify-content: space-between; font-size: var(--text-small); }
   .nav-sports-links .link-label { min-width: 0; overflow-wrap: anywhere; }
   .nav-actions { flex-direction: column; align-items: stretch; gap: var(--space-4); margin-top: auto; }
@@ -838,7 +840,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .channel-heading h2 { font-size: var(--text-ui-title); }
   .channel-copy { grid-column: 1 / -1; grid-row: 2; }
   .daylight summary { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) 1rem; gap: var(--space-1) var(--space-2); font-size: var(--text-label); }
-  .daylight-mark { grid-column: 1; grid-row: 1 / 3; }
+  .daylight-mark { grid-column: 1; grid-row: 1; }
   .daylight .disclosure-label { grid-column: 2; grid-row: 1; }
   .daylight-summary-end { display: contents; }
   [data-weather-summary] { grid-column: 2; grid-row: 2; font-size: var(--text-label); }

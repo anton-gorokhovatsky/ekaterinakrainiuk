@@ -48,6 +48,7 @@
 .tarot-ready .is-revealed .tarot-card-inner { transform: rotateY(180deg); }
 .tarot-card-toggle { position: absolute; inset: 0; width: 100%; border: 0; border-radius: var(--card-corner); corner-shape: squircle; padding: 0; color: transparent; font-size: 0; cursor: pointer; background: transparent; }
 .tarot-swipe { display: none; }
+.tarot-swipe-end { display: inline-flex; align-items: center; gap: .45em; white-space: nowrap; }
 .tarot-card:has(.tarot-card-toggle:not([aria-disabled="true"]):focus-visible) :is(.tarot-tap, .tarot-close) .link-label { text-decoration-color: currentColor; }
 .tarot-card-toggle[aria-disabled="true"] { cursor: wait; }
 .tarot-actions { display: flex; justify-content: space-between; align-items: last baseline; gap: var(--space-8); max-width: 70rem; margin-inline: auto; padding-inline: var(--space-4); }
