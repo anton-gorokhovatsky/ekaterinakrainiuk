@@ -10,7 +10,7 @@ module.exports = defineConfig({
   expect: { timeout: 8_000 },
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://127.0.0.1:4188/ekaterinakrainiuk/',
+    baseURL: 'http://127.0.0.1:4188/',
     reducedMotion: 'reduce',
     colorScheme: 'light',
     trace: 'retain-on-failure',
@@ -25,7 +25,7 @@ module.exports = defineConfig({
   ],
   webServer: {
     command: 'python3 scripts/serve_test.py',
-    url: 'http://127.0.0.1:4188/ekaterinakrainiuk/',
+    url: 'http://127.0.0.1:4188/',
     reuseExistingServer: false,
     timeout: 15_000,
     stdout: 'ignore',

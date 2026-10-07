@@ -5,7 +5,6 @@ import re
 from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
 
-BASE_PATH = '/ekaterinakrainiuk/'
 VERSIONED = {'.css', '.js', '.svg', '.mp4', '.vtt', '.woff', '.woff2'}
 HTML_URL = re.compile(r'''(?<![\w-])(?:href|src|poster)\s*=\s*(["'])(?P<url>.*?)\1''', re.I)
 CSS_URL = re.compile(r'''url\(\s*(["']?)(?P<url>[^\s)"']+)\1\s*\)''', re.I)
@@ -32,15 +31,13 @@ def references(path, text):
 
 
 def local_target(value, source, root):
-    """Resolve browser URLs, including the Pages subpath, without leaving the site."""
+    """Resolve relative and domain-root URLs without leaving the public site."""
     url = urlsplit(unescape(value))
     if url.scheme or url.netloc or not url.path:
         return None
     relative = unquote(url.path)
-    if relative.startswith(BASE_PATH):
-        target = root / relative[len(BASE_PATH):]
-    elif relative.startswith('/'):
-        raise ValueError(f'{source.name}: URL is outside the Pages subpath: {value}')
+    if relative.startswith('/'):
+        target = root / relative.lstrip('/')
     else:
         target = source.parent / relative
     target = target.resolve()

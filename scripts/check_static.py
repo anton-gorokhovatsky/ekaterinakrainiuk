@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 from site_files import check_supporting_resources, validate_reference
 
 ROOT = Path(__file__).resolve().parent.parent
+PUBLIC_URL = 'https://ekaterinakrainiuk.ru/'
 errors = []
 TEXT_BLOCKS = {'p', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}
 VOID_TAGS = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
@@ -122,7 +123,10 @@ for path in ROOT.glob('*.html'):
                     'og:image:alt', 'twitter:title', 'twitter:description', 'twitter:image:alt'):
             if not page.meta.get(key):
                 errors.append(f'index.html: missing {key}')
-        base = 'https://anton-gorokhovatsky.github.io/ekaterinakrainiuk/'
+        base = PUBLIC_URL
+        if any(value in page.meta.get('robots', '').lower().replace(',', ' ').split()
+               for value in ('noindex', 'nofollow', 'none')):
+            errors.append('index.html: the public homepage must allow indexing and following links')
         if page.canonical != base or page.meta.get('og:url') != base:
             errors.append('index.html: canonical and og:url must match the public site')
         if page.meta.get('og:type') != 'website' or page.meta.get('twitter:card') != 'summary_large_image':
@@ -145,10 +149,20 @@ for path in ROOT.glob('*.html'):
 
 errors.extend(check_supporting_resources(ROOT))
 
-ET.parse(ROOT / 'sitemap.xml')
+sitemap = ET.parse(ROOT / 'sitemap.xml')
+locations = [element.text for element in sitemap.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
+if locations != [PUBLIC_URL]:
+    errors.append('sitemap.xml: the homepage must use the canonical public URL')
+robots = (ROOT / 'robots.txt').read_text().splitlines()
+directives = [tuple(part.strip() for part in line.split('#', 1)[0].split(':', 1))
+              for line in robots if ':' in line.split('#', 1)[0]]
+if ('Sitemap', PUBLIC_URL + 'sitemap.xml') not in directives:
+    errors.append('robots.txt: sitemap must use the public domain')
+if any(key.lower() == 'disallow' and value for key, value in directives):
+    errors.append('robots.txt: the public site must allow crawling')
 if not (ROOT / '.nojekyll').exists():
     errors.append('Missing .nojekyll')
 if errors:
     print('\n'.join(errors), file=sys.stderr)
     sys.exit(1)
-print('Static checks passed: HTML, hanging punctuation, anchors, local assets, all CSS, SVG symbols, share metadata and image, sitemap, Pages marker.')
+print('Static checks passed: HTML, hanging punctuation, anchors, local assets, all CSS, SVG symbols, share metadata and image, indexing, canonical sitemap, Pages marker.')

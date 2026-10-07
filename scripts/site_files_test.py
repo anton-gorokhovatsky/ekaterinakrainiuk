@@ -32,7 +32,7 @@ class SiteFilesTest(unittest.TestCase):
         self.write('assets/nested.css', '@font-face {src: url(font.woff2)}')
         self.write('styles.css', '@import "assets/nested.css";')
         index = self.write('index.html', '<link href="styles.css?v=old">')
-        error_page = self.write('404.html', '<link href="/ekaterinakrainiuk/styles.css?v=old">')
+        error_page = self.write('404.html', '<link href="/styles.css?v=old">')
         self.apply_versions()
         before = index.read_text()
         self.assertEqual(versioned_sources(self.root), {})
@@ -79,9 +79,17 @@ class SiteFilesTest(unittest.TestCase):
             self.assertIsNone(local_target(url, page, self.root))
         self.assertEqual(versioned_sources(self.root), {})
 
-    def test_urls_cannot_escape_the_pages_directory(self):
+    def test_domain_root_urls_resolve_from_nested_pages(self):
+        stylesheet = self.write('styles.css', 'body {}')
+        page = self.write('missing/nested/404.html', '')
+        self.assertEqual(validate_reference('/styles.css?v=1', page, self.root), stylesheet)
+        self.assertEqual(validate_reference('/', page, self.root), self.root)
+        with self.assertRaisesRegex(ValueError, 'missing local file'):
+            validate_reference('/missing.css', page, self.root)
+
+    def test_urls_cannot_escape_the_site_directory(self):
         page = self.write('index.html', '')
-        for url in ('../secret.css', '/wrong-prefix/file.css', '%2e%2e/secret.css'):
+        for url in ('../secret.css', '/../secret.css', '%2e%2e/secret.css', '/%2e%2e/secret.css'):
             with self.assertRaises(ValueError):
                 local_target(url, page, self.root)
 

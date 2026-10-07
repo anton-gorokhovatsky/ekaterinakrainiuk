@@ -15,6 +15,6 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    directory = Path(__file__).resolve().parent.parent / '_site'
+    directory = Path(__file__).resolve().parent.parent / '_site' / 'ekaterinakrainiuk'
     with TestServer(('127.0.0.1', 4188), partial(Handler, directory=str(directory))) as server:
         server.serve_forever()
