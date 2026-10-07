@@ -85,15 +85,18 @@ function visit() {
 test('large poster control transfers keyboard focus and follows pause and replay states', async () => {
   const { document, stories: [{ button, video }] } = visit();
   assert.equal(button.hidden, false);
+  assert.equal(video.controls, false);
   assert.equal(button['aria-label'], 'Смотреть видео «Сразу после финиша»');
   button.focus();
   await button.emit('click');
   assert.equal(video.paused, false);
+  assert.equal(video.controls, true);
   assert.equal(button.hidden, true);
   assert.equal(document.activeElement, video);
   video.currentTime = 8;
   video.pause();
   assert.equal(button.hidden, false);
+  assert.equal(video.controls, true);
   assert.equal(button['aria-label'], 'Продолжить видео «Сразу после финиша»');
   video.ended = true;
   video.emit('ended');

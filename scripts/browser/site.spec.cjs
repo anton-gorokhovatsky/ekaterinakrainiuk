@@ -148,6 +148,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
     await expect(video).toHaveJSProperty('autoplay', false);
     await expect(video).toHaveJSProperty('paused', true);
     await expect(video).toHaveJSProperty('currentTime', 0);
+    await expect(video).toHaveJSProperty('controls', false);
   }
   // preload is a native hint, not a network guarantee. Linux WebKit can issue
   // early media requests; Chromium must still defer them until user activation.
@@ -162,6 +163,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await trigger(0).focus();
   await trigger(0).press('Enter');
   await expect.poll(() => first.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
+  await expect(first).toHaveJSProperty('controls', true);
   await expect(first).toBeFocused();
   // Native caption preferences differ by OS. Request the real track through its API;
   // parsing and cue loading still run in the browser, without substituting media.
@@ -178,6 +180,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await trigger(1).click();
   await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
   await expect(first).toHaveJSProperty('paused', true);
+  await expect(first).toHaveJSProperty('controls', true);
   // Switching through the visible poster pauses the other real player.
   // Native video keyboard shortcuts differ between Chromium and WebKit.
   await trigger(0).click();

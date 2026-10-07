@@ -17,6 +17,10 @@
 
     const syncPlay = () => {
       const action = video.ended ? 'Смотреть заново' : video.currentTime > 0 ? 'Продолжить' : 'Смотреть';
+      // Before the first start, Safari's native play sits behind the glass cutout.
+      // Restore native controls once playback starts, and retain them on pause.
+      const controls = !video.paused || video.currentTime > 0 || video.ended;
+      if (video.controls !== controls) video.controls = controls;
       button.setAttribute('aria-label', `${action} видео «${title}»`);
       button.hidden = !video.paused && !video.ended;
     };
@@ -39,14 +43,15 @@
     button.addEventListener('click', story.play);
 
     video.addEventListener('play', () => {
+      const returnFocus = document.activeElement === button;
       stories.forEach(other => { if (other !== story) pauseStory(other); });
+      syncPlay();
       // Keep keyboard control when the poster button disappears.
-      if (document.activeElement === button) {
+      if (returnFocus) {
         video.focus({ preventScroll: true });
       }
       status.hidden = true;
       status.textContent = '';
-      syncPlay();
     });
     ['pause', 'ended', 'emptied'].forEach(event => video.addEventListener(event, syncPlay));
 
