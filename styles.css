@@ -304,7 +304,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
   .route[open] > summary { transition-duration: var(--accordion-open); transition-timing-function: var(--ease-enter); }
 }
 .story-headline { font: 700 var(--text-story)/var(--leading-heading) var(--display); letter-spacing: 0; margin-bottom: var(--space-6); text-wrap: balance; }
-.story-cta { display: flex; padding-block: var(--space-3); font-size: var(--text-action); line-height: var(--leading-heading); }
+.story-cta { display: flex; min-height: 2.75rem; padding-block: var(--space-3); font-size: var(--text-action); line-height: var(--leading-heading); }
 .water-content { display: grid; grid-template-columns: var(--grid); gap: var(--gap); align-items: start; }
 .water-story { grid-column: 1 / span 6; }
 .water-portrait { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); align-items: center; gap: var(--space-6); margin-top: var(--space-8); }
@@ -561,6 +561,7 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .testimonial figcaption img { width: 2.5rem; height: 2.5rem; }
 .testimonial blockquote { grid-column: 5 / -1; max-width: 60ch; font-size: var(--text-quote-secondary); line-height: var(--leading-body); }
 .review-full { width: 100%; margin-top: var(--space-2); }
+.round-review-facts > .review-full { margin-top: 0; }
 .review-full summary { display: flex; align-items: center; min-height: 2.75rem; color: var(--muted); font-size: var(--text-label); padding: var(--space-2) 0; text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
 .review-full p { font-size: var(--text-small); margin-top: var(--space-4); }
 .review-dialogue { padding-inline-start: 1.5em; }
@@ -655,7 +656,7 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .footer-meta { margin-inline: var(--pad); padding: 0 0 var(--space-8); display: grid; grid-template-columns: 1fr auto auto; gap: var(--space-8); align-items: first baseline; color: var(--muted); font-size: var(--text-small); }
 .footer-identity { display: grid; gap: var(--space-1); }
 .footer-name { color: var(--ink); font-size: var(--text-small); }
-.footer-top { padding: var(--space-2) 0; }
+.footer-top { min-height: 2.75rem; padding: var(--space-2) 0; }
 
 /* Interaction states change emphasis, never line weight or icon size. */
 a, button, summary, select { transition: color 180ms var(--ease-enter), background-color 180ms var(--ease-enter); }

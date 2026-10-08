@@ -229,9 +229,30 @@ test('round messages play inline with reachable controls, captions and one sound
   await expect(maria.locator('.round-video-caption')).toBeVisible();
   await maria.locator('[data-video-toggle]').press('Space');
   await expect(first).toHaveJSProperty('paused', true);
+  // Safari can reselect native captions when media loads or its preference
+  // changes. Inline playback must keep a single caption outside the circle.
+  await first.evaluate(video => { video.textTracks[0].mode = 'showing'; });
+  await expect.poll(() => first.evaluate(video => video.textTracks[0].mode)).toBe('hidden');
+  const captionHeight = await maria.locator('.round-video-caption').evaluate(element => element.getBoundingClientRect().height);
+  const copyTop = () => page.locator('#maria-review .round-review-copy').evaluate(element => element.getBoundingClientRect().top + scrollY);
+  const copyPosition = await copyTop();
+  for (const time of [4, 11, 20.2]) {
+    await first.evaluate((video, time) => { video.currentTime = time; }, time);
+    await expect.poll(() => first.evaluate(video => !video.seeking)).toBe(true);
+    await expect(maria.locator('.round-video-caption')).toBeVisible();
+    expect(await maria.locator('.round-video-caption').evaluate(element => element.getBoundingClientRect().height)).toBe(captionHeight);
+    expect(await copyTop()).toBe(copyPosition);
+  }
+  await expect(maria.locator('.round-video-caption')).toHaveText('');
+  await first.evaluate(video => { video.currentTime = 0.5; });
+  await expect.poll(() => first.evaluate(video => !video.seeking)).toBe(true);
   const position = await first.evaluate(video => video.currentTime);
   await maria.locator('[data-video-seek]').press('End');
   await expect.poll(() => first.evaluate(video => video.currentTime)).toBeGreaterThan(position + 15);
+  // The range's 0.1s step can stop just short of the media end. The caption
+  // area stays open on pause; it collapses when playback actually finishes.
+  await first.evaluate(video => video.play());
+  await expect(first).toHaveJSProperty('ended', true);
   await expect(maria.locator('.round-video-caption')).toBeHidden();
   await maria.locator('[data-video-seek]').press('Home');
   await expect.poll(() => first.evaluate(video => video.currentTime)).toBeLessThan(1);
@@ -368,6 +389,7 @@ test('native content, navigation, video controls and system theme work without J
     await expect(page.locator('video').first()).toHaveAttribute('controls', '');
     for (const id of ['maria-lukyanova-limassol', 'vyacheslav-lyukshin-zavidovo']) {
       await expect(page.locator(`#${id}-video`)).toHaveAttribute('controls', '');
+      await expect(page.locator(`#${id}-video track`)).toHaveAttribute('default', '');
     }
     await expect(page.locator('.video-play').first()).toBeHidden();
     await expect(page.locator('.tarot-card-toggle').first()).toBeHidden();

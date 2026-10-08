@@ -26,8 +26,12 @@
     const time = controls.querySelector('[data-video-time]');
     const subtitle = element.querySelector('.round-video-caption');
     const track = video.textTracks[0];
+    const trackElement = video.querySelector('track');
     const sprite = toggle.querySelector('use').getAttribute('href').split('#')[0];
     let captionsOn = true;
+    let started = false;
+    let nativeFullscreen = false;
+    let captionSizeKey = '';
     let wasFullscreen = false;
 
     const icon = (button, name) => button.querySelector('use').setAttribute('href', `${sprite}#${name}`);
@@ -41,9 +45,41 @@
       seek.setAttribute('aria-valuetext', `${clock(video.currentTime)} из ${clock(duration)}`);
       time.textContent = `${clock(video.currentTime)} / ${clock(duration)}`;
     };
+    const syncTrackMode = () => {
+      if (!track) return;
+      const mode = captionsOn ? nativeFullscreen ? 'showing' : 'hidden' : 'disabled';
+      if (track.mode !== mode) track.mode = mode;
+    };
+    const sizeCaptions = () => {
+      if (!track?.cues?.length) return;
+      const width = controls.getBoundingClientRect().width;
+      const style = getComputedStyle(subtitle);
+      const key = `${width}/${style.font}/${style.lineHeight}/${track.cues.length}`;
+      if (!width || key === captionSizeKey) return;
+      // Measure every cue at the actual text width once, rather than resizing
+      // the page on each cue. The probe is invisible to readers and layout.
+      const probe = subtitle.cloneNode(false);
+      probe.removeAttribute('id');
+      probe.hidden = false;
+      probe.setAttribute('aria-hidden', 'true');
+      Object.assign(probe.style, {
+        position: 'absolute', visibility: 'hidden', pointerEvents: 'none',
+        width: `${width}px`, height: 'auto', minHeight: '0', margin: '0',
+      });
+      element.append(probe);
+      let height = 0;
+      for (const cue of track.cues) {
+        probe.textContent = cue.text;
+        height = Math.max(height, probe.getBoundingClientRect().height);
+      }
+      probe.remove();
+      subtitle.style.minHeight = `${Math.ceil(height)}px`;
+      captionSizeKey = key;
+    };
     const syncCaptions = () => {
-      subtitle.textContent = captionsOn ? [...(track?.activeCues || [])].map(cue => cue.text).join('\n') : '';
-      subtitle.hidden = !subtitle.textContent.trim();
+      const visible = started && !video.ended && captionsOn && !nativeFullscreen && Boolean(track?.cues?.length);
+      subtitle.textContent = visible ? [...(track.activeCues || [])].map(cue => cue.text).join('\n') : '';
+      subtitle.hidden = !visible;
       captions.setAttribute('aria-pressed', String(captionsOn));
     };
     const syncSound = () => {
@@ -66,7 +102,8 @@
     mute.addEventListener('click', () => { video.muted = !video.muted; });
     captions.addEventListener('click', () => {
       captionsOn = !captionsOn;
-      if (track) track.mode = captionsOn ? 'hidden' : 'disabled';
+      syncTrackMode();
+      sizeCaptions();
       syncCaptions();
     });
     seek.addEventListener('input', () => {
@@ -96,8 +133,39 @@
     video.addEventListener('volumechange', syncSound);
     ['loadedmetadata', 'durationchange', 'timeupdate', 'seeked'].forEach(event => video.addEventListener(event, syncTime));
     if (track) {
-      track.mode = 'hidden';
+      // Keep default for Safari's cue loading and no-JS playback. Reconcile
+      // automatic selection after loading so native captions never duplicate ours.
+      const refreshCaptions = () => { syncTrackMode(); sizeCaptions(); syncCaptions(); };
+      video.textTracks.addEventListener('change', () => {
+        if (nativeFullscreen) captionsOn = track.mode === 'showing';
+        refreshCaptions();
+      });
+      trackElement.addEventListener('load', refreshCaptions);
+      video.addEventListener('loadedmetadata', refreshCaptions);
+      video.addEventListener('seeked', syncCaptions);
       track.addEventListener('cuechange', syncCaptions);
+      video.addEventListener('play', () => { started = true; refreshCaptions(); });
+      ['ended', 'emptied', 'error'].forEach(event => video.addEventListener(event, () => {
+        started = false;
+        syncCaptions();
+      }));
+      // iPhone's native fullscreen player needs its own captions; the inline
+      // player and element fullscreen continue to use our external caption area.
+      video.addEventListener('webkitbeginfullscreen', () => {
+        nativeFullscreen = true;
+        refreshCaptions();
+      });
+      video.addEventListener('webkitendfullscreen', () => {
+        nativeFullscreen = false;
+        refreshCaptions();
+        fullscreen.focus({ preventScroll: true });
+      });
+      new ResizeObserver(() => requestAnimationFrame(() => {
+        sizeCaptions();
+        syncCaptions();
+      })).observe(controls);
+      document.fonts.ready.then(refreshCaptions);
+      syncTrackMode();
     } else captions.hidden = true;
     element.classList.add('is-round-ready');
     controls.hidden = false;
