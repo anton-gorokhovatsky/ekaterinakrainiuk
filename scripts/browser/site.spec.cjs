@@ -157,7 +157,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   }
   const compact = page.viewportSize().width <= 760;
   const trigger = index => stories.nth(index).locator('.video-play');
-  await expect(page.locator('figure.video-story')).toHaveCount(2);
+  await expect(page.locator('figure.video-story')).toHaveCount(4);
   await expect(first).toBeVisible();
   await expect(second).toBeVisible();
   await trigger(0).focus();
@@ -191,7 +191,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await expect(second).toBeFocused();
   const secondPlayer = await second.elementHandle();
   await page.setViewportSize({ width: compact ? 1440 : 390, height: 900 });
-  await expect(page.locator('video')).toHaveCount(2);
+  await expect(page.locator('video')).toHaveCount(4);
   expect(await second.evaluate((video, original) => video === original, secondPlayer)).toBe(true);
   await expect(second).toHaveJSProperty('paused', false);
   await expect(second).toBeFocused();
@@ -200,6 +200,77 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await trigger(0).click();
   await expect(second).toHaveJSProperty('paused', true);
   await noOverflow(page);
+});
+
+test('round messages play inline with reachable controls, captions and one soundtrack', async ({ page, browserName }) => {
+  await page.goto('./#maria-review');
+  const maria = page.locator('#maria-review .video-story');
+  const vyacheslav = page.locator('#vyacheslav-review .video-story');
+  const first = maria.locator('video');
+  const second = vyacheslav.locator('video');
+  for (const video of [first, second]) {
+    await expect(video).toHaveJSProperty('paused', true);
+    await expect(video).toHaveJSProperty('controls', false);
+  }
+  await maria.locator('.video-play').press('Enter');
+  await expect.poll(() => first.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
+  await expect(maria.locator('[data-video-toggle]')).toBeFocused();
+  await expect(first).toHaveJSProperty('videoWidth', 720);
+  await expect(first).toHaveJSProperty('videoHeight', 720);
+  await expect.poll(() => first.evaluate(video => video.textTracks[0].cues?.length || 0)).toBeGreaterThan(0);
+  await expect(maria.locator('.round-video-caption')).toContainText('Катя');
+  await maria.locator('[data-video-mute]').click();
+  await expect(first).toHaveJSProperty('muted', true);
+  await maria.locator('[data-video-captions]').click();
+  await expect(maria.locator('.round-video-caption')).toBeHidden();
+  await maria.locator('[data-video-captions]').click();
+  await expect(maria.locator('.round-video-caption')).toBeVisible();
+  await maria.locator('[data-video-toggle]').press('Space');
+  await expect(first).toHaveJSProperty('paused', true);
+  const position = await first.evaluate(video => video.currentTime);
+  await maria.locator('[data-video-seek]').press('End');
+  await expect.poll(() => first.evaluate(video => video.currentTime)).toBeGreaterThan(position + 15);
+  await maria.locator('[data-video-seek]').press('Home');
+  await expect.poll(() => first.evaluate(video => video.currentTime)).toBeLessThan(1);
+  await maria.locator('[data-video-toggle]').press('Enter');
+  await expect.poll(() => first.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
+  await vyacheslav.locator('.video-play').click();
+  await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
+  await expect(first).toHaveJSProperty('paused', true);
+  await expect(second).toHaveJSProperty('videoWidth', 400);
+  await expect(second).toHaveJSProperty('videoHeight', 400);
+  await expect.poll(() => second.evaluate(video => video.textTracks[0].cues?.length || 0)).toBeGreaterThan(0);
+  await second.click();
+  await expect(second).toHaveJSProperty('paused', true);
+  await vyacheslav.locator('.video-play').click();
+  await expect(second).toHaveJSProperty('paused', false);
+  if (browserName === 'chromium' && page.viewportSize().width > 1000) {
+    await vyacheslav.locator('[data-video-fullscreen]').click();
+    await expect.poll(() => page.evaluate(() => document.fullscreenElement?.className || '')).toContain('video-story-round');
+    await vyacheslav.locator('[data-video-fullscreen]').click();
+    await expect.poll(() => page.evaluate(() => document.fullscreenElement)).toBeNull();
+    await expect(vyacheslav.locator('[data-video-fullscreen]')).toBeFocused();
+  }
+  await page.locator('#andrey-finish-video').locator('..').locator('.video-play').click();
+  await expect(second).toHaveJSProperty('paused', true);
+  await noOverflow(page);
+});
+
+test('a failed round-message start keeps a usable retry and readable facts', async ({ page }) => {
+  await page.route('**/maria-lukyanova-limassol.mp4?*', route => route.fulfill({
+    status: 200, contentType: 'video/mp4', body: 'unavailable video',
+  }));
+  await page.goto('./#maria-review');
+  const story = page.locator('#maria-review .video-story');
+  await story.locator('.video-play').click();
+  await expect(story.locator('.video-status')).toContainText('Не удалось запустить видео');
+  await expect(story.locator('.video-play')).toBeVisible();
+  await expect(story.locator('[data-video-toggle]')).toBeEnabled();
+  await expect(page.locator('#maria-review')).toContainText('1:20:01');
+  await page.unroute('**/maria-lukyanova-limassol.mp4?*');
+  await story.locator('.video-play').click();
+  await expect.poll(() => story.locator('video').evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
+  await expect(story.locator('.video-status')).toBeHidden();
 });
 
 test('local sprite references survive dynamic tarot updates and resources render', async ({ page }) => {
@@ -283,10 +354,13 @@ test('native content, navigation, video controls and system theme work without J
     const service = page.locator('.service').first();
     await service.locator('summary').click();
     await expect(service.locator('.service-body')).toBeVisible();
-    await expect(page.locator('figure.video-story')).toHaveCount(2);
+    await expect(page.locator('figure.video-story')).toHaveCount(4);
     await expect(page.locator('details.video-story')).toHaveCount(0);
     await expect(page.locator('#andrey-coaching-video')).toBeVisible();
     await expect(page.locator('video').first()).toHaveAttribute('controls', '');
+    for (const id of ['maria-lukyanova-limassol', 'vyacheslav-lyukshin-zavidovo']) {
+      await expect(page.locator(`#${id}-video`)).toHaveAttribute('controls', '');
+    }
     await expect(page.locator('.video-play').first()).toBeHidden();
     await expect(page.locator('.tarot-card-toggle').first()).toBeHidden();
     const light = await page.locator('body').evaluate(element => getComputedStyle(element).backgroundColor);

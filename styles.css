@@ -478,6 +478,39 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-play:focus-visible .video-play-icon::after { content: ""; position: absolute; inset: 6px; border: 2px solid var(--action-ink); border-radius: 50%; }
 .video-play:active .video-play-icon { transform: scale(.94); }
 .video-status { margin-top: var(--space-2); font-size: var(--text-label); }
+/* Supplied round messages share the reviews' 4/8 grid. Only the picture is
+   circular: captions, the timeline and 44px controls remain outside the crop. */
+.round-review { display: grid; grid-template-columns: var(--results-columns); align-items: start; gap: var(--gap); }
+.round-review-media { grid-column: 1 / span 4; width: 100%; max-width: 22rem; }
+.round-review-copy { grid-column: 5 / -1; display: grid; gap: var(--space-6); min-width: 0; container-type: inline-size; }
+.round-review .review-name { font-size: var(--text-ui-title); }
+.round-review .review-context { font-size: var(--text-small); }
+.round-review-quote { max-width: 38ch; font-size: var(--text-lead); line-height: var(--leading-lead); }
+.round-review-facts { display: grid; gap: var(--space-2); }
+.round-review-facts > p { font-size: var(--text-small); }
+.round-review-facts .video-review-facts { margin: 0; font-size: var(--text-body); }
+.round-review-sources { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); font-size: var(--text-small); }
+.round-review-note { max-width: 58ch; color: var(--muted); font-size: var(--text-small); }
+.round-review-copy .result-entry-times { margin-bottom: var(--space-3); font-size: var(--text-result); }
+.video-story-round video { aspect-ratio: 1; background: transparent; }
+.video-story-round.is-round-ready video { clip-path: circle(50%); }
+.video-story-round .video-play { inset: 0; padding: 0; border-radius: 50%; aspect-ratio: 1; }
+.round-video-controls { display: grid; gap: var(--space-1); margin-top: var(--space-2); }
+.round-video-buttons { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.round-video-control { display: grid; place-items: center; flex: 0 0 auto; width: 2.75rem; height: 2.75rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; }
+.round-video-control svg { width: 1.5rem; height: 1.5rem; stroke-width: 1.75; }
+.round-video-control[aria-pressed="true"] { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); }
+.round-video-control:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.round-video-control:active { background: color-mix(in srgb, var(--ink) 18%, var(--bg)); }
+.round-video-timeline { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
+.round-video-timeline input { flex: 1 1 6rem; width: 100%; min-width: 0; min-height: 2.75rem; margin: 0; accent-color: var(--ink); }
+.round-video-timeline input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.round-video-timeline input:disabled { opacity: .45; }
+.round-video-time { font-size: var(--text-label); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.round-video-caption { min-height: 3em; margin-top: var(--space-2); font-size: var(--text-small); line-height: var(--leading-small); white-space: pre-line; }
+.video-story-round:fullscreen { display: grid; align-content: center; justify-items: center; gap: var(--space-2); padding: var(--space-4); overflow: auto; background: var(--bg); color: var(--ink); }
+.video-story-round:fullscreen .video-player { width: min(100%, 65vh, 36rem); }
+.video-story-round:fullscreen > :is(.round-video-controls, .round-video-caption, figcaption, .video-status) { width: min(100%, 36rem); }
 @media (forced-colors: active) {
   .video-play-icon, .theme-options { border: 1px solid ButtonText; }
   .theme-options label:has(:checked) { outline: 1px solid Highlight; outline-offset: -1px; }
@@ -655,6 +688,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .theme-picker > summary:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
   .theme-options label:not(:has(:checked)):hover { --option-fill: color-mix(in srgb, var(--ink) 6%, transparent); }
   .video-play:hover .video-play-icon { transform: scale(1.06); }
+  .round-video-control:hover { background: color-mix(in srgb, var(--ink) 8%, var(--bg)); }
   :is(.button, .nav-contact):not([aria-disabled="true"]):not(:disabled):hover { background: var(--action-hover-bg); color: var(--action-hover-ink); }
   .review-full > summary:hover { color: var(--ink); }
   .route:not([open]) > summary:hover { z-index: 1; background: var(--route-color); color: #101216; }
@@ -813,6 +847,8 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .results { --results-columns: minmax(0, 1fr); }
   .video-review { gap: var(--space-8); }
   .video-review-media, .video-review-copy, .result-review-copy, .result-review-data { grid-column: 1; }
+  .round-review { gap: var(--space-6); }
+  .round-review-media, .round-review-copy { grid-column: 1 / -1; }
   .video-review-quote { margin-top: 0; max-width: 18ch; }
   .result-review { gap: var(--space-6); padding-block: var(--space-8); }
   .testimonials { row-gap: var(--space-8); margin-top: var(--space-8); }

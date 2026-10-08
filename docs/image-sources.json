@@ -201,5 +201,23 @@
     "caption": "Кадр из видео медали в записи Кати «ММ 10»",
     "acquired": "2026-09-27",
     "method": "Original video thumbnail exported from the rendered Strava activity via pageAssets; proportional resize and local WebP compression. Video was viewed to verify the medal. No private account data copied."
+  },
+  {
+    "file": "IMG_9624.MOV",
+    "source": "Оригинальное видео предоставлено Катей через владельца сайта 8 октября 2026 года.",
+    "bytes": 9103478,
+    "output": "assets/images/maria-lukyanova-limassol.webp",
+    "width": 720,
+    "height": 720,
+    "processing": "Постер из кадра на 2-й секунде. Удалены только пустые поля вокруг исходного круглого сообщения."
+  },
+  {
+    "file": "IMG_9628.MOV",
+    "source": "Оригинальное видео предоставлено Катей через владельца сайта 8 октября 2026 года.",
+    "bytes": 16262661,
+    "output": "assets/images/vyacheslav-lyukshin-zavidovo.webp",
+    "width": 400,
+    "height": 400,
+    "processing": "Постер из кадра на 2-й секунде. Удалены только пустые поля вокруг исходного круглого сообщения."
   }
 ]

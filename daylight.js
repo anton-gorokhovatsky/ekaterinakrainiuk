@@ -208,7 +208,7 @@
     get('daylight-remaining').textContent = light.value;
     get('next-sunrise').textContent = current?.night && Number.isFinite(current.nextSunrise) ? `Солнце взойдёт в ${clock.format(current.nextSunrise)}.` : '';
     if (!current) {
-      get('weather-icon').setAttribute('href', 'assets/icons/tabler.svg?v=387d19c195b0#cloud');
+      get('weather-icon').setAttribute('href', 'assets/icons/tabler.svg?v=c08f6282ed7f#cloud');
       get('weather-summary').textContent = `${clock.format(now)} · московское время`;
       get('sun-position').style.visibility = 'hidden';
       get('sunrise').textContent = '—';
@@ -227,7 +227,7 @@
     const p = current.progress;
     get('sun-trail').setAttribute('d', `M16 70 Q${16 + 184 * p} ${70 - 92 * p} ${16 + 368 * p} ${70 - 184 * p * (1 - p)}`);
     root.toggleAttribute('data-night', current.night);
-    get('weather-icon').setAttribute('href', `assets/icons/tabler.svg?v=387d19c195b0#${iconSymbols[weatherIcon(current.code, current.night)]}`);
+    get('weather-icon').setAttribute('href', `assets/icons/tabler.svg?v=c08f6282ed7f#${iconSymbols[weatherIcon(current.code, current.night)]}`);
     environment.style.setProperty('--daylight-paper', `color-mix(in srgb, ${current.skyPaper} ${100 - .24 * current.cloudCover}%, #bcc7d5)`);
     get('sunrise').textContent = clock.format(current.sunrise);
     get('sunset').textContent = clock.format(current.sunset);
