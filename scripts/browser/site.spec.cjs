@@ -208,6 +208,8 @@ test('round messages play inline with reachable controls, captions and one sound
   const vyacheslav = page.locator('#vyacheslav-review .video-story');
   const first = maria.locator('video');
   const second = vyacheslav.locator('video');
+  await expect(maria.locator('.round-video-caption')).toBeHidden();
+  await expect(vyacheslav.locator('.round-video-caption')).toBeHidden();
   for (const video of [first, second]) {
     await expect(video).toHaveJSProperty('paused', true);
     await expect(video).toHaveJSProperty('controls', false);
@@ -230,6 +232,7 @@ test('round messages play inline with reachable controls, captions and one sound
   const position = await first.evaluate(video => video.currentTime);
   await maria.locator('[data-video-seek]').press('End');
   await expect.poll(() => first.evaluate(video => video.currentTime)).toBeGreaterThan(position + 15);
+  await expect(maria.locator('.round-video-caption')).toBeHidden();
   await maria.locator('[data-video-seek]').press('Home');
   await expect.poll(() => first.evaluate(video => video.currentTime)).toBeLessThan(1);
   await maria.locator('[data-video-toggle]').press('Enter');
@@ -251,7 +254,12 @@ test('round messages play inline with reachable controls, captions and one sound
     await expect.poll(() => page.evaluate(() => document.fullscreenElement)).toBeNull();
     await expect(vyacheslav.locator('[data-video-fullscreen]')).toBeFocused();
   }
-  await page.locator('#andrey-finish-video').locator('..').locator('.video-play').click();
+  // Pointer startup is covered above; bring the earlier player on screen
+  // before checking soundtrack coordination through keyboard activation.
+  const andreyPoster = page.locator('#andrey-finish-video').locator('..').locator('.video-play');
+  await andreyPoster.scrollIntoViewIfNeeded();
+  await andreyPoster.press('Enter');
+  await expect.poll(() => page.locator('#andrey-finish-video').evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
   await expect(second).toHaveJSProperty('paused', true);
   await noOverflow(page);
 });

@@ -43,7 +43,7 @@
     };
     const syncCaptions = () => {
       subtitle.textContent = captionsOn ? [...(track?.activeCues || [])].map(cue => cue.text).join('\n') : '';
-      subtitle.hidden = !captionsOn;
+      subtitle.hidden = !subtitle.textContent.trim();
       captions.setAttribute('aria-pressed', String(captionsOn));
     };
     const syncSound = () => {

@@ -507,7 +507,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .round-video-timeline input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .round-video-timeline input:disabled { opacity: .45; }
 .round-video-time { font-size: var(--text-label); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.round-video-caption { min-height: 3em; margin-top: var(--space-2); font-size: var(--text-small); line-height: var(--leading-small); white-space: pre-line; }
+.round-video-caption { margin-top: var(--space-2); font-size: var(--text-small); line-height: var(--leading-small); white-space: pre-line; }
 .video-story-round:fullscreen { display: grid; align-content: center; justify-items: center; gap: var(--space-2); padding: var(--space-4); overflow: auto; background: var(--bg); color: var(--ink); }
 .video-story-round:fullscreen .video-player { width: min(100%, 65vh, 36rem); }
 .video-story-round:fullscreen > :is(.round-video-controls, .round-video-caption, figcaption, .video-status) { width: min(100%, 36rem); }
