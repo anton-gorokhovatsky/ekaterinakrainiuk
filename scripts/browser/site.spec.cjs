@@ -1,7 +1,8 @@
 const { test: base, expect } = require('@playwright/test');
 
-// Exercise real DOM, native media and focus in each engine. Only weather is isolated:
-// a deliberately incomplete response also verifies the existing offline fallback.
+// Exercise real DOM, native media and focus in each engine. Weather uses an
+// incomplete response to verify its fallback; analytics is blocked so automated
+// visits do not pollute the production counter or depend on a third-party script.
 const test = base.extend({
   page: async ({ page }, use) => {
     const failures = [];
@@ -21,6 +22,7 @@ const test = base.extend({
     await page.route('https://api.met.no/**', route => route.fulfill({
       status: 200, contentType: 'application/json', body: '{}',
     }));
+    await page.route('https://mc.yandex.ru/**', route => route.abort());
     await use(page);
     expect(failures, 'No script errors or failed local resources').toEqual([]);
   },
