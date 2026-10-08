@@ -48,12 +48,14 @@
     "height": 720
   },
   {
-    "file": "07-IMG_0867.jpg",
-    "url": "https://static.tildacdn.ink/tild3734-6331-4935-a164-326661633863/IMG_0867.jpg",
-    "bytes": 636083,
-    "output": "assets/images/team.webp",
-    "width": 1200,
-    "height": 900
+    "file": "IMG_0865.HEIC",
+    "source": "Исходник предоставлен Катей через владельца сайта 8 октября 2026 года.",
+    "bytes": 1554398,
+    "output": "assets/images/team-training.webp",
+    "width": 1600,
+    "height": 1200,
+    "processing": "Полный кадр без обрезки, пропорциональное уменьшение и конвертация в WebP.",
+    "replaces": "07-IMG_0867.jpg"
   },
   {
     "file": "08-IMG_3324.jpg",
