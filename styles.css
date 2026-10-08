@@ -439,8 +439,8 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .video-review-copy { grid-column: 5 / -1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-6); }
 .review-name { display: block; font-size: var(--text-body); font-weight: 600; line-height: var(--leading-small); }
 .video-review-quote { margin-top: -.18em; max-width: 17ch; font-size: clamp(2.125rem, 1rem + 4.5vw, 5rem); font-weight: 600; line-height: var(--leading-display); letter-spacing: -.025em; }
-/* Owner-approved exception: the large lead quote keeps its opening mark inline. */
-.video-review-quote .hanging-mark { position: static; transform: none; }
+/* Owner-approved exception: large video-review quotes keep their marks inline. */
+:is(.video-review-quote, .round-review-quote) .hanging-mark { position: static; transform: none; }
 .review-profile { font-size: var(--text-label); }
 .video-review-facts { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-block: var(--space-4) var(--space-2); font-size: var(--text-small); }
 .video-review-time { font-size: var(--text-lead); line-height: var(--leading-heading); letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
@@ -499,19 +499,25 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .round-video-buttons { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
 .round-video-control { display: grid; place-items: center; flex: 0 0 auto; width: 2.75rem; height: 2.75rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ink); cursor: pointer; }
 .round-video-control svg { width: 1.5rem; height: 1.5rem; stroke-width: 1.75; }
-.round-video-control[aria-pressed="true"] { background: color-mix(in srgb, var(--ink) 12%, var(--bg)); }
+.round-video-control[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .round-video-control:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.round-video-control:active { background: color-mix(in srgb, var(--ink) 18%, var(--bg)); }
+.round-video-control:active:not([aria-pressed="true"]) { background: color-mix(in srgb, var(--ink) 18%, var(--bg)); }
 .round-video-timeline { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
-.round-video-timeline input { flex: 1 1 6rem; width: 100%; min-width: 0; min-height: 2.75rem; margin: 0; accent-color: var(--ink); }
+.round-video-timeline input { --video-progress: 0%; --video-track: color-mix(in srgb, var(--ink) 50%, var(--bg)); --video-thumb: currentColor; flex: 1 1 6rem; width: 100%; min-width: 0; height: 2.75rem; margin: 0; padding: 0; border: 0; border-radius: 0; -webkit-appearance: none; appearance: none; background: transparent; color: var(--ink); cursor: pointer; }
+.round-video-timeline input::-webkit-slider-runnable-track { height: var(--space-1); border-radius: 999px; background: linear-gradient(to right, currentColor var(--video-progress), var(--video-track) var(--video-progress)); }
+.round-video-timeline input::-webkit-slider-thumb { width: 1.25rem; height: 1.25rem; margin-top: -.5rem; border: 0; border-radius: 50%; -webkit-appearance: none; appearance: none; background: var(--video-thumb); }
+.round-video-timeline input::-moz-range-track { height: var(--space-1); border-radius: 999px; background: var(--video-track); }
+.round-video-timeline input::-moz-range-progress { height: var(--space-1); border-radius: 999px; background: currentColor; }
+.round-video-timeline input::-moz-range-thumb { width: 1.25rem; height: 1.25rem; border: 0; border-radius: 50%; background: var(--video-thumb); }
 .round-video-timeline input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.round-video-timeline input:disabled { opacity: .45; }
+.round-video-timeline input:disabled { --video-thumb: var(--video-track); cursor: default; }
 .round-video-time { font-size: var(--text-label); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .round-video-caption { margin-top: var(--space-2); font-size: var(--text-small); line-height: var(--leading-small); white-space: pre-line; }
 .video-story-round:fullscreen { display: grid; align-content: center; justify-items: center; gap: var(--space-2); padding: var(--space-4); overflow: auto; background: var(--bg); color: var(--ink); }
 .video-story-round:fullscreen .video-player { width: min(100%, 65vh, 36rem); }
 .video-story-round:fullscreen > :is(.round-video-controls, .round-video-caption, figcaption, .video-status) { width: min(100%, 36rem); }
 @media (forced-colors: active) {
+  .round-video-timeline input { --video-track: GrayText; color: CanvasText; forced-color-adjust: none; }
   .video-play-icon, .theme-options { border: 1px solid ButtonText; }
   .theme-options label:has(:checked) { outline: 1px solid Highlight; outline-offset: -1px; }
 }
@@ -689,7 +695,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .theme-picker > summary:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
   .theme-options label:not(:has(:checked)):hover { --option-fill: color-mix(in srgb, var(--ink) 6%, transparent); }
   .video-play:hover .video-play-icon { transform: scale(1.06); }
-  .round-video-control:hover { background: color-mix(in srgb, var(--ink) 8%, var(--bg)); }
+  .round-video-control:hover:not([aria-pressed="true"]) { background: color-mix(in srgb, var(--ink) 8%, var(--bg)); }
   :is(.button, .nav-contact):not([aria-disabled="true"]):not(:disabled):hover { background: var(--action-hover-bg); color: var(--action-hover-ink); }
   .review-full > summary:hover { color: var(--ink); }
   .route:not([open]) > summary:hover { z-index: 1; background: var(--route-color); color: #101216; }

@@ -42,6 +42,7 @@
         seek.disabled = false;
       }
       seek.value = video.currentTime;
+      seek.style.setProperty('--video-progress', `${duration > 0 ? Math.min(100, Math.max(0, video.currentTime / duration * 100)) : 0}%`);
       seek.setAttribute('aria-valuetext', `${clock(video.currentTime)} из ${clock(duration)}`);
       time.textContent = `${clock(video.currentTime)} / ${clock(duration)}`;
     };

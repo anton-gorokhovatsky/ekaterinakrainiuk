@@ -229,6 +229,12 @@ test('round messages play inline with reachable controls, captions and one sound
   await expect(maria.locator('.round-video-caption')).toBeVisible();
   await maria.locator('[data-video-toggle]').press('Space');
   await expect(first).toHaveJSProperty('paused', true);
+  const seek = maria.locator('[data-video-seek]');
+  const seekBox = await seek.boundingBox();
+  await seek.click({ position: { x: seekBox.width / 2, y: seekBox.height / 2 } });
+  const duration = await first.evaluate(video => video.duration);
+  await expect.poll(() => first.evaluate(video => video.currentTime)).toBeGreaterThan(duration * .45);
+  await expect.poll(() => first.evaluate(video => video.currentTime)).toBeLessThan(duration * .55);
   // Safari can reselect native captions when media loads or its preference
   // changes. Inline playback must keep a single caption outside the circle.
   await first.evaluate(video => { video.textTracks[0].mode = 'showing'; });
