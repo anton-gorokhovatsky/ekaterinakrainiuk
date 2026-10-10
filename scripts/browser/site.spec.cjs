@@ -392,6 +392,110 @@ test('a failed Terrain canvas keeps the complete text and channel link readable'
   await noOverflow(page);
 });
 
+test.describe('Terrain movement and fallback', () => {
+  test.use({ reducedMotion: 'no-preference', deviceScaleFactor: 2 });
+
+  test('the native control starts, freezes and resumes the same field with aligned readable text', async ({ page }) => {
+    await page.goto('./#channel');
+    const panel = page.locator('#channel'), control = panel.locator('.channel-motion');
+    await panel.scrollIntoViewIfNeeded();
+    await expect(control).toBeVisible();
+    await expect(panel).toHaveAttribute('data-motion-frame', 'still');
+    await expect(control).toHaveAccessibleName('Оживить фон');
+    expect(await control.evaluate(button => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    const density = await panel.locator('.channel-moving-art').evaluate(canvas => canvas.width / canvas.getBoundingClientRect().width);
+    expect(density).toBeCloseTo(2, 1);
+    await control.focus();
+    await page.keyboard.press('Enter');
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
+    await expect(control).toHaveAccessibleName('Остановить фон');
+    await expect(control.locator('use')).toHaveAttribute('href', /#player-pause$/);
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(1);
+    await page.keyboard.press('Space');
+    await expect(control).toHaveAttribute('aria-pressed', 'false');
+    await expect(control).toHaveAccessibleName('Оживить фон');
+    await expect(control.locator('use')).toHaveAttribute('href', /#player-play$/);
+    const frozen = await panel.getAttribute('data-motion-frame');
+    await page.waitForTimeout(400);
+    expect(await panel.getAttribute('data-motion-frame')).toBe(frozen);
+
+    // Compare the rendered artwork to the adaptive foreground from the same frame.
+    const minimum = await panel.evaluate(async element => {
+      const art = element.querySelector('.channel-moving-art');
+      const url = getComputedStyle(element.querySelector('.channel-title'))
+        .getPropertyValue('--terrain-contrast-image').trim().slice(4, -1).replace(/^['"]|['"]$/g, '');
+      const mask = new Image(); mask.src = url; await mask.decode();
+      const copy = document.createElement('canvas'); copy.width = mask.width; copy.height = mask.height;
+      const context = copy.getContext('2d'); context.drawImage(mask, 0, 0);
+      const foreground = context.getImageData(0, 0, copy.width, copy.height).data;
+      context.drawImage(art, 0, 0, copy.width, copy.height);
+      const background = context.getImageData(0, 0, copy.width, copy.height).data;
+      const linear = value => { value /= 255; return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4; };
+      let contrast = Infinity;
+      for (let y = 12; y < copy.height; y += 37) for (let x = 12; x < copy.width; x += 43) {
+        const i = (y * copy.width + x) * 4;
+        const light = .2126 * linear(background[i]) + .7152 * linear(background[i + 1]) + .0722 * linear(background[i + 2]);
+        const ink = foreground[i] ? 1 : 0;
+        contrast = Math.min(contrast, (Math.max(light, ink) + .05) / (Math.min(light, ink) + .05));
+      }
+      return contrast;
+    });
+    expect(minimum).toBeGreaterThanOrEqual(4.5);
+    await control.click();
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(frozen));
+    for (const width of [980, 390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      await control.scrollIntoViewIfNeeded();
+      await expect.poll(() => panel.evaluate(element => {
+        const bounds = element.getBoundingClientRect();
+        return [...element.querySelectorAll('.channel-contrast-text')].every(field => {
+          const style = getComputedStyle(field), box = field.getBoundingClientRect();
+          const [w, h] = style.getPropertyValue('--terrain-contrast-size').split(' ').map(parseFloat);
+          const [x, y] = style.getPropertyValue('--terrain-contrast-position').split(' ').map(parseFloat);
+          return Math.abs(w - bounds.width) < 1 && Math.abs(h - bounds.height) < 1
+            && Math.abs(x - (bounds.left - box.left)) < 1 && Math.abs(y - (bounds.top - box.top)) < 1;
+        });
+      })).toBe(true);
+      await noOverflow(page);
+    }
+    await page.locator('#training').scrollIntoViewIfNeeded();
+    await expect(control).toHaveAttribute('aria-pressed', 'false');
+    const outside = await panel.getAttribute('data-motion-frame');
+    await page.waitForTimeout(400);
+    expect(await panel.getAttribute('data-motion-frame')).toBe(outside);
+  });
+
+  test('unavailable WebGL keeps the full photo, readable copy and native channel link', async ({ page }) => {
+    await page.addInitScript(() => {
+      const original = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, ...options) {
+        return type === 'webgl' ? null : original.call(this, type, ...options);
+      };
+    });
+    await page.goto('./#channel');
+    await page.locator('#channel').scrollIntoViewIfNeeded();
+    await expect(page.locator('.channel-motion')).toBeHidden();
+    await expect(page.locator('.channel-photo')).toBeVisible();
+    await expect(page.locator('.channel-copy')).toHaveCSS('color', 'rgb(244, 243, 238)');
+    await expect(page.getByRole('link', { name: 'Читать в Telegram' })).toHaveAttribute('href', 'https://t.me/ekatyulyaslife');
+    await noOverflow(page);
+  });
+
+  test('reduced motion stays still and forced colours preserve system text and the link', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('./#channel');
+    const panel = page.locator('#channel');
+    await panel.scrollIntoViewIfNeeded();
+    await expect(panel).toHaveClass(/is-contrast-ready/);
+    await expect(panel).toHaveAttribute('data-motion-frame', 'still');
+    await expect(panel.locator('.channel-motion')).toBeHidden();
+    await page.emulateMedia({ forcedColors: 'active' });
+    await expect(panel.locator('.channel-moving-art')).toBeHidden();
+    await expect(panel.locator('.channel-title')).not.toHaveCSS('color', 'rgba(0, 0, 0, 0)');
+    await expect(page.getByRole('link', { name: 'Читать в Telegram' })).toBeVisible();
+  });
+});
+
 test('completed tarot exports a portrait PNG and clears stale results on closing or redealing', async ({ page }, testInfo) => {
   await page.addInitScript(() => {
     // Draw the long single-word format that previously overflowed, then check redealing.
