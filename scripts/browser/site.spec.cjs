@@ -400,6 +400,7 @@ test.describe('Terrain movement and fallback', () => {
     const panel = page.locator('#channel'), control = panel.locator('.channel-motion');
     await panel.scrollIntoViewIfNeeded();
     await expect(control).toBeVisible();
+    await expect(panel).toHaveClass(/is-contrast-ready/);
     await expect(control).toHaveAttribute('aria-pressed', 'true');
     await expect(control).toHaveAccessibleName('Остановить фон');
     expect(await control.evaluate(button => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
@@ -473,14 +474,60 @@ test.describe('Terrain movement and fallback', () => {
     await page.keyboard.press('Space');
     await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(frozen));
     await page.locator('#training').scrollIntoViewIfNeeded();
-    await expect(control).toHaveAttribute('aria-pressed', 'false');
+    await expect.poll(() => panel.evaluate(element => {
+      const r = element.getBoundingClientRect(); return r.top >= innerHeight || r.bottom <= 0;
+    })).toBe(true);
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
+    await expect(control).toHaveAccessibleName('Остановить фон');
     const outside = await panel.getAttribute('data-motion-frame');
     await page.waitForTimeout(400);
     expect(await panel.getAttribute('data-motion-frame')).toBe(outside);
     await control.scrollIntoViewIfNeeded();
     await expect(control).toHaveAttribute('aria-pressed', 'true');
-    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(outside));
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(outside) + .35);
     await noOverflow(page);
+  });
+
+  test('a delayed foreground decode keeps the preceding complete frame readable', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.channelDecodeGate = false;
+      window.channelWaitingFrames = [];
+      const decode = HTMLImageElement.prototype.decode;
+      HTMLImageElement.prototype.decode = async function () {
+        await decode.call(this);
+        if (this.src.startsWith('data:image/png') && window.channelDecodeGate) {
+          await new Promise(resolve => window.channelWaitingFrames.push(resolve));
+        }
+      };
+    });
+    await page.goto('./#channel');
+    const panel = page.locator('#channel');
+    await panel.scrollIntoViewIfNeeded();
+    await expect(panel).toHaveClass(/is-contrast-ready/);
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(1);
+    await page.evaluate(() => { window.channelDecodeGate = true; });
+    await expect.poll(() => page.evaluate(() => window.channelWaitingFrames.length)).toBe(1);
+    const visibleFrame = () => panel.evaluate(element => {
+      const art = element.querySelector('.channel-moving-art');
+      const pixels = art.getContext('2d').getImageData(0, 0, art.width, art.height).data;
+      let checksum = 0;
+      for (let i = 0; i < pixels.length; i += 103) checksum = (checksum * 31 + pixels[i]) >>> 0;
+      return {
+        phase: element.dataset.motionFrame,
+        foreground: getComputedStyle(element.querySelector('.channel-title')).backgroundImage,
+        checksum
+      };
+    });
+    const held = await visibleFrame();
+    expect(held.foreground).toMatch(/^url\(/);
+    await page.waitForTimeout(150);
+    expect(await visibleFrame(), 'loading a new PNG never clears the previous text or artwork').toEqual(held);
+    await page.evaluate(() => {
+      window.channelDecodeGate = false;
+      for (const resolve of window.channelWaitingFrames) resolve();
+    });
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(held.phase));
+    await expect(panel.locator('.channel-motion')).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('paused Terrain keeps its text and icons aligned and its service control apart across widths and enlarged text', async ({ page }) => {
@@ -586,6 +633,16 @@ test('completed tarot exports a portrait PNG and clears stale results on closing
   await expect(reading).toBeVisible();
   await expect(swipe).toHaveText(readingHint);
   await expect(save).toBeVisible();
+  const resultAxis = await page.locator('#tarot').evaluate(element => {
+    const reading = element.querySelector('[data-tarot-reading]').getBoundingClientRect();
+    const deal = element.querySelector('[data-tarot-deal]');
+    const label = deal.querySelector('span').getBoundingClientRect();
+    return { delta: Math.abs(reading.left - label.left), height: deal.getBoundingClientRect().height };
+  });
+  if (page.viewportSize().width <= 760) {
+    expect(resultAxis.delta, 'the mobile redeal label follows the reading text axis').toBeLessThan(1);
+  }
+  expect(resultAxis.height).toBeGreaterThanOrEqual(44);
   const text = await reading.textContent();
   const download = page.waitForEvent('download');
   await save.click();

@@ -129,7 +129,7 @@
   .tarot-actions > p { order: 1; }
   .tarot-deal { min-width: 0; width: 100%; }
   .tarot-save { width: 100%; padding-inline: var(--space-4); justify-content: space-between; }
-  .has-reading .tarot-deal { align-self: start; justify-content: start; width: auto; }
+  .has-reading .tarot-deal { align-self: start; justify-content: start; width: auto; padding-inline: 0; }
   .tarot-export { padding: 0; }
   .tarot-credit { padding: 0; }
 }

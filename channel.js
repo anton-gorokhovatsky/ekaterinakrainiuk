@@ -10,10 +10,14 @@
   const symbol = control.querySelector('use');
   const fields = [...panel.querySelectorAll('.channel-kicker,.channel-title,.channel-copy,.channel-link .link-label'), label];
   const icons = [...panel.querySelectorAll('.link-icon')];
+  // Render offscreen, then publish one complete frame. Safari can briefly paint
+  // transparent HTML text while a freshly assigned PNG background is decoding.
   const art = document.createElement('canvas');
-  art.className = 'channel-moving-art'; art.setAttribute('aria-hidden', 'true');
   const gl = art.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true });
   if (!gl || !gl.getExtension('OES_standard_derivatives')) return;
+  const display = document.createElement('canvas'), displayContext = display.getContext('2d', { alpha: false });
+  if (!displayContext) return;
+  display.className = 'channel-moving-art'; display.setAttribute('aria-hidden', 'true');
   const vertex = `attribute vec2 point; varying vec2 uv;
     void main(){uv=vec2(point.x*.5+.5,.5-point.y*.5);gl_Position=vec4(point,0.,1.);}`;
   const fragment = `#extension GL_OES_standard_derivatives : enable
@@ -87,7 +91,7 @@
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   gl.uniform1i(uniform('textMask'),1);
-  panel.prepend(art);
+  panel.prepend(display);
   const map = document.createElement('canvas'), context = map.getContext('2d',{willReadFrequently:true});
   const glyphs=document.createElement('canvas'),glyphContext=glyphs.getContext('2d');
   if (!context || !glyphContext) return;
@@ -95,7 +99,8 @@
   const iconArtwork = new Map();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)'), forced = matchMedia('(forced-colors: active)');
   const linear = Array.from({length:256},(_,i)=>{const c=i/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;});
-  let ready=false,atlasReady=false,symbolsReady=false,nearby=false,visible=false,requested=true,playing=false,raf=0,pending=false,last=0,elapsed=0,motionStarted=false,cached='',glyphCache='';
+  let ready=false,atlasReady=false,symbolsReady=false,nearby=false,visible=false,requested=true,playing=false,raf=0,pending=false,painting=false,last=0,elapsed=0,motionStarted=false,cached='',glyphCache='';
+  let foregroundFrame;
   async function loadSymbols(){
     const url=new URL(icons[0].querySelector('use').getAttribute('href'),document.baseURI);url.hash='';
     const response=await fetch(url);if(!response.ok)throw Error('Unavailable symbols');
@@ -116,11 +121,15 @@
     glyphCache='';cached='';
     symbol.setAttribute('href',symbol.getAttribute('href').replace(/#.*$/,playing?'#player-pause':'#player-play'));
   }
-  function stop(){playing=false;cancelAnimationFrame(raf);raf=0;sync();schedule();}
-  // Playback intent is separate from visibility: scrolling never cancels a
-  // deliberate pause, and an unpaused field resumes when it returns on screen.
+  function stop(){
+    playing=false;cancelAnimationFrame(raf);raf=0;
+    if(!requested)elapsed=Number(panel.dataset.motionFrame)*1000||0;
+    sync();schedule();
+  }
+  // Scrolling does not change playback. Invisible frames need no drawing, but
+  // the clock continues and the control remains a pause until explicitly used.
   function reconcile(){
-    const run=ready&&visible&&requested&&!reduced.matches&&!forced.matches&&!document.hidden;
+    const run=ready&&requested&&!reduced.matches&&!forced.matches&&!document.hidden;
     if(run&&!playing){playing=true;motionStarted=true;last=performance.now();raf=requestAnimationFrame(tick);}
     else if(!run&&playing){stop();return;}
     sync();schedule();
@@ -158,13 +167,15 @@
     gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,glyphTexture);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,glyphs);glyphCache=key;
   }
-  function paint() {
-    pending=false;if(!ready||!nearby||forced.matches)return;
+  async function paint() {
+    pending=false;if(painting||!ready||!nearby||!visible||forced.matches)return;
     const r=panel.getBoundingClientRect();if(r.width<1||r.height<1)return;
     const density=Math.min(devicePixelRatio||1,2),ratio=Math.min(1,1600/r.width);
     const position=parseFloat(getComputedStyle(panel).getPropertyValue('--channel-art-x'))/100||.5;
     const state=[r.width,r.height,density,position,elapsed].join(':');if(state===cached)return;
+    painting=true;
     const began=performance.now();
+    const frameElapsed=elapsed,framePlaying=playing;
     try {
       const w=Math.ceil(r.width*density),h=Math.ceil(r.height*density);
       if(art.width!==w||art.height!==h){art.width=w;art.height=h;}
@@ -185,12 +196,25 @@
         pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=value;
       }
       context.putImageData(pixels,0,0);
-      const image=`url(${map.toDataURL('image/png')})`;
+      const nextForeground=new Image();nextForeground.src=map.toDataURL('image/png');
+      await nextForeground.decode();
+      await new Promise(resolve=>requestAnimationFrame(resolve));
+      if(!ready||!visible||forced.matches||(framePlaying&&!playing))return;
+      const current=panel.getBoundingClientRect();
+      if(current.width!==r.width||current.height!==r.height){cached='';return;}
+      // The retained Image keeps the foreground decoded; both visible layers
+      // change in this animation frame, with the preceding frame intact until now.
+      foregroundFrame=nextForeground;
+      if(display.width!==w||display.height!==h){display.width=w;display.height=h;}
+      displayContext.drawImage(art,0,0);
+      const image=`url(${foregroundFrame.src})`;
+      // All lettering and symbols share this frame. Keep its large PNG once on
+      // the panel instead of reparsing a copy on every text/icon element.
+      panel.style.setProperty('--terrain-contrast-image',image);
+      panel.style.setProperty('--terrain-contrast-size',`${r.width}px ${r.height}px`);
       for(const field of [...fields,...icons]){
         const f=field.getBoundingClientRect();
-        field.style.setProperty('--terrain-contrast-image',image);
-        field.style.setProperty('--terrain-contrast-size',`${r.width}px ${r.height}px`);
-        field.style.setProperty('--terrain-contrast-position',`${r.left-f.left}px ${r.top-f.top}px`);
+        field.style.setProperty('--terrain-contrast-position',`${current.left-f.left}px ${current.top-f.top}px`);
         if(field.matches('.link-icon')){
           const id=field.querySelector('use').getAttribute('href').split('#')[1];
           field.style.setProperty('--channel-symbol-mask',`url("${iconArtwork.get(id).src}")`);
@@ -198,17 +222,20 @@
         }else field.classList.add('channel-contrast-text');
       }
       cached=state;panel.classList.add('is-contrast-ready');
-      panel.dataset.motionFrame=motionStarted?(elapsed/1000).toFixed(3):'still';
+      panel.dataset.motionFrame=motionStarted?(frameElapsed/1000).toFixed(3):'still';
       panel.dataset.motionPaintMs=(performance.now()-began).toFixed(1);
     } catch {
       fallback();
+    } finally {
+      painting=false;
+      if(!playing)schedule();
     }
   }
   function schedule(){if(!pending){pending=true;requestAnimationFrame(paint);}}
   function tick(now){
     if(!playing)return;
     const step=now-last;
-    if(step>=1000/30){elapsed+=Math.min(step,100);last=now;paint();}
+    if(step>=1000/30){elapsed+=step;last=now;paint();}
     raf=requestAnimationFrame(tick);
   }
   control.addEventListener('click',()=>{
@@ -236,9 +263,9 @@
     schedule();
   }
   if('IntersectionObserver'in window)new IntersectionObserver(entries=>{
-    nearby=entries[0].isIntersecting;if(nearby)load();else stop();
+    nearby=entries[0].isIntersecting;if(nearby)load();
   },{rootMargin:'400px'}).observe(panel);else{nearby=visible=true;load();}
-  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;reconcile();}).observe(panel);
+  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;schedule();}).observe(panel);
   if('ResizeObserver'in window)new ResizeObserver(schedule).observe(panel);
   for(const setting of [reduced,forced])setting.addEventListener('change',reconcile);
   document.addEventListener('visibilitychange',reconcile);
