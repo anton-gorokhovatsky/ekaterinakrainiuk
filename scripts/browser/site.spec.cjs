@@ -395,23 +395,20 @@ test('a failed Terrain canvas keeps the complete text and channel link readable'
 test.describe('Terrain movement and fallback', () => {
   test.use({ reducedMotion: 'no-preference', deviceScaleFactor: 2 });
 
-  test('the native control starts, freezes and resumes the same field with aligned readable text', async ({ page }) => {
+  test('the field autoplays on screen and the separate control freezes and resumes it', async ({ page }) => {
     await page.goto('./#channel');
     const panel = page.locator('#channel'), control = panel.locator('.channel-motion');
     await panel.scrollIntoViewIfNeeded();
     await expect(control).toBeVisible();
-    await expect(panel).toHaveAttribute('data-motion-frame', 'still');
-    await expect(control).toHaveAccessibleName('Оживить фон');
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
+    await expect(control).toHaveAccessibleName('Остановить фон');
     expect(await control.evaluate(button => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
     const density = await panel.locator('.channel-moving-art').evaluate(canvas => canvas.width / canvas.getBoundingClientRect().width);
     expect(density).toBeCloseTo(2, 1);
-    await control.focus();
-    await page.keyboard.press('Enter');
-    await expect(control).toHaveAttribute('aria-pressed', 'true');
-    await expect(control).toHaveAccessibleName('Остановить фон');
     await expect(control.locator('use')).toHaveAttribute('href', /#player-pause$/);
     await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(1);
-    await page.keyboard.press('Space');
+    await control.focus();
+    await page.keyboard.press('Enter');
     await expect(control).toHaveAttribute('aria-pressed', 'false');
     await expect(control).toHaveAccessibleName('Оживить фон');
     await expect(control.locator('use')).toHaveAttribute('href', /#player-play$/);
@@ -420,7 +417,7 @@ test.describe('Terrain movement and fallback', () => {
     expect(await panel.getAttribute('data-motion-frame')).toBe(frozen);
 
     // Compare the rendered artwork to the adaptive foreground from the same frame.
-    const minimum = await panel.evaluate(async element => {
+    const contrasts = await panel.evaluate(async element => {
       const art = element.querySelector('.channel-moving-art');
       const url = getComputedStyle(element.querySelector('.channel-title'))
         .getPropertyValue('--terrain-contrast-image').trim().slice(4, -1).replace(/^['"]|['"]$/g, '');
@@ -438,17 +435,49 @@ test.describe('Terrain movement and fallback', () => {
         const ink = foreground[i] ? 1 : 0;
         contrast = Math.min(contrast, (Math.max(light, ink) + .05) / (Math.min(light, ink) + .05));
       }
-      return contrast;
+      const icons = [];
+      const bounds = element.getBoundingClientRect();
+      for (const icon of element.querySelectorAll('.link-icon')) {
+        const box = icon.getBoundingClientRect(), style = getComputedStyle(icon);
+        const url = style.maskImage.slice(4, -1).replace(/^['"]|['"]$/g, '');
+        const shape = new Image(); shape.src = url; await shape.decode();
+        const strokes = document.createElement('canvas'); strokes.width = Math.ceil(box.width); strokes.height = Math.ceil(box.height);
+        const c = strokes.getContext('2d'); c.drawImage(shape, 0, 0, strokes.width, strokes.height);
+        const alpha = c.getImageData(0, 0, strokes.width, strokes.height).data;
+        let minimum = Infinity, count = 0;
+        for (let y = 0; y < strokes.height; y++) for (let x = 0; x < strokes.width; x++) {
+          if (alpha[(y * strokes.width + x) * 4 + 3] < 200) continue;
+          const px = Math.round((box.left - bounds.left + x) * copy.width / bounds.width);
+          const py = Math.round((box.top - bounds.top + y) * copy.height / bounds.height);
+          const i = (py * copy.width + px) * 4;
+          const light = .2126 * linear(background[i]) + .7152 * linear(background[i + 1]) + .0722 * linear(background[i + 2]);
+          const ink = foreground[i] ? 1 : 0;
+          minimum = Math.min(minimum, (Math.max(light, ink) + .05) / (Math.min(light, ink) + .05)); count++;
+        }
+        icons.push({ minimum, count });
+      }
+      return { text: contrast, icons };
     });
-    expect(minimum).toBeGreaterThanOrEqual(4.5);
-    await control.click();
+    expect(contrasts.text).toBeGreaterThanOrEqual(4.5);
+    expect(contrasts.icons).toHaveLength(2);
+    for (const icon of contrasts.icons) {
+      expect(icon.count, 'the canonical icon has visible, uncut strokes').toBeGreaterThan(5);
+      expect(icon.minimum, 'each icon stroke contrasts with its actual background').toBeGreaterThanOrEqual(3);
+    }
+    // A deliberate pause survives leaving and returning to the section.
+    await page.locator('#training').scrollIntoViewIfNeeded();
+    await control.scrollIntoViewIfNeeded();
+    await expect(control).toHaveAttribute('aria-pressed', 'false');
+    expect(await panel.getAttribute('data-motion-frame')).toBe(frozen);
+    await control.focus();
+    await page.keyboard.press('Space');
     await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(frozen));
-    for (const width of [980, 390, 320]) {
+    for (const width of [980, 760, 700, 390, 320]) {
       await page.setViewportSize({ width, height: 844 });
       await control.scrollIntoViewIfNeeded();
       await expect.poll(() => panel.evaluate(element => {
         const bounds = element.getBoundingClientRect();
-        return [...element.querySelectorAll('.channel-contrast-text')].every(field => {
+        return [...element.querySelectorAll('.channel-contrast-text,.channel-contrast-icon')].every(field => {
           const style = getComputedStyle(field), box = field.getBoundingClientRect();
           const [w, h] = style.getPropertyValue('--terrain-contrast-size').split(' ').map(parseFloat);
           const [x, y] = style.getPropertyValue('--terrain-contrast-position').split(' ').map(parseFloat);
@@ -456,13 +485,34 @@ test.describe('Terrain movement and fallback', () => {
             && Math.abs(x - (bounds.left - box.left)) < 1 && Math.abs(y - (bounds.top - box.top)) < 1;
         });
       })).toBe(true);
+      const separated = await panel.evaluate(element => {
+        const p = element.getBoundingClientRect(), cta = element.querySelector('.channel-link').getBoundingClientRect();
+        const pause = element.querySelector('.channel-motion').getBoundingClientRect();
+        // The established <=360px layout has an 8px inner gutter to keep enlarged words intact.
+        return pause.top >= cta.bottom + 12 && pause.bottom <= p.bottom - 12 && pause.right <= p.right - 8;
+      });
+      expect(separated, `pause stays inside the frame and apart from the CTA at ${width}px`).toBe(true);
       await noOverflow(page);
     }
+    await page.addStyleTag({ content: ':root { font-size: 200%; }' });
+    await control.scrollIntoViewIfNeeded();
+    expect(await panel.locator('.channel-title, .channel-copy, .channel-link, .channel-motion').evaluateAll(fields =>
+      fields.filter(field => field.scrollWidth > field.clientWidth + 1).map(field => field.textContent))).toEqual([]);
+    const enlarged = await panel.evaluate(element => {
+      const b = element.getBoundingClientRect(), p = element.querySelector('.channel-motion').getBoundingClientRect();
+      const a = element.querySelector('.channel-link').getBoundingClientRect();
+      return p.left >= b.left && p.right <= b.right && p.top >= a.bottom + 12 && p.bottom <= b.bottom - 12;
+    });
+    expect(enlarged, 'the separate pause fits at 320px with 200% text').toBe(true);
+    await page.addStyleTag({ content: ':root { font-size: 100%; }' });
     await page.locator('#training').scrollIntoViewIfNeeded();
     await expect(control).toHaveAttribute('aria-pressed', 'false');
     const outside = await panel.getAttribute('data-motion-frame');
     await page.waitForTimeout(400);
     expect(await panel.getAttribute('data-motion-frame')).toBe(outside);
+    await control.scrollIntoViewIfNeeded();
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(outside));
   });
 
   test('unavailable WebGL keeps the full photo, readable copy and native channel link', async ({ page }) => {

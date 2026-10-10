@@ -3,7 +3,7 @@
    Parameters and source: docs/design-direction.md; atlas: scripts/build_channel_field.cjs. */
 (() => {
   const panel = document.querySelector('.channel-note');
-  if (!panel || !CSS.supports('background-clip', 'text')) return;
+  if (!panel || !CSS.supports('background-clip', 'text') || !CSS.supports('mask-image', 'url("")')) return;
   const control = panel.querySelector('.channel-motion');
   if (!control) return;
   const label = control.querySelector('.link-label');
@@ -92,9 +92,23 @@
   const glyphs=document.createElement('canvas'),glyphContext=glyphs.getContext('2d');
   if (!context || !glyphContext) return;
   const source = new Image();
+  const iconArtwork = new Map();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)'), forced = matchMedia('(forced-colors: active)');
   const linear = Array.from({length:256},(_,i)=>{const c=i/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;});
-  let ready=false,nearby=false,playing=false,raf=0,pending=false,last=0,elapsed=0,motionStarted=false,cached='',glyphCache='';
+  let ready=false,atlasReady=false,symbolsReady=false,nearby=false,visible=false,requested=true,playing=false,raf=0,pending=false,last=0,elapsed=0,motionStarted=false,cached='',glyphCache='';
+  async function loadSymbols(){
+    const url=new URL(icons[0].querySelector('use').getAttribute('href'),document.baseURI);url.hash='';
+    const response=await fetch(url);if(!response.ok)throw Error('Unavailable symbols');
+    const sprite=new DOMParser().parseFromString(await response.text(),'image/svg+xml');
+    const stroke=parseFloat(getComputedStyle(icons[0]).strokeWidth)||1.75;
+    for(const id of ['arrow-up-right','player-play','player-pause']){
+      const vector=sprite.getElementById(id);if(!vector)throw Error('Missing symbol');
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="${vector.getAttribute('viewBox')}" fill="none" stroke="white" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round">${vector.innerHTML}</svg>`;
+      const image=new Image();image.src=`data:image/svg+xml,${encodeURIComponent(svg)}`;await image.decode();
+      iconArtwork.set(id,image);
+    }
+    symbolsReady=true;ready=atlasReady;reconcile();
+  }
   function sync() {
     control.hidden=!ready||reduced.matches||forced.matches;
     control.setAttribute('aria-pressed',String(playing));
@@ -103,6 +117,14 @@
     symbol.setAttribute('href',symbol.getAttribute('href').replace(/#.*$/,playing?'#player-pause':'#player-play'));
   }
   function stop(){playing=false;cancelAnimationFrame(raf);raf=0;sync();schedule();}
+  // Playback intent is separate from visibility: scrolling never cancels a
+  // deliberate pause, and an unpaused field resumes when it returns on screen.
+  function reconcile(){
+    const run=ready&&visible&&requested&&!reduced.matches&&!forced.matches&&!document.hidden;
+    if(run&&!playing){playing=true;motionStarted=true;last=performance.now();raf=requestAnimationFrame(tick);}
+    else if(!run&&playing){stop();return;}
+    sync();schedule();
+  }
   function glyphMask(r,density){
     const key=[r.width,r.height,density,label.textContent].join(':');if(key===glyphCache)return;
     glyphs.width=art.width;glyphs.height=art.height;
@@ -125,6 +147,13 @@
         const x=rect.left-r.left,y=rect.top-r.top+(rect.height-ascent-descent)/2+ascent;
         glyphContext.strokeText(char,x,y);glyphContext.fillText(char,x,y);
       }
+    }
+    // Use the same canonical SVG strokes for grain protection and the foreground.
+    // A single bright dither pixel must not recolour the entire icon.
+    for(const icon of icons){
+      const f=icon.getBoundingClientRect();if(!f.width||!f.height)continue;
+      const id=icon.querySelector('use').getAttribute('href').split('#')[1];
+      glyphContext.drawImage(iconArtwork.get(id),f.left-r.left,f.top-r.top,f.width,f.height);
     }
     gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,glyphTexture);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,glyphs);glyphCache=key;
@@ -157,18 +186,16 @@
       }
       context.putImageData(pixels,0,0);
       const image=`url(${map.toDataURL('image/png')})`;
-      for(const field of fields){
+      for(const field of [...fields,...icons]){
         const f=field.getBoundingClientRect();
         field.style.setProperty('--terrain-contrast-image',image);
         field.style.setProperty('--terrain-contrast-size',`${r.width}px ${r.height}px`);
         field.style.setProperty('--terrain-contrast-position',`${r.left-f.left}px ${r.top-f.top}px`);
-        field.classList.add('channel-contrast-text');
-      }
-      for(const icon of icons){
-        const f=icon.getBoundingClientRect();
-        const x=Math.max(0,Math.min(map.width-1,Math.round((f.left+f.width/2-r.left)*ratio)));
-        const y=Math.max(0,Math.min(map.height-1,Math.round((f.top+f.height/2-r.top)*ratio)));
-        const colour=context.getImageData(x,y,1,1).data[0];icon.style.setProperty('--channel-icon-color',`rgb(${colour},${colour},${colour})`);
+        if(field.matches('.link-icon')){
+          const id=field.querySelector('use').getAttribute('href').split('#')[1];
+          field.style.setProperty('--channel-symbol-mask',`url("${iconArtwork.get(id).src}")`);
+          field.classList.add('channel-contrast-icon');
+        }else field.classList.add('channel-contrast-text');
       }
       cached=state;panel.classList.add('is-contrast-ready');
       panel.dataset.motionFrame=motionStarted?(elapsed/1000).toFixed(3):'still';
@@ -185,12 +212,11 @@
     raf=requestAnimationFrame(tick);
   }
   control.addEventListener('click',()=>{
-    if(playing){stop();return;}if(!ready||reduced.matches||forced.matches)return;
-    playing=true;motionStarted=true;last=performance.now();sync();raf=requestAnimationFrame(tick);
+    if(!ready||reduced.matches||forced.matches)return;
+    requested=!requested;reconcile();
   });
   function fallback(){
     ready=false;stop();panel.classList.remove('is-contrast-ready');
-    for(const icon of icons)icon.style.removeProperty('--channel-icon-color');
   }
   art.addEventListener('webglcontextlost',fallback);
   source.addEventListener('load',()=>{
@@ -198,17 +224,23 @@
       gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);
       gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,source);
       if(gl.isContextLost())throw Error('Lost artwork');
-      ready=true;sync();schedule();
+      atlasReady=true;ready=symbolsReady;reconcile();
     } catch {fallback();}
   });
   source.addEventListener('error',fallback);
-  function load(){if(!source.getAttribute('src'))source.src='assets/illustrations/channel-terrain-field.png';schedule();}
+  function load(){
+    if(!source.getAttribute('src')){
+      source.src='assets/illustrations/channel-terrain-field.png';
+      loadSymbols().catch(fallback);
+    }
+    schedule();
+  }
   if('IntersectionObserver'in window)new IntersectionObserver(entries=>{
     nearby=entries[0].isIntersecting;if(nearby)load();else stop();
-  },{rootMargin:'400px'}).observe(panel);else{nearby=true;load();}
-  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)stop();}).observe(panel);
+  },{rootMargin:'400px'}).observe(panel);else{nearby=visible=true;load();}
+  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;reconcile();}).observe(panel);
   if('ResizeObserver'in window)new ResizeObserver(schedule).observe(panel);
-  for(const setting of [reduced,forced])setting.addEventListener('change',()=>{stop();cached='';schedule();});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+  for(const setting of [reduced,forced])setting.addEventListener('change',reconcile);
+  document.addEventListener('visibilitychange',reconcile);
   document.fonts?.ready.then(()=>{glyphCache='';cached='';schedule();});window.addEventListener('resize',schedule);sync();
 })();
