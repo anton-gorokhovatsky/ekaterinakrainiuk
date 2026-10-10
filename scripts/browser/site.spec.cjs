@@ -736,14 +736,14 @@ test('editorial and service photographs retain the full source frame across widt
   await page.goto('./');
   await page.evaluate(async () => {
     document.querySelectorAll('details.route, details.service').forEach(details => { details.open = true; });
-    await Promise.all([...document.querySelectorAll('.route-content img, .service-body img')].map(async image => {
+    await Promise.all([...document.querySelectorAll('.route-content img, .service-body img, .channel-photo')].map(async image => {
       image.loading = 'eager';
       await image.decode();
     }));
   });
   for (const width of [320, 760, 980, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    const cropped = await page.locator('.route-content img, .service-body img').evaluateAll(images =>
+    const cropped = await page.locator('.route-content img, .service-body img, .channel-photo').evaluateAll(images =>
       images.filter(image => {
         const style = getComputedStyle(image);
         const renderedRatio = parseFloat(style.width) / parseFloat(style.height);

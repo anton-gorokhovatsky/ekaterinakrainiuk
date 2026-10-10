@@ -92,7 +92,9 @@
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   gl.uniform1i(uniform('textMask'),1);
   panel.prepend(display);
-  const map = document.createElement('canvas'), context = map.getContext('2d',{willReadFrequently:true});
+  // Keep the same filtering path as the visible canvas. WebKit's CPU readback
+  // hint can average grain differently and select ink for a different colour.
+  const map = document.createElement('canvas'), context = map.getContext('2d');
   const glyphs=document.createElement('canvas'),glyphContext=glyphs.getContext('2d');
   if (!context || !glyphContext) return;
   const source = new Image();
