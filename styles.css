@@ -118,6 +118,9 @@ button, select { font: inherit; }
 a, button, summary, select { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 img { display: block; max-width: 100%; height: auto; }
 p, h1, h2, h3, h4, figure, blockquote { margin: 0; }
+/* Long words and nonbreaking phrases may exceed the available line at 200%.
+   Wrap the text itself; never conceal page overflow or shrink the chosen size. */
+p, h1, h2, h3, h4, blockquote, figcaption, .link-label { overflow-wrap: anywhere; }
 /* Optical alignment for every quotation and dialogue, independent of its size. */
 .hanging-text { position: relative; }
 .hanging-mark { position: absolute; inset-inline-start: 0; transform: translateX(-100%); white-space: pre; }
@@ -134,12 +137,13 @@ select:focus-visible { box-shadow: inset 0 -1px currentColor; }
 :is(.menu-toggle:focus-visible [data-menu-label], summary:focus-visible h2, summary:focus-visible h3, summary:focus-visible .service-title, summary:focus-visible .disclosure-label, .review-full > summary:focus-visible) { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); }
 summary { cursor: pointer; list-style: none; }
 summary::-webkit-details-marker { display: none; }
-.skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; background: var(--acid); color: #101216; padding: var(--space-3); transform: translateY(-200%); }
+.skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; max-width: calc(100% - 2rem); overflow-wrap: anywhere; background: var(--acid); color: #101216; padding: var(--space-3); transform: translateY(-200%); }
 .skip-link:focus { transform: none; }
 .eyebrow { display: block; font-size: var(--text-label); font-weight: 500; line-height: var(--leading-small); text-transform: uppercase; letter-spacing: var(--tracking-label); }
 /* One label and one optical icon box for all text links, at every size. */
 .link { display: inline-flex; align-items: center; gap: .45em; width: fit-content; max-width: 100%; }
 .link-label { text-decoration-line: underline; text-decoration-thickness: var(--link-line); text-underline-offset: var(--link-offset); text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); transition: text-decoration-color 180ms var(--ease-enter); }
+.link-label, .button > span { min-width: 0; }
 .link-icon { display: inline-block; width: clamp(1rem, 1em, 1.5rem); height: clamp(1rem, 1em, 1.5rem); flex: 0 0 auto; stroke-width: 1.75; vertical-align: -.15em; }
 .link:focus-visible .link-label, .hero-after > a:focus-visible .link-label { text-decoration-color: currentColor; }
 .text-link { padding-block: var(--space-2); font-size: var(--text-small); }
@@ -235,6 +239,10 @@ summary::-webkit-details-marker { display: none; }
 .hero-after > a { text-align: left; padding: var(--space-2) 0; }
 .hero-after strong { display: flex; align-items: center; justify-content: end; gap: .45em; font-size: var(--text-ui-title); font-weight: 500; }
 .hero-after > a > strong { justify-content: start; }
+/* Short metadata stays paired when it fits and moves to another line when the
+   chosen text size needs more room. */
+.hero-kicker, .coach-label { flex-wrap: wrap; }
+.hero-kicker > span, .coach-label > span { min-width: 0; overflow-wrap: anywhere; }
 
 /* The header and the complete invitation share one desktop viewport. */
 @media (min-width: 1001px) {
@@ -257,7 +265,7 @@ summary::-webkit-details-marker { display: none; }
 
 /* The visitor opens a story; these are complete native HTML disclosures. */
 .route { --accordion-open: 480ms; --accordion-close: 320ms; }
-.route > summary { position: relative; display: grid; grid-template-columns: 3rem 1fr auto 3rem; align-items: center; gap: var(--space-6); padding: var(--space-7) var(--pad); }
+.route > summary { position: relative; display: grid; grid-template-columns: 3rem minmax(0, 1fr) auto 3rem; align-items: center; gap: var(--space-6); padding: var(--space-7) var(--pad); }
 .route h2 { font-size: var(--text-lead); line-height: var(--leading-heading); }
 .route-preview { display: none; pointer-events: none; }
 @media (min-width: 1200px) {
@@ -310,6 +318,11 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .water-portrait { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); align-items: center; gap: var(--space-6); margin-top: var(--space-8); }
 .water-portrait img { width: 100%; border-radius: 50%; }
 .water-portrait p { font-size: var(--text-small); }
+@container (max-width: 17rem) {
+  .water-story .water-portrait { grid-template-columns: minmax(0, 1fr); }
+  .water-story .water-portrait img { width: min(100%, 6rem); }
+  .ride-content .ride-journal { grid-template-columns: minmax(0, 1fr); }
+}
 .water-story > p:not(.story-headline) { font-size: var(--text-body); }
 .water-story .story-cta { margin-top: var(--space-4); }
 .water-training { grid-column: 7 / -1; }
@@ -387,6 +400,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 }
 .bio-details { margin-top: var(--space-6); }
 .bio-details > summary { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) 0; }
+.bio-details .disclosure-label { min-width: 0; overflow-wrap: anywhere; }
 .bio-details .disclosure, .daylight .disclosure { width: 1.1rem; height: 1.1rem; }
 .bio-details p { margin-top: var(--space-4); }
 .training { padding: var(--section-space) var(--pad); display: grid; grid-template-columns: var(--grid); gap: var(--space-12) var(--gap); align-items: start; }
@@ -420,7 +434,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .services > .service:first-child > summary { padding-top: 0; }
 .service-title { grid-column: 1; grid-row: 1; font-size: var(--text-item); line-height: var(--leading-heading); font-weight: 500; }
 .service-purpose { grid-column: 1 / 3; grid-row: 2; font-size: var(--text-small); line-height: var(--leading-small); color: var(--muted); }
-.service-price { grid-column: 2; grid-row: 1; text-align: right; white-space: nowrap; font-size: var(--text-body); }
+.service-price { grid-column: 2; grid-row: 1; text-align: right; font-size: var(--text-body); }
 .service-price small { margin-left: var(--space-1); font-size: 1em; font-weight: 400; color: var(--muted); }
 .service-price-text { font-size: var(--text-body); }
 .service .disclosure { grid-column: 3; grid-row: 1; width: 1rem; height: 1rem; align-self: center; }
@@ -785,15 +799,17 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .portal-verb { font-size: 14vw; margin-top: var(--space-3); padding-bottom: .1em; }
   .portal-bottom { font-size: var(--text-label); padding-top: var(--space-2); }
   .portal-index { font-size: var(--text-label); }
-  .hero-after { padding-block: var(--space-5) var(--space-10); align-items: start; font-size: var(--text-label); }
+  .hero-after { padding-block: var(--space-5) var(--space-10); align-items: start; flex-wrap: wrap; font-size: var(--text-label); }
   .hero-after strong { font-size: var(--text-body); }
-  .route > summary { padding: var(--space-5) var(--pad); grid-template-columns: 1.3rem 1fr 1.3rem; gap: var(--space-3); }
+  .route > summary { padding: var(--space-5) var(--pad); grid-template-columns: 1.3rem minmax(0, 1fr) 1.3rem; gap: var(--space-3); }
   .route h2 { font-size: var(--text-lead); }
   .route-kind { display: none; }
   .route-number { font-size: var(--text-label); }
   .disclosure { width: 1.1rem; height: 1.1rem; }
-  .water-content, .triathlon-content, .run-bottom { grid-template-columns: 1fr; gap: var(--space-8); }
-  .triathlon-content > div { padding-inline: var(--space-3); }
+  .water-content, .triathlon-content, .run-bottom { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
+  .triathlon-content > div { grid-column: 1 / -1; padding-inline: var(--space-3); }
+  .water-story { container-type: inline-size; }
+  .ride-content { container-type: inline-size; }
   .water-portrait { grid-template-columns: 6rem minmax(0, 1fr); gap: var(--space-4); }
   .water-portrait p { font-size: var(--text-small); margin: 0; }
   .story-headline { font-size: var(--text-story); }
@@ -807,19 +823,19 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .run-bottom { margin-top: var(--space-8); }
   .run-bottom > div:first-child { grid-column: 1 / -1; }
   .strava-note { grid-template-columns: minmax(0, 1fr); }
-  .strava-time { font-size: var(--text-stat); }
+  .strava-time { font-size: var(--text-stat); white-space: normal; }
   .strava-medal { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: var(--space-4); }
   .strava-medal figcaption { margin: 0; }
-  .triathlon-content figure { width: 75%; max-width: 20rem; margin: 0 auto var(--space-4); }
+  .triathlon-content figure { grid-column: 1 / -1; width: 75%; max-width: 20rem; margin: 0 auto var(--space-4); }
   .triathlon-content blockquote { font-size: var(--text-story); }
   .coach { padding-block: var(--section-space); }
   .coach-label { font-size: var(--text-label); }
-  .coach-statement { grid-template-columns: 1fr; gap: var(--space-8); margin-block: var(--space-8); }
-  .coach h2 { font-size: var(--text-title); }
-  .coach-statement figure { width: 100%; transform: none; }
+  .coach-statement { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); margin-block: var(--space-8); }
+  .coach h2 { grid-column: 1 / -1; font-size: var(--text-title); }
+  .coach-statement figure { grid-column: 1 / -1; width: 100%; transform: none; }
   .coach-statement img { width: 94%; margin: var(--space-3) auto 0; aspect-ratio: 1; transform: rotate(-4deg); }
   .coach-statement figcaption { font-size: var(--text-small); margin-top: var(--space-8); }
-  .coach-bottom { grid-template-columns: 1fr; gap: var(--space-6); }
+  .coach-bottom { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
   .coach-lead { font-size: var(--text-lead); }
   .coach-bio { font-size: var(--text-body); }
   .training { padding-block: var(--section-space); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
@@ -837,7 +853,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .service-purpose { grid-column: 1; }
   .service .service-price { grid-column: 1; grid-row: 3; text-align: left; font-size: var(--text-body); }
   .service .disclosure { grid-column: 2; grid-row: 1; }
-  .service-body { grid-template-columns: 1fr; padding: 0 0 var(--space-6); gap: var(--space-4); }
+  .service-body { grid-template-columns: minmax(0, 1fr); padding: 0 0 var(--space-6); gap: var(--space-4); }
   .results { --results-columns: minmax(0, 1fr); }
   .video-review { gap: var(--space-8); }
   .video-review-media, .video-review-copy, .result-review-copy, .result-review-data { grid-column: 1; }

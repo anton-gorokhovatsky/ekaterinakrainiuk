@@ -55,7 +55,7 @@ async function chooseTheme(page, choice) {
   }
 }
 
-test('section links, reading position, direct stories and browser history', async ({ page }) => {
+test('section links, reading position, direct stories and browser history', { tag: '@navigation' }, async ({ page }) => {
   await page.goto('./');
   await navTo(page, '#training');
   await expect(page).toHaveURL(/#training$/);
@@ -76,7 +76,7 @@ test('section links, reading position, direct stories and browser history', asyn
   await noOverflow(page);
 });
 
-test('mobile menu traps keyboard focus, Escape restores it and resizing unlocks the page', async ({ page, browserName }, testInfo) => {
+test('mobile menu traps keyboard focus, Escape restores it and resizing unlocks the page', { tag: '@navigation' }, async ({ page, browserName }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   // macOS WebKit uses Option+Tab to include all native controls without an OS preference change.
   const tabKey = process.platform === 'darwin' && browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
@@ -116,7 +116,7 @@ test('mobile menu traps keyboard focus, Escape restores it and resizing unlocks 
   await expect(page.locator('#water > summary')).toBeFocused();
 });
 
-test('theme choices persist, follow the system and apply on the 404 page', async ({ page }) => {
+test('theme choices persist, follow the system and apply on the 404 page', { tag: '@navigation' }, async ({ page }) => {
   await page.goto('./');
   const background = () => page.locator('body').evaluate(element => getComputedStyle(element).backgroundColor);
   const light = await background();
@@ -138,7 +138,7 @@ test('theme choices persist, follow the system and apply on the 404 page', async
   await expect.poll(background).toBe(light);
 });
 
-test('one action plays actual video, switches audio and keeps captions and focus', async ({ page, browserName }) => {
+test('one action plays actual video, switches audio and keeps captions and focus', { tag: '@video' }, async ({ page, browserName }) => {
   const mediaRequests = [];
   page.on('request', request => { if (/\.mp4(?:\?|$)/.test(request.url())) mediaRequests.push(request.url()); });
   await page.goto('./#results');
@@ -204,7 +204,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await noOverflow(page);
 });
 
-test('round messages play inline with reachable controls, captions and one soundtrack', async ({ page, browserName }) => {
+test('round messages play inline with reachable controls, captions and one soundtrack', { tag: '@video' }, async ({ page, browserName }) => {
   await page.goto('./#maria-review');
   const maria = page.locator('#maria-review .video-story');
   const vyacheslav = page.locator('#vyacheslav-review .video-story');
@@ -293,7 +293,7 @@ test('round messages play inline with reachable controls, captions and one sound
   await noOverflow(page);
 });
 
-test('a failed round-message start keeps a usable retry and readable facts', async ({ page }) => {
+test('a failed round-message start keeps a usable retry and readable facts', { tag: '@video' }, async ({ page }) => {
   await page.route('**/maria-lukyanova-limassol.mp4?*', route => route.fulfill({
     status: 200, contentType: 'video/mp4', body: 'unavailable video',
   }));
@@ -310,7 +310,7 @@ test('a failed round-message start keeps a usable retry and readable facts', asy
   await expect(story.locator('.video-status')).toBeHidden();
 });
 
-test('local sprite references survive dynamic tarot updates and resources render', async ({ page }) => {
+test('local sprite references survive dynamic tarot updates and resources render', { tag: '@tarot' }, async ({ page }) => {
   await page.goto('./');
   await page.locator('[data-tarot-deal]').click();
   await expect(page.locator('.tarot-card.is-revealed')).toHaveCount(3);
@@ -339,7 +339,66 @@ test('local sprite references survive dynamic tarot updates and resources render
   await noOverflow(page);
 });
 
-test('Terrain text keeps its foreground aligned after resizing and remains readable at 200%', async ({ page }) => {
+// Observe the cached letter texture to compare the actual composited pixels
+// with the same frame's background. The probe does not change visible playback.
+async function observeTerrain(page) {
+  await page.addInitScript(() => {
+    const upload = WebGLRenderingContext.prototype.texImage2D;
+    WebGLRenderingContext.prototype.texImage2D = function (...args) {
+      const result = upload.apply(this, args), source = args.at(-1);
+      if (this.getParameter(this.ACTIVE_TEXTURE) === this.TEXTURE2 && source instanceof HTMLCanvasElement) {
+        window.terrainProbe = { gl: this, letters: source, texture: this.getParameter(this.TEXTURE_BINDING_2D) };
+      }
+      return result;
+    };
+  });
+}
+async function terrainPixels(page) {
+  return page.locator('#channel').evaluate(element => {
+    const { gl, letters, texture } = window.terrainProbe;
+    const display = element.querySelector('.channel-moving-art');
+    const mask = letters.getContext('2d').getImageData(0, 0, letters.width, letters.height).data;
+    const composed = display.getContext('2d').getImageData(0, 0, display.width, display.height).data;
+    const blank = document.createElement('canvas'); blank.width = letters.width; blank.height = letters.height;
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, blank);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    const copy = document.createElement('canvas'); copy.width = letters.width; copy.height = letters.height;
+    const context = copy.getContext('2d'); context.drawImage(gl.canvas, 0, 0);
+    const background = context.getImageData(0, 0, copy.width, copy.height).data;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, letters);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    const linear = c => { c /= 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; };
+    const light = (pixels, i) => .2126 * linear(pixels[i]) + .7152 * linear(pixels[i + 1]) + .0722 * linear(pixels[i + 2]);
+    let contrast = Infinity, count = 0;
+    for (let i = 0; i < mask.length; i += 4) {
+      if (mask[i + 3] !== 255) continue;
+      const b = light(background, i), f = light(composed, i);
+      contrast = Math.min(contrast, (Math.max(b, f) + .05) / (Math.min(b, f) + .05)); count++;
+    }
+    const bounds = element.getBoundingClientRect(), density = letters.width / bounds.width;
+    const icons = [...element.querySelectorAll('.link-icon')].filter(icon => icon.getClientRects().length).map(icon => {
+      const box = icon.getBoundingClientRect(); let strokes = 0;
+      for (let y = Math.ceil((box.top - bounds.top) * density); y < (box.bottom - bounds.top) * density; y++) {
+        for (let x = Math.ceil((box.left - bounds.left) * density); x < (box.right - bounds.left) * density; x++) {
+          if (mask[(y * letters.width + x) * 4 + 3] === 255) strokes++;
+        }
+      }
+      return strokes;
+    });
+    return { contrast, count, icons };
+  });
+}
+const terrainAligned = element => {
+  const bounds = element.getBoundingClientRect(), mask = window.terrainProbe?.letters;
+  const canvas = element.querySelector('.channel-moving-art');
+  return !!mask && mask.width === canvas.width && mask.height === canvas.height
+    && Math.abs(canvas.width / Math.min(devicePixelRatio, 2) - bounds.width) < 1
+    && Math.abs(canvas.height / Math.min(devicePixelRatio, 2) - bounds.height) < 1;
+};
+
+test('Terrain text keeps its foreground aligned after resizing and remains readable at 200%', { tag: '@terrain' }, async ({ page }) => {
+  await observeTerrain(page);
   // A batch can include an earlier crossing followed by the current one.
   // Keep the real observer and scroll, but deliver that legitimate queue shape.
   await page.addInitScript(() => {
@@ -362,13 +421,7 @@ test('Terrain text keeps its foreground aligned after resizing and remains reada
   for (const width of [1440, 980, 760, 390, 320]) {
     await page.setViewportSize({ width, height: 900 });
     await panel.scrollIntoViewIfNeeded();
-    await expect.poll(() => panel.evaluate(element => {
-      const bounds = element.getBoundingClientRect();
-      return [...element.querySelectorAll('.channel-contrast-text')].every(field => {
-        const [w, h] = getComputedStyle(field).getPropertyValue('--terrain-contrast-size').split(' ').map(parseFloat);
-        return Math.abs(w - bounds.width) < 1 && Math.abs(h - bounds.height) < 1;
-      });
-    })).toBe(true);
+    await expect.poll(() => panel.evaluate(terrainAligned)).toBe(true);
     await noOverflow(page);
   }
   await page.addStyleTag({ content: ':root { font-size: 200%; }' });
@@ -389,10 +442,10 @@ test('Terrain text keeps its foreground aligned after resizing and remains reada
   await expect(page.getByRole('link', { name: 'Читать в Telegram' })).toHaveAttribute('href', 'https://t.me/ekatyulyaslife');
 });
 
-test('a failed Terrain canvas keeps the complete text and channel link readable', async ({ page }) => {
+test('a failed Terrain canvas keeps the complete text and channel link readable', { tag: '@terrain' }, async ({ page }) => {
   await page.addInitScript(() => {
     window.channelCanvasAttempts = 0;
-    CanvasRenderingContext2D.prototype.getImageData = function () {
+    CanvasRenderingContext2D.prototype.fillText = function () {
       window.channelCanvasAttempts++;
       throw new Error('Test canvas unavailable');
     };
@@ -408,9 +461,10 @@ test('a failed Terrain canvas keeps the complete text and channel link readable'
 });
 
 test.describe('Terrain movement and fallback', () => {
-  test.use({ reducedMotion: 'no-preference', deviceScaleFactor: 2 });
+  test.use({ reducedMotion: 'no-preference', deviceScaleFactor: 2, viewport: { width: 1440, height: 900 }, hasTouch: false });
+  test.beforeEach(async ({ page }) => { await observeTerrain(page); });
 
-  test('the field autoplays on screen and the separate control freezes and resumes it', async ({ page }) => {
+  test('the field autoplays on screen and the separate control freezes and resumes it', { tag: '@terrain' }, async ({ page }) => {
     await page.goto('./#channel');
     const panel = page.locator('#channel'), control = panel.locator('.channel-motion');
     await panel.scrollIntoViewIfNeeded();
@@ -432,54 +486,11 @@ test.describe('Terrain movement and fallback', () => {
     await page.waitForTimeout(400);
     expect(await panel.getAttribute('data-motion-frame')).toBe(frozen);
 
-    // Compare the rendered artwork to the adaptive foreground from the same frame.
-    const contrasts = await panel.evaluate(async element => {
-      const art = element.querySelector('.channel-moving-art');
-      const url = getComputedStyle(element.querySelector('.channel-title'))
-        .getPropertyValue('--terrain-contrast-image').trim().slice(4, -1).replace(/^['"]|['"]$/g, '');
-      const mask = new Image(); mask.src = url; await mask.decode();
-      const copy = document.createElement('canvas'); copy.width = mask.width; copy.height = mask.height;
-      const context = copy.getContext('2d'); context.drawImage(mask, 0, 0);
-      const foreground = context.getImageData(0, 0, copy.width, copy.height).data;
-      context.drawImage(art, 0, 0, copy.width, copy.height);
-      const background = context.getImageData(0, 0, copy.width, copy.height).data;
-      const linear = value => { value /= 255; return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4; };
-      let contrast = Infinity;
-      for (let y = 12; y < copy.height; y += 37) for (let x = 12; x < copy.width; x += 43) {
-        const i = (y * copy.width + x) * 4;
-        const light = .2126 * linear(background[i]) + .7152 * linear(background[i + 1]) + .0722 * linear(background[i + 2]);
-        const ink = foreground[i] ? 1 : 0;
-        contrast = Math.min(contrast, (Math.max(light, ink) + .05) / (Math.min(light, ink) + .05));
-      }
-      const icons = [];
-      const bounds = element.getBoundingClientRect();
-      for (const icon of element.querySelectorAll('.link-icon')) {
-        const box = icon.getBoundingClientRect(), style = getComputedStyle(icon);
-        const url = style.maskImage.slice(4, -1).replace(/^['"]|['"]$/g, '');
-        const shape = new Image(); shape.src = url; await shape.decode();
-        const strokes = document.createElement('canvas'); strokes.width = Math.ceil(box.width); strokes.height = Math.ceil(box.height);
-        const c = strokes.getContext('2d'); c.drawImage(shape, 0, 0, strokes.width, strokes.height);
-        const alpha = c.getImageData(0, 0, strokes.width, strokes.height).data;
-        let minimum = Infinity, count = 0;
-        for (let y = 0; y < strokes.height; y++) for (let x = 0; x < strokes.width; x++) {
-          if (alpha[(y * strokes.width + x) * 4 + 3] < 200) continue;
-          const px = Math.round((box.left - bounds.left + x) * copy.width / bounds.width);
-          const py = Math.round((box.top - bounds.top + y) * copy.height / bounds.height);
-          const i = (py * copy.width + px) * 4;
-          const light = .2126 * linear(background[i]) + .7152 * linear(background[i + 1]) + .0722 * linear(background[i + 2]);
-          const ink = foreground[i] ? 1 : 0;
-          minimum = Math.min(minimum, (Math.max(light, ink) + .05) / (Math.min(light, ink) + .05)); count++;
-        }
-        icons.push({ minimum, count });
-      }
-      return { text: contrast, icons };
-    });
-    expect(contrasts.text).toBeGreaterThanOrEqual(4.5);
+    const contrasts = await terrainPixels(page);
+    expect(contrasts.count, 'cached HTML lettering has opaque, visible strokes').toBeGreaterThan(100);
+    expect(contrasts.contrast, 'composited strokes contrast with the actual same-frame background').toBeGreaterThanOrEqual(4.5);
     expect(contrasts.icons).toHaveLength(2);
-    for (const icon of contrasts.icons) {
-      expect(icon.count, 'the canonical icon has visible, uncut strokes').toBeGreaterThan(5);
-      expect(icon.minimum, 'each icon stroke contrasts with its actual background').toBeGreaterThanOrEqual(3);
-    }
+    for (const count of contrasts.icons) expect(count, 'the canonical icon has complete strokes').toBeGreaterThan(5);
     // A deliberate pause survives leaving and returning to the section.
     await page.locator('#training').scrollIntoViewIfNeeded();
     await control.scrollIntoViewIfNeeded();
@@ -503,16 +514,16 @@ test.describe('Terrain movement and fallback', () => {
     await noOverflow(page);
   });
 
-  test('a delayed foreground decode keeps the preceding complete frame readable', async ({ page }) => {
+  test('live Terrain frames need no pixel readback, PNG encoding or foreground decoding', { tag: '@terrain' }, async ({ page }) => {
     await page.addInitScript(() => {
-      window.channelDecodeGate = false;
-      window.channelWaitingFrames = [];
+      window.channelFrameTransfers = 0;
+      for (const [prototype, name] of [[HTMLCanvasElement.prototype, 'toDataURL'], [CanvasRenderingContext2D.prototype, 'getImageData']]) {
+        prototype[name] = function () { window.channelFrameTransfers++; throw Error('Unexpected frame transfer'); };
+      }
       const decode = HTMLImageElement.prototype.decode;
-      HTMLImageElement.prototype.decode = async function () {
-        await decode.call(this);
-        if (this.src.startsWith('data:image/png') && window.channelDecodeGate) {
-          await new Promise(resolve => window.channelWaitingFrames.push(resolve));
-        }
+      HTMLImageElement.prototype.decode = function () {
+        if (this.src.startsWith('data:image/png')) { window.channelFrameTransfers++; throw Error('Unexpected PNG decode'); }
+        return decode.call(this);
       };
     });
     await page.goto('./#channel');
@@ -520,32 +531,13 @@ test.describe('Terrain movement and fallback', () => {
     await panel.scrollIntoViewIfNeeded();
     await expect(panel).toHaveClass(/is-contrast-ready/);
     await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(1);
-    await page.evaluate(() => { window.channelDecodeGate = true; });
-    await expect.poll(() => page.evaluate(() => window.channelWaitingFrames.length)).toBe(1);
-    const visibleFrame = () => panel.evaluate(element => {
-      const art = element.querySelector('.channel-moving-art');
-      const pixels = art.getContext('2d').getImageData(0, 0, art.width, art.height).data;
-      let checksum = 0;
-      for (let i = 0; i < pixels.length; i += 103) checksum = (checksum * 31 + pixels[i]) >>> 0;
-      return {
-        phase: element.dataset.motionFrame,
-        foreground: getComputedStyle(element.querySelector('.channel-title')).backgroundImage,
-        checksum
-      };
-    });
-    const held = await visibleFrame();
-    expect(held.foreground).toMatch(/^url\(/);
-    await page.waitForTimeout(150);
-    expect(await visibleFrame(), 'loading a new PNG never clears the previous text or artwork').toEqual(held);
-    await page.evaluate(() => {
-      window.channelDecodeGate = false;
-      for (const resolve of window.channelWaitingFrames) resolve();
-    });
-    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(held.phase));
+    const first = Number(await panel.getAttribute('data-motion-frame'));
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(first + .3);
+    expect(await page.evaluate(() => window.channelFrameTransfers)).toBe(0);
     await expect(panel.locator('.channel-motion')).toHaveAttribute('aria-pressed', 'true');
   });
 
-  test('paused Terrain keeps its text and icons aligned and its service control apart across widths and enlarged text', async ({ page }) => {
+  test('paused Terrain keeps its text and icons aligned and its service control apart across widths and enlarged text', { tag: '@terrain' }, async ({ page }) => {
     await page.goto('./#channel');
     const panel = page.locator('#channel'), control = panel.locator('.channel-motion');
     await panel.scrollIntoViewIfNeeded();
@@ -556,39 +548,32 @@ test.describe('Terrain movement and fallback', () => {
     // each viewport transition would add work without testing this pause state.
     for (const width of [1440, 980, 760, 700, 390, 320]) {
       await page.setViewportSize({ width, height: 844 });
-      await control.scrollIntoViewIfNeeded();
-      await expect.poll(() => panel.evaluate(element => {
-        const bounds = element.getBoundingClientRect();
-        return [...element.querySelectorAll('.channel-contrast-text,.channel-contrast-icon')].every(field => {
-          const style = getComputedStyle(field), box = field.getBoundingClientRect();
-          const [w, h] = style.getPropertyValue('--terrain-contrast-size').split(' ').map(parseFloat);
-          const [x, y] = style.getPropertyValue('--terrain-contrast-position').split(' ').map(parseFloat);
-          return Math.abs(w - bounds.width) < 1 && Math.abs(h - bounds.height) < 1
-            && Math.abs(x - (bounds.left - box.left)) < 1 && Math.abs(y - (bounds.top - box.top)) < 1;
+      await panel.scrollIntoViewIfNeeded();
+      await expect.poll(() => panel.evaluate(terrainAligned)).toBe(true);
+      if (width > 700) {
+        const separated = await panel.evaluate(element => {
+          const p = element.getBoundingClientRect(), cta = element.querySelector('.channel-link').getBoundingClientRect();
+          const pause = element.querySelector('.channel-motion').getBoundingClientRect();
+          return pause.top >= cta.bottom + 12 && pause.bottom <= p.bottom - 12 && pause.right <= p.right - 8;
         });
-      })).toBe(true);
-      const separated = await panel.evaluate(element => {
-        const p = element.getBoundingClientRect(), cta = element.querySelector('.channel-link').getBoundingClientRect();
-        const pause = element.querySelector('.channel-motion').getBoundingClientRect();
-        // The established <=360px layout has an 8px inner gutter to keep enlarged words intact.
-        return pause.top >= cta.bottom + 12 && pause.bottom <= p.bottom - 12 && pause.right <= p.right - 8;
-      });
-      expect(separated, `pause stays inside the frame and apart from the CTA at ${width}px`).toBe(true);
+        expect(separated, `pause stays apart from the CTA at ${width}px`).toBe(true);
+      } else {
+        await expect(control).toBeHidden();
+        await expect(panel).toHaveAttribute('data-motion-frame', 'still');
+      }
       await noOverflow(page);
     }
     await page.addStyleTag({ content: ':root { font-size: 200%; }' });
-    await control.scrollIntoViewIfNeeded();
+    await panel.scrollIntoViewIfNeeded();
     expect(await panel.locator('.channel-title, .channel-copy, .channel-link, .channel-motion').evaluateAll(fields =>
       fields.filter(field => field.scrollWidth > field.clientWidth + 1).map(field => field.textContent))).toEqual([]);
-    const enlarged = await panel.evaluate(element => {
-      const b = element.getBoundingClientRect(), p = element.querySelector('.channel-motion').getBoundingClientRect();
-      const a = element.querySelector('.channel-link').getBoundingClientRect();
-      return p.left >= b.left && p.right <= b.right && p.top >= a.bottom + 12 && p.bottom <= b.bottom - 12;
-    });
-    expect(enlarged, 'the separate pause fits at 320px with 200% text').toBe(true);
+    await expect(control).toBeHidden();
+    await expect.poll(() => panel.evaluate(terrainAligned)).toBe(true);
+    const enlarged = await terrainPixels(page);
+    expect(enlarged.contrast).toBeGreaterThanOrEqual(4.5);
   });
 
-  test('unavailable WebGL keeps the full photo, readable copy and native channel link', async ({ page }) => {
+  test('unavailable WebGL keeps the full photo, readable copy and native channel link', { tag: '@terrain' }, async ({ page }) => {
     await page.addInitScript(() => {
       const original = HTMLCanvasElement.prototype.getContext;
       HTMLCanvasElement.prototype.getContext = function (type, ...options) {
@@ -604,7 +589,7 @@ test.describe('Terrain movement and fallback', () => {
     await noOverflow(page);
   });
 
-  test('reduced motion stays still and forced colours preserve system text and the link', async ({ page }) => {
+  test('reduced motion stays still and forced colours preserve system text and the link', { tag: '@terrain' }, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('./#channel');
     const panel = page.locator('#channel');
@@ -619,7 +604,28 @@ test.describe('Terrain movement and fallback', () => {
   });
 });
 
-test('completed tarot exports a portrait PNG and clears stale results on closing or redealing', async ({ page }, testInfo) => {
+test('phones keep Terrain still without a motion control, including after scroll and rotation', { tag: '@terrain' }, async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'no-preference' });
+  const page = await context.newPage();
+  await page.route('https://mc.yandex.ru/**', route => route.abort());
+  await page.route('https://api.met.no/**', route => route.fulfill({ contentType: 'application/json', body: '{}' }));
+  await page.goto(`${baseURL}#channel`);
+  const panel = page.locator('#channel');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toHaveClass(/is-contrast-ready/);
+  await expect(panel.locator('.channel-motion')).toBeHidden();
+  await expect(panel).toHaveAttribute('data-motion-frame', 'still');
+  await page.locator('#training').scrollIntoViewIfNeeded();
+  await panel.scrollIntoViewIfNeeded();
+  await page.setViewportSize({ width: 844, height: 390 });
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toHaveAttribute('data-motion-frame', 'still');
+  await expect(panel.locator('.channel-motion')).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Читать в Telegram' })).toHaveAttribute('href', 'https://t.me/ekatyulyaslife');
+  await context.close();
+});
+
+test('completed tarot exports a portrait PNG and clears stale results on closing or redealing', { tag: '@tarot' }, async ({ page }, testInfo) => {
   await page.addInitScript(() => {
     // Draw the long single-word format that previously overflowed, then check redealing.
     const rolls = [.99, .3, 0];
@@ -692,7 +698,7 @@ test('completed tarot exports a portrait PNG and clears stale results on closing
   await noOverflow(page);
 });
 
-test('tarot export failure offers a retry without changing the reading', async ({ page }) => {
+test('tarot export failure offers a retry without changing the reading', { tag: '@tarot' }, async ({ page }) => {
   await page.addInitScript(() => {
     const toBlob = HTMLCanvasElement.prototype.toBlob;
     let failOnce = true;
@@ -713,7 +719,7 @@ test('tarot export failure offers a retry without changing the reading', async (
   await expect(page.locator('[data-tarot-reading]')).toHaveText(reading);
 });
 
-test('completed tarot remains readable at 320px with 200% text in both themes', async ({ page }) => {
+test('completed tarot remains readable at 320px with 200% text in both themes', { tag: '@tarot' }, async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto('./#tarot');
   await page.locator('[data-tarot-deal]').click();
@@ -722,8 +728,7 @@ test('completed tarot remains readable at 320px with 200% text in both themes', 
   for (const theme of ['light', 'dark']) {
     await chooseTheme(page, theme);
     await page.locator('[data-tarot-reading]').scrollIntoViewIfNeeded();
-    // Existing 200% overflow in the hero and services is outside this game change.
-    // Check the affected section and its text without treating the intentional card rail as an error.
+    // The card rail intentionally scrolls inside its own viewport.
     expect(await page.locator('#tarot').evaluate(element => element.getBoundingClientRect().width <= innerWidth + 1)).toBe(true);
     const clipped = await page.locator('#tarot .tarot-front h3, #tarot .tarot-description, #tarot .tarot-reading h3, #tarot .tarot-reading > p:last-child, #tarot .tarot-save, #tarot .tarot-deal').evaluateAll(elements =>
       elements.filter(element => element.scrollWidth > element.clientWidth + 1).map(element => element.textContent.trim()));
@@ -733,7 +738,7 @@ test('completed tarot remains readable at 320px with 200% text in both themes', 
   }
 });
 
-test('320px layout keeps open content inside the page in both themes', async ({ page }) => {
+test('320px layout keeps open content inside the page in both themes', { tag: '@layout' }, async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto('./');
   for (const theme of ['light', 'dark']) {
@@ -747,7 +752,24 @@ test('320px layout keeps open content inside the page in both themes', async ({ 
   }
 });
 
-test('editorial and service photographs retain the full source frame across widths', async ({ page }) => {
+test('320px with 200% text keeps the introduction, open sports, biography and services readable', { tag: '@layout' }, async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto('./');
+  await page.evaluate(() => document.fonts.ready);
+  await page.addStyleTag({ content: ':root { font-size: 200%; }' });
+  await page.evaluate(() => document.querySelectorAll('details.route, details.bio-details, details.service').forEach(details => { details.open = true; }));
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(value => { document.documentElement.dataset.theme = value; }, theme);
+    await noOverflow(page);
+    const clipped = await page.locator('.hero, .routes, #about, #training').evaluateAll(sections => sections.flatMap(section =>
+      [...section.querySelectorAll('h2, h3, h4, p, summary, .link, .button')].filter(field =>
+        field.getClientRects().length && field.clientWidth > 0 && field.scrollWidth > field.clientWidth + 2
+      ).map(field => field.textContent.trim().slice(0, 100))));
+    expect(clipped, `the complete open reading path fits in ${theme} at 200%`).toEqual([]);
+  }
+});
+
+test('editorial and service photographs retain the full source frame across widths', { tag: '@layout' }, async ({ page }) => {
   await page.goto('./');
   await page.evaluate(async () => {
     document.querySelectorAll('details.route, details.service').forEach(details => { details.open = true; });
@@ -769,7 +791,7 @@ test('editorial and service photographs retain the full source frame across widt
   }
 });
 
-test('native content, navigation, video controls and system theme work without JavaScript', async ({ browser, baseURL }, testInfo) => {
+test('native content, navigation, video controls and system theme work without JavaScript', { tag: '@layout' }, async ({ browser, baseURL }, testInfo) => {
   const context = await browser.newContext({
     javaScriptEnabled: false,
     viewport: testInfo.project.use.viewport,
@@ -807,7 +829,7 @@ test('native content, navigation, video controls and system theme work without J
   }
 });
 
-test('reviews keep text readable across widths and at 200%', async ({ page }) => {
+test('reviews keep text readable across widths and at 200%', { tag: '@layout' }, async ({ page }) => {
   await page.goto('./#results');
   await page.evaluate(() => document.fonts.ready);
   const overflowingReviewText = () => page.locator('#results').evaluate(section =>

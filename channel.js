@@ -1,17 +1,17 @@
 /* Terrain: continuous 16-bit field, coloured dither at screen resolution.
-   Artwork and adaptive HTML lettering use the same rendered frame.
+   Artwork and lettering share one GPU frame. Native HTML retains text selection,
+   links, accessible names and the readable failure state.
    Parameters and source: docs/design-direction.md; atlas: scripts/build_channel_field.cjs. */
 (() => {
   const panel = document.querySelector('.channel-note');
-  if (!panel || !CSS.supports('background-clip', 'text') || !CSS.supports('mask-image', 'url("")')) return;
+  if (!panel) return;
   const control = panel.querySelector('.channel-motion');
   if (!control) return;
   const label = control.querySelector('.link-label');
   const symbol = control.querySelector('use');
   const fields = [...panel.querySelectorAll('.channel-kicker,.channel-title,.channel-copy,.channel-link .link-label'), label];
   const icons = [...panel.querySelectorAll('.link-icon')];
-  // Render offscreen, then publish one complete frame. Safari can briefly paint
-  // transparent HTML text while a freshly assigned PNG background is decoding.
+  // Publish one complete canvas: no per-frame readback, PNG or image decoding.
   const art = document.createElement('canvas');
   const gl = art.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true });
   if (!gl || !gl.getExtension('OES_standard_derivatives')) return;
@@ -23,7 +23,7 @@
   const fragment = `#extension GL_OES_standard_derivatives : enable
     precision highp float;
     varying vec2 uv;
-    uniform sampler2D atlas,textMask;
+    uniform sampler2D atlas,textMask,letterMask;
     uniform vec2 crop,offset;
     uniform float phase,amount;
     float field(float tile,vec2 at){
@@ -67,7 +67,8 @@
         float mixEdge=smoothstep(boundary-edge,boundary+edge,value);
         speck=mix(speck,next,mixEdge);
       }
-      gl_FragColor=vec4(speck,1.);
+      vec3 foreground=vec3(luminosity(speck)>.179?0.:1.);
+      gl_FragColor=vec4(mix(speck,foreground,texture2D(letterMask,uv).a),1.);
     }`;
   const program = gl.createProgram();
   for (const [type, source] of [[gl.VERTEX_SHADER, vertex], [gl.FRAGMENT_SHADER, fragment]]) {
@@ -80,7 +81,8 @@
   const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
   const point = gl.getAttribLocation(program, 'point'); gl.enableVertexAttribArray(point); gl.vertexAttribPointer(point,2,gl.FLOAT,false,0,0);
-  const uniform = name => gl.getUniformLocation(program,name);
+  const uniforms=new Map();
+  const uniform = name => {if(!uniforms.has(name))uniforms.set(name,gl.getUniformLocation(program,name));return uniforms.get(name);};
   const texture = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,texture);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
@@ -91,17 +93,20 @@
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   gl.uniform1i(uniform('textMask'),1);
+  gl.activeTexture(gl.TEXTURE2);
+  const letterTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,letterTexture);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.uniform1i(uniform('letterMask'),2);
   panel.prepend(display);
-  // Match the visible canvas when averaging fine grain for the foreground.
-  const map = document.createElement('canvas'), context = map.getContext('2d');
   const glyphs=document.createElement('canvas'),glyphContext=glyphs.getContext('2d');
-  if (!context || !glyphContext) return;
+  const protection=document.createElement('canvas'),protectionContext=protection.getContext('2d');
+  if (!glyphContext || !protectionContext) return;
   const source = new Image();
   const iconArtwork = new Map();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)'), forced = matchMedia('(forced-colors: active)');
-  const linear = Array.from({length:256},(_,i)=>{const c=i/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;});
-  let ready=false,atlasReady=false,symbolsReady=false,nearby=false,visible=false,requested=true,playing=false,raf=0,pending=false,painting=false,last=0,elapsed=0,motionStarted=false,cached='',glyphCache='';
-  let foregroundFrame;
+  const staticDevice=matchMedia('(max-width: 700px), (pointer: coarse)');
+  let ready=false,atlasReady=false,symbolsReady=false,nearby=false,visible=false,requested=true,playing=false,raf=0,pending=false,last=0,elapsed=0,motionStarted=false,cached='',glyphCache='',layout;
   async function loadSymbols(){
     const url=new URL(icons[0].querySelector('use').getAttribute('href'),document.baseURI);url.hash='';
     const response=await fetch(url);if(!response.ok)throw Error('Unavailable symbols');
@@ -116,10 +121,10 @@
     symbolsReady=true;ready=atlasReady;reconcile();
   }
   function sync() {
-    control.hidden=!ready||reduced.matches||forced.matches;
+    control.hidden=!ready||reduced.matches||forced.matches||staticDevice.matches;
     control.setAttribute('aria-pressed',String(playing));
     label.textContent=playing?'Остановить фон':'Оживить фон';
-    glyphCache='';cached='';
+    layout=null;glyphCache='';cached='';
     symbol.setAttribute('href',symbol.getAttribute('href').replace(/#.*$/,playing?'#player-pause':'#player-play'));
   }
   function stop(){
@@ -130,7 +135,7 @@
   // Scrolling does not change playback. Invisible frames need no drawing, but
   // the clock continues and the control remains a pause until explicitly used.
   function reconcile(){
-    const run=ready&&requested&&!reduced.matches&&!forced.matches&&!document.hidden;
+    const run=ready&&requested&&!reduced.matches&&!forced.matches&&!staticDevice.matches&&!document.hidden;
     if(run&&!playing){playing=true;motionStarted=true;last=performance.now();raf=requestAnimationFrame(tick);}
     else if(!run&&playing){stop();return;}
     sync();schedule();
@@ -139,15 +144,16 @@
     const key=[r.width,r.height,density,label.textContent].join(':');if(key===glyphCache)return;
     glyphs.width=art.width;glyphs.height=art.height;
     glyphContext.setTransform(density,0,0,density,0,0);
-    glyphContext.fillStyle='#000';glyphContext.strokeStyle='#000';glyphContext.lineWidth=.5;
-    glyphContext.shadowColor='#000';glyphContext.shadowBlur=.5*density;
+    glyphContext.fillStyle='#fff';glyphContext.fontKerning='none';
     for(const field of fields){
+      if(!field.getClientRects().length)continue;
       const style=getComputedStyle(field);
       glyphContext.font=`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
       const metrics=glyphContext.measureText('Hgy');
       const ascent=metrics.fontBoundingBoxAscent||parseFloat(style.fontSize)*.8;
       const descent=metrics.fontBoundingBoxDescent||parseFloat(style.fontSize)*.2;
       const walker=document.createTreeWalker(field,NodeFilter.SHOW_TEXT);
+      const lines=new Map();
       let node;
       while(node=walker.nextNode())for(let i=0;i<node.textContent.length;i++){
         let char=node.textContent[i];if(!char.trim())continue;
@@ -155,28 +161,42 @@
         const range=document.createRange();range.setStart(node,i);range.setEnd(node,i+1);
         const rect=range.getBoundingClientRect();if(!rect.width||!rect.height)continue;
         const x=rect.left-r.left,y=rect.top-r.top+(rect.height-ascent-descent)/2+ascent;
-        glyphContext.strokeText(char,x,y);glyphContext.fillText(char,x,y);
+        glyphContext.fillText(char,x,y);
+        const key=y.toFixed(2),line=lines.get(key);
+        if(line){line.left=Math.min(line.left,x);line.right=Math.max(line.right,x+rect.width);}
+        else lines.set(key,{left:x,right:x+rect.width,y});
+      }
+      if(style.textDecorationLine.includes('underline')){
+        const size=parseFloat(style.fontSize),offset=parseFloat(style.textUnderlineOffset)||.2*size;
+        const thickness=parseFloat(style.textDecorationThickness)||1;
+        for(const line of lines.values())glyphContext.fillRect(line.left,line.y+offset,line.right-line.left,thickness);
       }
     }
     // Use the same canonical SVG strokes for grain protection and the foreground.
     // A single bright dither pixel must not recolour the entire icon.
     for(const icon of icons){
+      if(!icon.getClientRects().length)continue;
       const f=icon.getBoundingClientRect();if(!f.width||!f.height)continue;
       const id=icon.querySelector('use').getAttribute('href').split('#')[1];
       glyphContext.drawImage(iconArtwork.get(id),f.left-r.left,f.top-r.top,f.width,f.height);
     }
+    // Grain protection has a small halo; foreground strokes keep their original
+    // antialiasing and font weight. Both textures change only with HTML layout.
+    protection.width=art.width;protection.height=art.height;
+    protectionContext.shadowColor='#fff';protectionContext.shadowBlur=density;
+    protectionContext.drawImage(glyphs,0,0);
     gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,glyphTexture);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,protection);
+    gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,letterTexture);
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,glyphs);glyphCache=key;
   }
-  async function paint() {
-    pending=false;if(painting||!ready||!nearby||!visible||forced.matches)return;
-    const r=panel.getBoundingClientRect();if(r.width<1||r.height<1)return;
-    const density=Math.min(devicePixelRatio||1,2),ratio=Math.min(1,1600/r.width);
-    const position=parseFloat(getComputedStyle(panel).getPropertyValue('--channel-art-x'))/100||.5;
-    const state=[r.width,r.height,density,position,elapsed].join(':');if(state===cached)return;
-    painting=true;
+  function paint() {
+    pending=false;if(!ready||!nearby||!visible||forced.matches)return;
+    if(!layout)layout={bounds:panel.getBoundingClientRect(),density:Math.min(devicePixelRatio||1,2),position:parseFloat(getComputedStyle(panel).getPropertyValue('--channel-art-x'))/100||.5};
+    const {bounds:r,density,position}=layout;if(r.width<1||r.height<1)return;
+    const frameElapsed=staticDevice.matches?0:elapsed;
+    const state=[r.width,r.height,density,position,frameElapsed].join(':');if(state===cached)return;
     const began=performance.now();
-    const frameElapsed=elapsed,framePlaying=playing;
     try {
       const w=Math.ceil(r.width*density),h=Math.ceil(r.height*density);
       if(art.width!==w||art.height!==h){art.width=w;art.height=h;}
@@ -184,55 +204,22 @@
       gl.viewport(0,0,w,h);
       const cover=Math.max(w/16,h/9),cx=w/(16*cover),cy=h/(9*cover);
       gl.uniform2f(uniform('crop'),cx,cy);gl.uniform2f(uniform('offset'),(1-cx)*position,(1-cy)/2);
-      gl.uniform1f(uniform('phase'),elapsed%12000/12000*90);
-      const blend=Math.min(1,elapsed/850);gl.uniform1f(uniform('amount'),blend*blend*(3-2*blend));
+      gl.uniform1f(uniform('phase'),frameElapsed%12000/12000*90);
+      const blend=Math.min(1,frameElapsed/850);gl.uniform1f(uniform('amount'),blend*blend*(3-2*blend));
       gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
       if(gl.isContextLost())throw Error('Lost artwork');
-      map.width=Math.ceil(r.width*ratio);map.height=Math.ceil(r.height*ratio);
-      context.drawImage(art,0,0,map.width,map.height);
-      const pixels=context.getImageData(0,0,map.width,map.height);
-      for(let i=0;i<pixels.data.length;i+=4){
-        const light=.2126*linear[pixels.data[i]]+.7152*linear[pixels.data[i+1]]+.0722*linear[pixels.data[i+2]];
-        const value=light>.179?0:255;
-        pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=value;
-      }
-      context.putImageData(pixels,0,0);
-      const nextForeground=new Image();nextForeground.src=map.toDataURL('image/png');
-      await nextForeground.decode();
-      await new Promise(resolve=>requestAnimationFrame(resolve));
-      if(!ready||!visible||forced.matches||(framePlaying&&!playing))return;
-      const current=panel.getBoundingClientRect();
-      if(current.width!==r.width||current.height!==r.height){cached='';return;}
-      // The retained Image keeps the foreground decoded; both visible layers
-      // change in this animation frame, with the preceding frame intact until now.
-      foregroundFrame=nextForeground;
       if(display.width!==w||display.height!==h){display.width=w;display.height=h;}
       displayContext.drawImage(art,0,0);
-      const image=`url(${foregroundFrame.src})`;
-      // All lettering and symbols share this frame. Keep its large PNG once on
-      // the panel instead of reparsing a copy on every text/icon element.
-      panel.style.setProperty('--terrain-contrast-image',image);
-      panel.style.setProperty('--terrain-contrast-size',`${r.width}px ${r.height}px`);
-      for(const field of [...fields,...icons]){
-        const f=field.getBoundingClientRect();
-        field.style.setProperty('--terrain-contrast-position',`${current.left-f.left}px ${current.top-f.top}px`);
-        if(field.matches('.link-icon')){
-          const id=field.querySelector('use').getAttribute('href').split('#')[1];
-          field.style.setProperty('--channel-symbol-mask',`url("${iconArtwork.get(id).src}")`);
-          field.classList.add('channel-contrast-icon');
-        }else field.classList.add('channel-contrast-text');
-      }
+      for(const field of [...fields,...icons])field.classList.add('channel-canvas-ink');
       cached=state;panel.classList.add('is-contrast-ready');
-      panel.dataset.motionFrame=motionStarted?(frameElapsed/1000).toFixed(3):'still';
+      panel.dataset.motionFrame=motionStarted&&!staticDevice.matches?(frameElapsed/1000).toFixed(3):'still';
       panel.dataset.motionPaintMs=(performance.now()-began).toFixed(1);
     } catch {
       fallback();
-    } finally {
-      painting=false;
-      if(!playing)schedule();
     }
   }
   function schedule(){if(!pending){pending=true;requestAnimationFrame(paint);}}
+  function invalidate(){layout=null;glyphCache='';cached='';schedule();}
   function tick(now){
     if(!playing)return;
     const step=now-last;
@@ -268,8 +255,10 @@
     nearby=entries[entries.length-1].isIntersecting;if(nearby)load();
   },{rootMargin:'400px'}).observe(panel);else{nearby=visible=true;load();}
   if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[entries.length-1].isIntersecting;schedule();}).observe(panel);
-  if('ResizeObserver'in window)new ResizeObserver(schedule).observe(panel);
-  for(const setting of [reduced,forced])setting.addEventListener('change',reconcile);
+  if('ResizeObserver'in window)new ResizeObserver(invalidate).observe(panel);
+  for(const setting of [reduced,forced,staticDevice])setting.addEventListener('change',reconcile);
+  // Link underline states alter the cached strokes, never the animation clock.
+  for(const action of panel.querySelectorAll('.channel-link,.channel-motion'))for(const event of ['pointerenter','pointerleave','focusin','focusout'])action.addEventListener(event,invalidate);
   document.addEventListener('visibilitychange',reconcile);
-  document.fonts?.ready.then(()=>{glyphCache='';cached='';schedule();});window.addEventListener('resize',schedule);sync();
+  document.fonts?.ready.then(invalidate);window.addEventListener('resize',invalidate);sync();
 })();
