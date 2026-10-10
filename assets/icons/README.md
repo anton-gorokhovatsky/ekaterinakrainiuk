@@ -14,3 +14,5 @@ Tabler Icons, набор Outline, версия 3.48.0.
 Состав: swimming, run, bike, mountain, compass, medal-2, world, star, sun, moon, cloud, cloud-rain, cloud-snow, cloud-fog, cloud-storm, arrow-back-up, arrows-shuffle, mood-smile, sparkles, barbell, wheel, yin-yang, route, arrow-up-right, arrow-up, arrow-down, arrow-right, player-play, check, player-pause, volume, volume-off, maximize, minimize, subtitles.
 
 Значки управления круглыми видео добавлены из официального репозитория Tabler 8 октября 2026.
+
+Для «Карт на старт» 10 октября 2026 добавлены локальные SVG с общей подложкой: дисциплины и компас используют геометрию этого же Tabler, знаки — Game Icons. Источники, авторы и адаптации перечислены в [авторстве карт](../illustrations/oracle/credits.html). Лицензия Game Icons сохранена рядом с SVG. Контурный значок скачивания соответствует графике управления.

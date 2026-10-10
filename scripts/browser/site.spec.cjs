@@ -339,6 +339,97 @@ test('local sprite references survive dynamic tarot updates and resources render
   await noOverflow(page);
 });
 
+test('completed tarot exports a portrait PNG and clears stale results on closing or redealing', async ({ page }, testInfo) => {
+  await page.addInitScript(() => {
+    window.storyDraws = [];
+    const fillText = CanvasRenderingContext2D.prototype.fillText;
+    CanvasRenderingContext2D.prototype.fillText = function (text, x, y, ...rest) {
+      window.storyDraws.push({ text, x, y, font: this.font, width: this.measureText(text).width });
+      return fillText.call(this, text, x, y, ...rest);
+    };
+  });
+  await page.goto('./#tarot');
+  const save = page.locator('[data-tarot-save]');
+  const reading = page.locator('[data-tarot-reading]');
+  const link = page.locator('[data-tarot-export-link]');
+  await expect(save).toBeHidden();
+  await page.locator('.tarot-card-toggle').first().focus();
+  await page.keyboard.press('Enter');
+  await expect(save).toBeHidden();
+  await page.locator('[data-tarot-deal]').click();
+  await expect(reading).toBeVisible();
+  await expect(save).toBeVisible();
+  const text = await reading.textContent();
+  const download = page.waitForEvent('download');
+  await save.click();
+  const file = await download;
+  const filename = testInfo.outputPath('story.png');
+  await file.saveAs(filename);
+  const png = require('node:fs').readFileSync(filename);
+  expect(png.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  expect(png.readUInt32BE(16)).toBe(1080);
+  expect(png.readUInt32BE(20)).toBe(1920);
+  expect(png.length).toBeGreaterThan(20000);
+  await expect(link).toBeVisible();
+  await expect(save).not.toHaveAttribute('aria-disabled', 'true');
+  const draws = await page.evaluate(() => window.storyDraws);
+  expect(draws.every(draw => draw.font.includes('Golos Text'))).toBe(true);
+  expect(draws.some(draw => draw.text === 'Карты — ради забавы. Подготовка — по плану.')).toBe(true);
+  expect(draws.filter(draw => draw.y >= 1185 && draw.y < 1490).length).toBeLessThanOrEqual(5);
+  expect(draws.every(draw => draw.width <= (draw.y < 1000 && draw.x === 0 ? 236 : 912))).toBe(true);
+  await page.locator('.tarot-card-toggle').first().click();
+  await expect(reading).toBeHidden();
+  await expect(save).toBeHidden();
+  await expect(link).not.toHaveAttribute('href');
+  await page.locator('.tarot-card-toggle').first().click();
+  await expect(reading).toHaveText(text);
+  await page.locator('[data-tarot-deal]').click();
+  await expect(reading).toBeHidden();
+  await expect(page.locator('.tarot-card.is-revealed')).toHaveCount(0);
+  await noOverflow(page);
+});
+
+test('tarot export failure offers a retry without changing the reading', async ({ page }) => {
+  await page.addInitScript(() => {
+    const toBlob = HTMLCanvasElement.prototype.toBlob;
+    let failOnce = true;
+    HTMLCanvasElement.prototype.toBlob = function (callback, ...args) {
+      if (failOnce) { failOnce = false; callback(null); return; }
+      return toBlob.call(this, callback, ...args);
+    };
+  });
+  await page.goto('./#tarot');
+  await page.locator('[data-tarot-deal]').click();
+  const reading = await page.locator('[data-tarot-reading]').textContent();
+  await page.locator('[data-tarot-save]').click();
+  await expect(page.locator('[data-tarot-export-note]')).toContainText('Попробуйте ещё раз');
+  const download = page.waitForEvent('download');
+  await page.locator('[data-tarot-save]').click();
+  await download;
+  await expect(page.locator('[data-tarot-export-link]')).toBeVisible();
+  await expect(page.locator('[data-tarot-reading]')).toHaveText(reading);
+});
+
+test('completed tarot remains readable at 320px with 200% text in both themes', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto('./#tarot');
+  await page.locator('[data-tarot-deal]').click();
+  await noOverflow(page);
+  await page.addStyleTag({ content: ':root { font-size: 200%; }' });
+  for (const theme of ['light', 'dark']) {
+    await chooseTheme(page, theme);
+    await page.locator('[data-tarot-reading]').scrollIntoViewIfNeeded();
+    // Existing 200% overflow in the hero and services is outside this game change.
+    // Check the affected section and its text without treating the intentional card rail as an error.
+    expect(await page.locator('#tarot').evaluate(element => element.getBoundingClientRect().width <= innerWidth + 1)).toBe(true);
+    const clipped = await page.locator('#tarot .tarot-front h3, #tarot .tarot-description, #tarot .tarot-reading h3, #tarot .tarot-reading > p:last-child, #tarot .tarot-save, #tarot .tarot-deal').evaluateAll(elements =>
+      elements.filter(element => element.scrollWidth > element.clientWidth + 1).map(element => element.textContent.trim()));
+    expect(clipped, 'card copy, complete reading and actions stay readable').toEqual([]);
+    await expect(page.locator('[data-tarot-save]')).toBeVisible();
+    await expect(page.locator('.tarot-card.is-revealed')).toHaveCount(3);
+  }
+});
+
 test('320px layout keeps open content inside the page in both themes', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto('./');
