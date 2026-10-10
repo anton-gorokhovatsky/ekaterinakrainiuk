@@ -472,7 +472,27 @@ test.describe('Terrain movement and fallback', () => {
     await control.focus();
     await page.keyboard.press('Space');
     await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(frozen));
-    for (const width of [980, 760, 700, 390, 320]) {
+    await page.locator('#training').scrollIntoViewIfNeeded();
+    await expect(control).toHaveAttribute('aria-pressed', 'false');
+    const outside = await panel.getAttribute('data-motion-frame');
+    await page.waitForTimeout(400);
+    expect(await panel.getAttribute('data-motion-frame')).toBe(outside);
+    await control.scrollIntoViewIfNeeded();
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(outside));
+    await noOverflow(page);
+  });
+
+  test('paused Terrain keeps its text and icons aligned and its service control apart across widths and enlarged text', async ({ page }) => {
+    await page.goto('./#channel');
+    const panel = page.locator('#channel'), control = panel.locator('.channel-motion');
+    await panel.scrollIntoViewIfNeeded();
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
+    await control.click();
+    await expect(control).toHaveAttribute('aria-pressed', 'false');
+    // Geometry is checked on the same frozen frame: rendering new frames during
+    // each viewport transition would add work without testing this pause state.
+    for (const width of [1440, 980, 760, 700, 390, 320]) {
       await page.setViewportSize({ width, height: 844 });
       await control.scrollIntoViewIfNeeded();
       await expect.poll(() => panel.evaluate(element => {
@@ -504,15 +524,6 @@ test.describe('Terrain movement and fallback', () => {
       return p.left >= b.left && p.right <= b.right && p.top >= a.bottom + 12 && p.bottom <= b.bottom - 12;
     });
     expect(enlarged, 'the separate pause fits at 320px with 200% text').toBe(true);
-    await page.addStyleTag({ content: ':root { font-size: 100%; }' });
-    await page.locator('#training').scrollIntoViewIfNeeded();
-    await expect(control).toHaveAttribute('aria-pressed', 'false');
-    const outside = await panel.getAttribute('data-motion-frame');
-    await page.waitForTimeout(400);
-    expect(await panel.getAttribute('data-motion-frame')).toBe(outside);
-    await control.scrollIntoViewIfNeeded();
-    await expect(control).toHaveAttribute('aria-pressed', 'true');
-    await expect.poll(async () => Number(await panel.getAttribute('data-motion-frame'))).toBeGreaterThan(Number(outside));
   });
 
   test('unavailable WebGL keeps the full photo, readable copy and native channel link', async ({ page }) => {
