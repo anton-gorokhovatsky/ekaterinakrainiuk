@@ -92,7 +92,8 @@
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   gl.uniform1i(uniform('textMask'),1);
   panel.prepend(display);
-  const map = document.createElement('canvas'), context = map.getContext('2d',{willReadFrequently:true});
+  // Match the visible canvas when averaging fine grain for the foreground.
+  const map = document.createElement('canvas'), context = map.getContext('2d');
   const glyphs=document.createElement('canvas'),glyphContext=glyphs.getContext('2d');
   if (!context || !glyphContext) return;
   const source = new Image();
@@ -188,9 +189,6 @@
       gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
       if(gl.isContextLost())throw Error('Lost artwork');
       map.width=Math.ceil(r.width*ratio);map.height=Math.ceil(r.height*ratio);
-      // Explicit area filtering keeps fine grain from aliasing into a different
-      // lightness when this CPU canvas samples the physical-pixel artwork.
-      context.imageSmoothingQuality='high';
       context.drawImage(art,0,0,map.width,map.height);
       const pixels=context.getImageData(0,0,map.width,map.height);
       for(let i=0;i<pixels.data.length;i+=4){
@@ -266,9 +264,10 @@
     schedule();
   }
   if('IntersectionObserver'in window)new IntersectionObserver(entries=>{
-    nearby=entries[0].isIntersecting;if(nearby)load();
+    // Layout and hash scrolling can queue several crossings before delivery.
+    nearby=entries[entries.length-1].isIntersecting;if(nearby)load();
   },{rootMargin:'400px'}).observe(panel);else{nearby=visible=true;load();}
-  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;schedule();}).observe(panel);
+  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[entries.length-1].isIntersecting;schedule();}).observe(panel);
   if('ResizeObserver'in window)new ResizeObserver(schedule).observe(panel);
   for(const setting of [reduced,forced])setting.addEventListener('change',reconcile);
   document.addEventListener('visibilitychange',reconcile);

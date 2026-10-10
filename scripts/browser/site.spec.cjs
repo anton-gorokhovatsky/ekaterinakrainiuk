@@ -340,6 +340,21 @@ test('local sprite references survive dynamic tarot updates and resources render
 });
 
 test('Terrain text keeps its foreground aligned after resizing and remains readable at 200%', async ({ page }) => {
+  // A batch can include an earlier crossing followed by the current one.
+  // Keep the real observer and scroll, but deliver that legitimate queue shape.
+  await page.addInitScript(() => {
+    const Observer = window.IntersectionObserver;
+    window.IntersectionObserver = class extends Observer {
+      constructor(callback, options) {
+        super((entries, observer) => {
+          const entry = entries[0];
+          callback(entry?.target.id === 'channel'
+            ? [{ target: entry.target, isIntersecting: !entry.isIntersecting }, ...entries]
+            : entries, observer);
+        }, options);
+      }
+    };
+  });
   await page.goto('./#channel');
   const panel = page.locator('#channel');
   await panel.scrollIntoViewIfNeeded();
