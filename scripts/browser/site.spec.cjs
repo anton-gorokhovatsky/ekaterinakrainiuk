@@ -409,12 +409,17 @@ test('completed tarot exports a portrait PNG and clears stale results on closing
   const save = page.locator('[data-tarot-save]');
   const reading = page.locator('[data-tarot-reading]');
   const link = page.locator('[data-tarot-export-link]');
+  const swipe = page.locator('.tarot-swipe');
+  const openingHint = 'Листайте карты и открывайте по одной';
+  const readingHint = 'Листайте карты, чтобы прочитать каждую';
+  await expect(swipe).toHaveText(openingHint);
   await expect(save).toBeHidden();
   await page.locator('.tarot-card-toggle').first().focus();
   await page.keyboard.press('Enter');
   await expect(save).toBeHidden();
   await page.locator('[data-tarot-deal]').click();
   await expect(reading).toBeVisible();
+  await expect(swipe).toHaveText(readingHint);
   await expect(save).toBeVisible();
   const text = await reading.textContent();
   const download = page.waitForEvent('download');
@@ -437,13 +442,16 @@ test('completed tarot exports a portrait PNG and clears stale results on closing
   expect(draws.every(draw => draw.width <= (draw.y < 1000 && draw.x === 0 ? 236 : 912))).toBe(true);
   await page.locator('.tarot-card-toggle').first().click();
   await expect(reading).toBeHidden();
+  await expect(swipe).toHaveText(openingHint);
   await expect(save).toBeHidden();
   await expect(link).not.toHaveAttribute('href');
   await page.locator('.tarot-card-toggle').first().click();
   await expect(reading).toHaveText(text);
+  await expect(swipe).toHaveText(readingHint);
   await page.locator('[data-tarot-deal]').click();
   await expect(reading).toBeHidden();
   await expect(page.locator('.tarot-card.is-revealed')).toHaveCount(0);
+  await expect(swipe).toHaveText(openingHint);
   await noOverflow(page);
 });
 

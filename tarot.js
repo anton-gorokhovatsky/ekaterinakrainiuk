@@ -102,6 +102,8 @@
   const dealButton = root.querySelector('[data-tarot-deal]');
   const status = root.querySelector('[data-tarot-status]');
   const instruction = root.querySelector('[data-tarot-instruction]');
+  const swipeStart = root.querySelector('[data-tarot-swipe-start]');
+  const swipeEnd = root.querySelector('[data-tarot-swipe-end]');
   const result = root.querySelector('[data-tarot-reading]');
   const saveButton = root.querySelector('[data-tarot-save]');
   const exportNote = root.querySelector('[data-tarot-export-note]');
@@ -123,6 +125,10 @@
       : fresh ? 'Новый расклад готов. Откройте карты по одной или все сразу.'
       : 'Откройте три карты. Каким окажется ваш следующий старт?');
     dealButton.querySelector('span').textContent = remaining ? 'Открыть расклад' : 'Ещё расклад';
+    if (swipeStart && swipeEnd) {
+      swipeStart.textContent = type(remaining ? 'Листайте карты и открывайте' : 'Листайте карты, чтобы прочитать');
+      swipeEnd.textContent = type(remaining ? 'по одной' : 'каждую');
+    }
     root.classList.toggle('has-reading', remaining === 0);
     result.hidden = remaining !== 0;
     saveButton.hidden = remaining !== 0;
