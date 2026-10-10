@@ -92,9 +92,7 @@
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   gl.uniform1i(uniform('textMask'),1);
   panel.prepend(display);
-  // Keep the same filtering path as the visible canvas. WebKit's CPU readback
-  // hint can average grain differently and select ink for a different colour.
-  const map = document.createElement('canvas'), context = map.getContext('2d');
+  const map = document.createElement('canvas'), context = map.getContext('2d',{willReadFrequently:true});
   const glyphs=document.createElement('canvas'),glyphContext=glyphs.getContext('2d');
   if (!context || !glyphContext) return;
   const source = new Image();
@@ -190,6 +188,9 @@
       gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
       if(gl.isContextLost())throw Error('Lost artwork');
       map.width=Math.ceil(r.width*ratio);map.height=Math.ceil(r.height*ratio);
+      // Explicit area filtering keeps fine grain from aliasing into a different
+      // lightness when this CPU canvas samples the physical-pixel artwork.
+      context.imageSmoothingQuality='high';
       context.drawImage(art,0,0,map.width,map.height);
       const pixels=context.getImageData(0,0,map.width,map.height);
       for(let i=0;i<pixels.data.length;i+=4){
