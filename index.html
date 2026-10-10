@@ -32,11 +32,13 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2?v=2f175b8fc40e" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2?v=f8d71091110f" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=8f61af6cddcc">
-  <link rel="stylesheet" href="styles.css?v=1ce0e9c194d6">
+  <link rel="stylesheet" href="styles.css?v=3b0ba35b17f6">
   <link rel="stylesheet" href="tarot.css?v=b4b4e7bdcd43">
   <script src="script.js?v=95b3b4c2744e" defer></script>
   <script src="video.js?v=ac9a882646aa" defer></script>
-  <script src="tarot.js?v=e5bc5b461614" defer></script>
+  <script src="tarot.js?v=4fc2db66c9c1" defer></script>
+  <script src="channel.js?v=3104c847c17e" defer></script>
+  <link rel="stylesheet" href="channel.css?v=06be8e6fa02c">
   <script src="daylight.js?v=e426633add58" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
@@ -588,16 +590,15 @@
       </div>
     </section>
       <aside class="channel-note" id="channel" aria-labelledby="channel-title">
-        <a class="channel-link link" href="https://t.me/ekatyulyaslife" aria-labelledby="channel-kicker channel-title">
+        <div class="channel-visual">
           <img class="channel-photo" src="assets/images/telegram-channel.jpg" width="320" height="320" loading="lazy" decoding="async" alt="Чёрно-белый портрет Кати из её Telegram-канала">
-          <div class="channel-heading">
-            <span class="channel-kicker" id="channel-kicker">Мой Telegram-канал</span>
-            <h2 id="channel-title"><span class="link-label">Веселей, малыш,<br>будем танцевать</span></h2>
-          </div>
-          <div class="channel-copy">
-            <p>Пишу о своих тренировках, стартах и поездках. Делюсь тем, что получается, что даётся непросто и что хочется попробовать.</p>
-          </div>
-        </a>
+        </div>
+        <div class="channel-body">
+          <span class="channel-kicker">Мой Telegram-канал</span>
+          <h2 class="channel-title" id="channel-title"><span>Веселей, малыш,</span> <span>будем танцевать</span></h2>
+          <p class="channel-copy">Пишу о своих тренировках, стартах и поездках. Делюсь тем, что получается, что даётся непросто и что хочется попробовать.</p>
+          <a class="channel-link link" href="https://t.me/ekatyulyaslife"><span class="link-label">Читать в Telegram</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg></a>
+        </div>
       </aside>
     <div class="livebar">
       <details class="daylight" id="daylight">

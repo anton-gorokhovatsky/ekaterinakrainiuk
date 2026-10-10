@@ -1,0 +1,106 @@
+/* Selected Terrain composition. Ink and paper stay readable if the enhancement fails. */
+.channel-note {
+  --channel-ink: #101216;
+  --channel-paper: #f4f3ee;
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  position: relative;
+  isolation: isolate;
+  margin: 1rem var(--pad) 2rem;
+  padding: clamp(1.5rem, 3.5vw, 4rem);
+  background: var(--channel-ink);
+  color: var(--channel-paper);
+}
+.channel-note * { min-width: 0; }
+.channel-note::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('assets/illustrations/channel-terrain-9b844270.png') var(--channel-art-x, 50%) center / cover;
+  opacity: 0;
+}
+.channel-note.is-contrast-ready::before { opacity: 1; }
+.channel-visual { aspect-ratio: 1; display: grid; place-items: center; }
+.channel-photo {
+  display: block;
+  width: 88%;
+  height: auto;
+  max-width: 320px;
+  border: .5rem solid var(--channel-paper);
+  object-fit: contain;
+  transform: rotate(3deg);
+}
+.channel-body { padding: clamp(24px, 3vw, 48px); }
+.channel-kicker {
+  display: block;
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  margin-bottom: var(--space-6);
+}
+.channel-title {
+  font-size: clamp(2rem, 4.1vw, 4.2rem);
+  line-height: 1.04;
+  letter-spacing: -.025em;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.channel-title span { display: block; }
+.channel-copy {
+  max-width: 42ch;
+  overflow-wrap: anywhere;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  margin-top: var(--space-6);
+}
+.channel-link {
+  min-height: 44px;
+  margin-top: var(--space-4);
+  gap: var(--space-3);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--channel-paper);
+}
+.channel-link .link-label { display: inline-block; text-decoration-color: currentColor; }
+.channel-link:is(:hover, :focus-visible) .link-label { text-decoration-thickness: 3px; }
+.channel-link .link-icon { color: var(--channel-icon-color, var(--channel-paper)); }
+.channel-note.is-contrast-ready .channel-contrast-text {
+  color: transparent;
+  background-image: var(--terrain-contrast-image);
+  background-size: var(--terrain-contrast-size);
+  background-position: var(--terrain-contrast-position);
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  box-decoration-break: clone;
+}
+.channel-note.is-contrast-ready .channel-link:focus-visible { outline: none; }
+/* The paragraph and its action share an axis on the dark/cobalt area of the artwork. */
+@media (min-width: 701px) {
+  .channel-copy, .channel-link { margin-left: 30%; }
+}
+@media (max-width: 700px) {
+  .channel-note { --channel-art-x: 35%; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); padding: clamp(16px, 5vw, 24px); margin-top: .5rem; }
+  .channel-visual { aspect-ratio: 1.35; }
+  .channel-photo { width: 66%; max-width: 260px; border-width: .375rem; }
+  .channel-body { padding: clamp(16px, 5vw, 24px); }
+  .channel-kicker { margin-bottom: var(--space-4); }
+  .channel-title { font-size: clamp(1.375rem, 7.2vw, 2.75rem); letter-spacing: -.015em; }
+  .channel-copy { margin-top: var(--space-4); }
+}
+/* Give enlarged words the available width instead of shrinking the user's text. */
+@media (max-width: 360px) {
+  .channel-note { padding-inline: 8px; }
+  .channel-body { padding-inline: 0; }
+}
+@media (forced-colors: active) {
+  .channel-note { background: Canvas; color: CanvasText; }
+  .channel-note::before { display: none; }
+  .channel-note.is-contrast-ready .channel-contrast-text { background-image: none; color: CanvasText; }
+  .channel-link, .channel-link .link-icon { color: LinkText; }
+  .channel-note.is-contrast-ready .channel-link:focus-visible { outline: 2px solid Highlight; outline-offset: 4px; }
+}

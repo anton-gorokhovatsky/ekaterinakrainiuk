@@ -286,7 +286,10 @@
       ctx.fillStyle = ink;
       let size = 34;
       ctx.font = `700 ${size}px "Golos Text", Arial, sans-serif`;
-      while (lines(ctx, values[index], 236).length > 3 && size > 28) { size -= 2; ctx.font = `700 ${size}px "Golos Text", Arial, sans-serif`; }
+      while (size > 28 && (lines(ctx, values[index], 236).length > 3 || lines(ctx, values[index], 236).some(row => ctx.measureText(row).width > 236))) {
+        size -= 2;
+        ctx.font = `700 ${size}px "Golos Text", Arial, sans-serif`;
+      }
       const rows = lines(ctx, values[index], 236);
       rows.forEach((row, rowIndex) => ctx.fillText(row, 0, 104 + rowIndex * (size + 6)));
       ctx.restore();

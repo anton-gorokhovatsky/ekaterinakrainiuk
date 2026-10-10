@@ -339,8 +339,65 @@ test('local sprite references survive dynamic tarot updates and resources render
   await noOverflow(page);
 });
 
+test('Terrain text keeps its foreground aligned after resizing and remains readable at 200%', async ({ page }) => {
+  await page.goto('./#channel');
+  const panel = page.locator('#channel');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toHaveClass(/is-contrast-ready/);
+  for (const width of [1440, 980, 760, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await panel.scrollIntoViewIfNeeded();
+    await expect.poll(() => panel.evaluate(element => {
+      const bounds = element.getBoundingClientRect();
+      return [...element.querySelectorAll('.channel-contrast-text')].every(field => {
+        const [w, h] = getComputedStyle(field).getPropertyValue('--terrain-contrast-size').split(' ').map(parseFloat);
+        return Math.abs(w - bounds.width) < 1 && Math.abs(h - bounds.height) < 1;
+      });
+    })).toBe(true);
+    await noOverflow(page);
+  }
+  await page.addStyleTag({ content: ':root { font-size: 200%; }' });
+  await panel.scrollIntoViewIfNeeded();
+  const clipped = await panel.locator('.channel-title, .channel-copy, .channel-link').evaluateAll(fields =>
+    fields.filter(field => field.scrollWidth > field.clientWidth + 1).map(field => field.textContent));
+  expect(clipped).toEqual([]);
+  const brokenWords = await panel.locator('.channel-title span').evaluateAll(spans => spans.flatMap(span => {
+    const text = span.firstChild;
+    return [...text.textContent.matchAll(/\S+/g)].filter(match => {
+      const range = document.createRange();
+      range.setStart(text, match.index);
+      range.setEnd(text, match.index + match[0].length);
+      return range.getClientRects().length > 1;
+    }).map(match => match[0]);
+  }));
+  expect(brokenWords, 'the enlarged title keeps words and their punctuation together').toEqual([]);
+  await expect(page.getByRole('link', { name: 'Читать в Telegram' })).toHaveAttribute('href', 'https://t.me/ekatyulyaslife');
+});
+
+test('a failed Terrain canvas keeps the complete text and channel link readable', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.channelCanvasAttempts = 0;
+    CanvasRenderingContext2D.prototype.getImageData = function () {
+      window.channelCanvasAttempts++;
+      throw new Error('Test canvas unavailable');
+    };
+  });
+  await page.goto('./#channel');
+  await page.locator('#channel').scrollIntoViewIfNeeded();
+  await expect.poll(() => page.evaluate(() => window.channelCanvasAttempts)).toBeGreaterThan(0);
+  await expect(page.locator('#channel')).not.toHaveClass(/is-contrast-ready/);
+  await expect(page.locator('.channel-copy')).toHaveCSS('color', 'rgb(244, 243, 238)');
+  await expect(page.locator('.channel-link')).toHaveCSS('color', 'rgb(244, 243, 238)');
+  await expect(page.locator('#channel-title')).toContainText('будем танцевать');
+  await noOverflow(page);
+});
+
 test('completed tarot exports a portrait PNG and clears stale results on closing or redealing', async ({ page }, testInfo) => {
   await page.addInitScript(() => {
+    // Draw the long single-word format that previously overflowed, then check redealing.
+    const rolls = [.99, .3, 0];
+    let roll = 0;
+    Math.random = () => rolls[roll++ % rolls.length];
     window.storyDraws = [];
     const fillText = CanvasRenderingContext2D.prototype.fillText;
     CanvasRenderingContext2D.prototype.fillText = function (text, x, y, ...rest) {
@@ -373,6 +430,7 @@ test('completed tarot exports a portrait PNG and clears stale results on closing
   await expect(link).toBeVisible();
   await expect(save).not.toHaveAttribute('aria-disabled', 'true');
   const draws = await page.evaluate(() => window.storyDraws);
+  expect(draws.some(draw => draw.text === 'Кросс-дуатлон')).toBe(true);
   expect(draws.every(draw => draw.font.includes('Golos Text'))).toBe(true);
   expect(draws.some(draw => draw.text === 'Карты — ради забавы. Подготовка — по плану.')).toBe(true);
   expect(draws.filter(draw => draw.y >= 1185 && draw.y < 1490).length).toBeLessThanOrEqual(5);
@@ -492,6 +550,9 @@ test('native content, navigation, video controls and system theme work without J
     }
     await expect(page.locator('.video-play').first()).toBeHidden();
     await expect(page.locator('.tarot-card-toggle').first()).toBeHidden();
+    await page.locator('#channel').scrollIntoViewIfNeeded();
+    await expect(page.locator('.channel-copy')).toHaveCSS('color', 'rgb(244, 243, 238)');
+    await expect(page.getByRole('link', { name: 'Читать в Telegram' })).toHaveAttribute('href', 'https://t.me/ekatyulyaslife');
     const light = await page.locator('body').evaluate(element => getComputedStyle(element).backgroundColor);
     await page.emulateMedia({ colorScheme: 'dark' });
     await expect.poll(() => page.locator('body').evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(light);

@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "assets": "python3 scripts/version_assets.py --write",
-    "check": "python3 scripts/check_static.py && python3 scripts/version_assets.py --check && python3 -m unittest discover -s scripts -p '*_test.py' && node --check script.js && node --check theme.js && node --check video.js && node --check tarot.js && node --check daylight.js && node --test scripts/*.test.cjs",
+    "check": "python3 scripts/check_static.py && python3 scripts/version_assets.py --check && python3 -m unittest discover -s scripts -p '*_test.py' && node --check script.js && node --check theme.js && node --check video.js && node --check tarot.js && node --check daylight.js && node --check channel.js && node --test scripts/*.test.cjs",
     "stage": "python3 scripts/stage_pages.py",
     "test:browser": "npm run stage && playwright test",
     "verify": "npm run assets && npm run check && npm run test:browser"
