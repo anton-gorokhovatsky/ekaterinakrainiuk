@@ -15,8 +15,9 @@
   const art = document.createElement('canvas');
   const gl = art.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true });
   if (!gl || !gl.getExtension('OES_standard_derivatives')) return;
-  const display = document.createElement('canvas'), displayContext = display.getContext('2d', { alpha: false });
-  if (!displayContext) return;
+  // Keep the rendered WebGL surface visible. Copying it to a second 2D canvas
+  // forces another full-frame transfer on browsers with a software GPU backend.
+  const display = art;
   display.className = 'channel-moving-art'; display.setAttribute('aria-hidden', 'true');
   const vertex = `attribute vec2 point; varying vec2 uv;
     void main(){uv=vec2(point.x*.5+.5,.5-point.y*.5);gl_Position=vec4(point,0.,1.);}`;
@@ -208,10 +209,11 @@
       const blend=Math.min(1,frameElapsed/850);gl.uniform1f(uniform('amount'),blend*blend*(3-2*blend));
       gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
       if(gl.isContextLost())throw Error('Lost artwork');
-      if(display.width!==w||display.height!==h){display.width=w;display.height=h;}
-      displayContext.drawImage(art,0,0);
-      for(const field of [...fields,...icons])field.classList.add('channel-canvas-ink');
-      cached=state;panel.classList.add('is-contrast-ready');
+      if(!panel.classList.contains('is-contrast-ready')){
+        for(const field of [...fields,...icons])field.classList.add('channel-canvas-ink');
+        panel.classList.add('is-contrast-ready');
+      }
+      cached=state;
       panel.dataset.motionFrame=motionStarted&&!staticDevice.matches?(frameElapsed/1000).toFixed(3):'still';
       panel.dataset.motionPaintMs=(performance.now()-began).toFixed(1);
     } catch {

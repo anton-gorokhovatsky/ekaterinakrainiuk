@@ -343,6 +343,18 @@ test('local sprite references survive dynamic tarot updates and resources render
 // with the same frame's background. The probe does not change visible playback.
 async function observeTerrain(page) {
   await page.addInitScript(() => {
+    const Observer = window.IntersectionObserver;
+    window.IntersectionObserver = class extends Observer {
+      constructor(callback, options) {
+        super((entries, observer) => {
+          if (!options?.rootMargin) {
+            const channel = entries.filter(entry => entry.target.id === 'channel').at(-1);
+            if (channel) window.terrainVisible = channel.isIntersecting;
+          }
+          callback(entries, observer);
+        }, options);
+      }
+    };
     const upload = WebGLRenderingContext.prototype.texImage2D;
     WebGLRenderingContext.prototype.texImage2D = function (...args) {
       const result = upload.apply(this, args), source = args.at(-1);
@@ -358,7 +370,9 @@ async function terrainPixels(page) {
     const { gl, letters, texture } = window.terrainProbe;
     const display = element.querySelector('.channel-moving-art');
     const mask = letters.getContext('2d').getImageData(0, 0, letters.width, letters.height).data;
-    const composed = display.getContext('2d').getImageData(0, 0, display.width, display.height).data;
+    const rendered = document.createElement('canvas'); rendered.width = display.width; rendered.height = display.height;
+    const renderedContext = rendered.getContext('2d'); renderedContext.drawImage(display, 0, 0);
+    const composed = renderedContext.getImageData(0, 0, rendered.width, rendered.height).data;
     const blank = document.createElement('canvas'); blank.width = letters.width; blank.height = letters.height;
     gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, blank);
@@ -505,6 +519,7 @@ test.describe('Terrain movement and fallback', () => {
     })).toBe(true);
     await expect(control).toHaveAttribute('aria-pressed', 'true');
     await expect(control).toHaveAccessibleName('Остановить фон');
+    await expect.poll(() => page.evaluate(() => window.terrainVisible)).toBe(false);
     const outside = await panel.getAttribute('data-motion-frame');
     await page.waitForTimeout(400);
     expect(await panel.getAttribute('data-motion-frame')).toBe(outside);
