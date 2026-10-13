@@ -31,7 +31,9 @@ jobs:
       - name: Check content, resource graph, versions and unit tests
         run: npm run check
       - name: Test the Pages artifact in real browser engines
-        run: npm run test:browser
+        # Keep DPR-2 WebGL scenarios from competing on the shared CI runner.
+        # Coverage, per-test deadlines and assertions stay unchanged.
+        run: npm run test:browser -- --workers=1
       - name: Check whitespace
         run: git show --format= --check HEAD
       - name: Keep browser diagnostics
