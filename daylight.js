@@ -70,7 +70,9 @@
     const observed = Date.parse(frame?.time);
     if (!Number.isFinite(observed) || now - observed > HOUR + 5 * 60000) return null;
     const current = frame.data?.instant?.details;
-    const code = conditionCode(frame.data?.next_1_hours?.summary?.symbol_code);
+    const nextHour = frame.data?.next_1_hours;
+    const symbol = nextHour?.summary?.symbol_code;
+    const code = conditionCode(symbol);
     if (!current || ![current.air_temperature, current.wind_speed, current.cloud_area_fraction, code].every(Number.isFinite)) return null;
     if (current.wind_speed < 0 || current.cloud_area_fraction < 0 || current.cloud_area_fraction > 100) return null;
     const days = data.sun.map(day => ({ sunrise: Date.parse(day?.properties?.sunrise?.time), sunset: Date.parse(day?.properties?.sunset?.time) }));
@@ -82,10 +84,37 @@
     const night = now < sunrise || now >= sunset;
     const nextSunrise = days.map(day => day.sunrise).filter(time => Number.isFinite(time) && time > now).sort((a, b) => a - b)[0];
     const phase = night ? 'night' : progress < .12 ? 'morning' : progress > .85 ? 'evening' : 'day';
+    // Optional material inputs must not make an otherwise useful forecast fail.
+    // Keep absent values distinct from a genuine 0% humidity or 0 mm of rain.
+    const humidity = units.relative_humidity === '%' && Number.isFinite(current.relative_humidity) && current.relative_humidity >= 0 && current.relative_humidity <= 100 ? current.relative_humidity : null;
+    const amount = nextHour?.details?.precipitation_amount;
+    const precipitation = units.precipitation_amount === 'mm' && Number.isFinite(amount) && amount >= 0 ? amount : null;
+    // Precipitation amount also includes snow. Only rain/sleet can strengthen
+    // the wet-glass effect; snow retains the independent humidity response.
+    const wetPrecipitation = /rain|sleet/.test(symbol);
     return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night,
+      humidity, precipitation, wetPrecipitation,
       skyTint: skyColour(skyColours, sunrise, sunset, now), skyPaper: skyColour(paperColours, sunrise, sunset, now),
       palette: Object.fromEntries(Object.entries(paletteColours).map(([role, colours]) =>
         [role, mixColour(skyColour(colours, sunrise, sunset, now), colours.cloud, current.cloud_area_fraction * .0018)])) };
+  }
+  function coverAtmosphere(current) {
+    if (!current) return null;
+    const smooth = value => {
+      const t = Math.max(0, Math.min(1, value));
+      return t * t * (3 - 2 * t);
+    };
+    // The approved dry/humid/rain covers are optical anchors, not a physical
+    // simulation: 65–85% humidity supplies the haze, rain adds at most 2.4 px.
+    const humid = Number.isFinite(current.humidity) ? smooth((current.humidity - 65) / 20) : 0;
+    const rain = current.wetPrecipitation && Number.isFinite(current.precipitation) ? smooth(current.precipitation / 2.4) : 0;
+    return {
+      blur: 1.6 * humid + 2.4 * rain,
+      saturation: 1 - .09 * humid - .11 * rain,
+      haze: .06 * humid + .07 * rain,
+      halo: 2 * humid + 2 * rain,
+      haloOpacity: .3 * humid + .2 * rain
+    };
   }
   function atmosphere(current) {
     if (!current) return null;
@@ -127,7 +156,7 @@
     const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'дождь со снегом': 'snow', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
     return icons[conditions(code)] || 'cloud';
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, conditionCode };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#daylight');
   if (!root) return;
@@ -136,6 +165,7 @@
   const material = document.documentElement.style;
   const glassProperties = ['--weather-tint', '--weather-tint-share', '--weather-opacity', '--weather-blur', '--weather-saturation'];
   const paletteProperties = Object.keys(paletteColours).map(role => `--${role}`);
+  const coverProperties = ['--cover-photo-blur', '--cover-photo-saturation', '--cover-haze', '--cover-halo', '--cover-halo-opacity'];
   const deck = document.querySelector('.tarot-spread');
   const cards = deck ? [...deck.querySelectorAll('.tarot-card')] : [];
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -168,13 +198,17 @@
   function updateAtmosphere(current) {
     currentAtmosphere = atmosphere(current);
     if (!currentAtmosphere) {
-      [...glassProperties, ...paletteProperties].forEach(property => material.removeProperty(property));
+      [...glassProperties, ...paletteProperties, ...coverProperties].forEach(property => material.removeProperty(property));
       stopBreeze();
       return;
     }
     const sky = currentAtmosphere;
     [sky.tint, `${sky.tintShare}%`, `${sky.opacity}%`, `${sky.blur}px`, sky.saturation].forEach((value, index) => material.setProperty(glassProperties[index], value));
     Object.entries(current.palette).forEach(([role, colour]) => material.setProperty(`--${role}`, colour));
+    const cover = coverAtmosphere(current);
+    [cover.blur, cover.saturation, cover.haze, cover.halo, cover.haloOpacity].forEach((value, index) => {
+      material.setProperty(coverProperties[index], `${Number(value.toFixed(3))}${index === 0 || index === 3 ? 'px' : ''}`);
+    });
     playBreeze();
   }
   if (deck && typeof IntersectionObserver === 'function') {

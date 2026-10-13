@@ -29,6 +29,33 @@ const test = base.extend({
 });
 
 const menu = page => page.locator('.menu-toggle');
+test('weather softens photo entrances without blurring controls and clears on missing data', { tag: '@weather' }, async ({ page }) => {
+  const { sample, sunDay } = require('../weather-fixture.cjs');
+  let valid = true;
+  await page.route('https://api.met.no/**', route => {
+    const url = new URL(route.request().url());
+    const data = sample(Date.now()).forecast;
+    data.properties.timeseries[0].data.instant.details.relative_humidity = 95;
+    data.properties.timeseries[0].data.next_1_hours = { summary: { symbol_code: 'rain' }, details: { precipitation_amount: 2.4 } };
+    const body = !valid ? {} : url.pathname.includes('sunrise') ? sunDay(url.searchParams.get('date')) : data;
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+  });
+  await page.goto('./');
+  await expect.poll(() => page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-photo-blur'))).toBe('4px');
+  const portal = page.locator('.portal-water');
+  expect(await portal.evaluate(element => getComputedStyle(element, '::before').backdropFilter || getComputedStyle(element, '::before').webkitBackdropFilter)).toContain('blur(4px)');
+  expect(await page.locator('.hero-kicker, .hero-instruction, .portal-index, .portal-verb, .portal-bottom, .nav-contact').evaluateAll(elements => elements.every(element => getComputedStyle(element).filter === 'none'))).toBe(true);
+  await page.emulateMedia({ contrast: 'more' });
+  await expect.poll(() => portal.evaluate(element => getComputedStyle(element, '::before').display)).toBe('none');
+  await page.emulateMedia({ contrast: 'no-preference' });
+  await page.evaluate(() => sessionStorage.removeItem('katya-met-norway-v1'));
+  valid = false;
+  await page.reload();
+  await expect(page.locator('[data-weather-condition]')).toHaveText('Нет свежих данных');
+  await expect.poll(() => page.locator('html').evaluate(element => getComputedStyle(element).getPropertyValue('--cover-photo-blur').trim())).toBe('0px');
+  await page.locator('.portal-water').click();
+  await expect(page.locator('#water')).toHaveJSProperty('open', true);
+});
 const mobile = page => page.viewportSize().width <= 1000;
 const noOverflow = async page => {
   const layout = await page.evaluate(() => ({

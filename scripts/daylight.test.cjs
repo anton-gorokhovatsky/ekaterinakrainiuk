@@ -1,8 +1,76 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, conditionCode } = require('../daylight.js');
+const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode } = require('../daylight.js');
 const noon = Date.parse('2026-09-26T09:00:00Z');
 const { sample, sunDay } = require('./weather-fixture.cjs');
+const coverWeather = (humidity, amount = 0, symbol = 'rain') => {
+  const data = sample();
+  data.forecast.properties.timeseries[0].data.instant.details.relative_humidity = humidity;
+  data.forecast.properties.timeseries[0].data.next_1_hours = { summary: { symbol_code: symbol }, details: { precipitation_amount: amount } };
+  return data;
+};
+test('optional humidity and precipitation preserve genuine zeroes and validate their units and ranges', () => {
+  const zero = readWeather(coverWeather(0), noon);
+  assert.equal(zero.humidity, 0);
+  assert.equal(zero.precipitation, 0);
+  for (const humidity of [null, undefined, '85', NaN, -1, 101]) {
+    const weather = readWeather(coverWeather(humidity), noon);
+    assert.equal(weather.humidity, null);
+    assert.equal(weather.temperature, 15);
+  }
+  for (const amount of [null, undefined, '2', NaN, -1, Infinity]) {
+    const data = coverWeather(85);
+    data.forecast.properties.timeseries[0].data.next_1_hours.details.precipitation_amount = amount;
+    assert.equal(readWeather(data, noon).precipitation, null);
+  }
+  const wrong = coverWeather(85, 2.4);
+  wrong.forecast.properties.meta.units.relative_humidity = 'fraction';
+  wrong.forecast.properties.meta.units.precipitation_amount = 'cm';
+  const weather = readWeather(wrong, noon);
+  assert.equal(weather.humidity, null);
+  assert.equal(weather.precipitation, null);
+  assert.equal(coverAtmosphere(weather).blur, 0);
+});
+test('the accepted cover anchors stay dry, humid and rainy while missing or stale data stay neutral', () => {
+  assert.equal(coverAtmosphere(readWeather(coverWeather(46), noon)).blur, 0);
+  assert.equal(coverAtmosphere(readWeather(coverWeather(85, 0, 'cloudy'), noon)).blur, 1.6);
+  assert.equal(coverAtmosphere(readWeather(coverWeather(95, 2.4), noon)).blur, 4);
+  const legacy = sample();
+  delete legacy.forecast.properties.timeseries[0].data.instant.details.relative_humidity;
+  delete legacy.forecast.properties.timeseries[0].data.next_1_hours.details;
+  assert.equal(coverAtmosphere(readWeather(legacy, noon)).blur, 0);
+  assert.equal(coverAtmosphere(readWeather(coverWeather(95, 2.4), noon + 4 * 3600000)), null);
+});
+test('snow and frost do not masquerade as liquid rain, including a snowy thunderstorm', () => {
+  for (const symbol of ['snow', 'lightsnowshowers_night', 'heavysnowandthunder']) {
+    const weather = readWeather(coverWeather(85, 20, symbol), noon);
+    assert.equal(weather.wetPrecipitation, false);
+    assert.equal(coverAtmosphere(weather).blur, 1.6);
+  }
+  for (const symbol of ['rain', 'lightrainshowers_night', 'heavyrainandthunder', 'sleet']) {
+    assert.equal(coverAtmosphere(readWeather(coverWeather(85, 2.4, symbol), noon)).blur, 4);
+  }
+  const frost = coverWeather(46, 0, 'clearsky_day');
+  frost.forecast.properties.timeseries[0].data.instant.details.air_temperature = -20;
+  assert.equal(coverAtmosphere(readWeather(frost, noon)).blur, 0);
+});
+test('the material changes continuously and stays inside the approved optical range', () => {
+  const material = (humidity, precipitation) => coverAtmosphere(readWeather(coverWeather(humidity, precipitation), noon));
+  for (let humidity = 0; humidity <= 100; humidity += 5) {
+    let previous = -1;
+    for (let amount = 0; amount <= 5; amount += .1) {
+      const cover = material(humidity, amount);
+      assert.ok(cover.blur >= previous && cover.blur <= 4);
+      assert.ok(cover.saturation >= .8 - 1e-12 && cover.saturation <= 1);
+      assert.ok(cover.haze >= 0 && cover.haze <= .13);
+      assert.ok(cover.halo >= 0 && cover.halo <= 4);
+      assert.ok(cover.haloOpacity >= 0 && cover.haloOpacity <= .5);
+      previous = cover.blur;
+    }
+  }
+  for (const humidity of [65, 85]) assert.ok(Math.abs(material(humidity - .001, 1).blur - material(humidity + .001, 1).blur) < .001);
+  assert.ok(Math.abs(material(85, 2.399).blur - material(85, 2.401).blur) < .001);
+});
 test('daylight uses Moscow dates and ISO timestamps, regardless of visitor timezone', () => {
   const current = readWeather(sample(), noon);
   assert.equal(current.phase, 'day');

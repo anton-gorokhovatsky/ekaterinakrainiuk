@@ -5,7 +5,7 @@ const { resolve } = require('node:path');
 const { runInNewContext } = require('node:vm');
 
 const source = readFileSync(resolve(__dirname, '../daylight.js'), 'utf8');
-function visit({ reduced = false, cachedWeather = true, request = async () => ({ ok: false }) } = {}) {
+function visit({ reduced = false, cachedWeather = true, weatherChange = () => {}, request = async () => ({ ok: false }) } = {}) {
   let now = Date.parse('2026-09-26T09:00:00Z');
   const events = {}, material = new Map(), nodes = new Map(), animations = [];
   const node = () => ({ textContent: '', style: { setProperty() {}, removeProperty() {} }, setAttribute() {} });
@@ -31,6 +31,7 @@ function visit({ reduced = false, cachedWeather = true, request = async () => ({
   };
   const data = require('./weather-fixture.cjs').sample(now);
   data.forecast.properties.timeseries[0].data.instant.details.wind_speed = 4;
+  weatherChange(data);
   const cached = { forecast: { data: data.forecast, expires: now + 3600000 }, '2026-09-26': { data: data.sun[0] }, '2026-09-27': { data: require('./weather-fixture.cjs').sunDay('2026-09-27') } };
   runInNewContext(source, { document, window: { matchMedia: () => media }, Intl, Number, Math,
     Date: class extends Date { static now() { return now; } },
@@ -51,6 +52,19 @@ function visit({ reduced = false, cachedWeather = true, request = async () => ({
     tick: () => events.tick()
   };
 }
+test('fresh cover inputs reach CSS and every optical property clears when the forecast expires', () => {
+  const page = visit({ weatherChange: data => {
+    data.forecast.properties.timeseries[0].data.instant.details.relative_humidity = 95;
+    data.forecast.properties.timeseries[0].data.next_1_hours = { summary: { symbol_code: 'rain' }, details: { precipitation_amount: 2.4 } };
+  } });
+  assert.equal(page.material.get('--cover-photo-blur'), '4px');
+  assert.equal(page.material.get('--cover-photo-saturation'), '0.8');
+  assert.equal(page.material.get('--cover-haze'), '0.13');
+  assert.equal(page.material.get('--cover-halo'), '4px');
+  assert.equal(page.material.get('--cover-halo-opacity'), '0.5');
+  page.expire();
+  assert.equal(page.material.size, 0);
+});
 test('the whole palette preserves the explicit theme and clears every stale colour', () => {
   const page = visit();
   assert.ok(page.material.has('--weather-tint'));

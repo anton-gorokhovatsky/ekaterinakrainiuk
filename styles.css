@@ -79,6 +79,11 @@
   --glass-muted: var(--muted);
   --play-fill: var(--accent-fill);
   --play-filter: none;
+  --cover-photo-blur: 0px;
+  --cover-photo-saturation: 1;
+  --cover-haze: 0;
+  --cover-halo: 0px;
+  --cover-halo-opacity: 0;
   --ease-enter: cubic-bezier(.16, 1, .3, 1);
   --ease-exit: cubic-bezier(.4, 0, 1, 1);
   --accordion-open: 360ms;
@@ -205,12 +210,23 @@ summary::-webkit-details-marker { display: none; }
 .hero { padding: var(--space-5) var(--pad) 0; }
 .hero-kicker { display: flex; justify-content: space-between; gap: var(--space-4); font-size: var(--text-label); }
 .invitation { font-size: var(--text-display); line-height: 1; text-transform: uppercase; margin: var(--space-3) 0 var(--space-4); white-space: nowrap; letter-spacing: 0; }
-.invitation > span { -webkit-text-stroke: 3px var(--ink); color: var(--bg); paint-order: stroke fill; }
+.invitation > span { -webkit-text-stroke: 3px var(--ink); color: var(--bg); paint-order: stroke fill; text-shadow: 0 0 var(--cover-halo) color-mix(in srgb, var(--ink) calc(var(--cover-halo-opacity) * 100%), transparent); transition: text-shadow 800ms ease; }
 .hero-intro { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
 .hero-instruction { font-size: var(--text-label); }
 .hero-training { display: none; min-height: 2.75rem; font-size: var(--text-small); font-weight: 500; }
 .portals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-2); transition: grid-template-columns 500ms cubic-bezier(.2,.65,.2,1); }
 .portal { position: relative; display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: #252b2a; min-height: clamp(25rem, 39vw, 42rem); overflow: clip; isolation: isolate; padding: var(--space-5) var(--space-5); }
+/* A weather pane behind the readable labels and their existing contrast layer.
+   There is no frame loop, image copy, new crop or filtered text. */
+.portal::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: rgb(228 236 239 / var(--cover-haze)); -webkit-backdrop-filter: blur(var(--cover-photo-blur)) saturate(var(--cover-photo-saturation)); backdrop-filter: blur(var(--cover-photo-blur)) saturate(var(--cover-photo-saturation)); transition: background-color 800ms ease, backdrop-filter 800ms ease, -webkit-backdrop-filter 800ms ease; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero .portal > img { filter: blur(var(--cover-photo-blur)) saturate(var(--cover-photo-saturation)); transition: transform 700ms cubic-bezier(.2,.65,.2,1), filter 800ms ease; }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .hero .portal::before { display: none; }
+  .hero .portal > img { filter: none; }
+  .invitation > span { text-shadow: none; }
+}
 /* Protect both text areas even when the crop contains white sky or clothing. */
 .portal::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, rgb(0 0 0 / .64) 0, rgb(0 0 0 / .48) 10rem, transparent calc(10rem + 30%)), linear-gradient(0deg, rgb(0 0 0 / .64) 0, rgb(0 0 0 / .58) 3rem, transparent 45%); }
 .portal img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; transition: transform 700ms cubic-bezier(.2,.65,.2,1); }
