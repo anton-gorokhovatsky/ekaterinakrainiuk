@@ -151,11 +151,11 @@ if (header && 'ResizeObserver' in window) {
   updateHeaderLayout();
 }
 
-// A photo opens its native story. Direct links and browser history do the same.
+// Direct story and service links open their native disclosure.
 const openRoute = (hash, focus = false) => {
   if (!hash || !/^#[a-z-]+$/.test(hash)) return;
   const route = document.getElementById(hash.slice(1));
-  if (!route?.matches('details.route')) return;
+  if (!route?.matches('details.route, details.service')) return;
   route.open = true;
   if (focus) route.querySelector('summary').focus({ preventScroll: true });
 };
@@ -232,10 +232,11 @@ if (trainingProof) {
     const request = ++revision;
     preview.classList.remove('is-visible');
     if (!target) return;
-    const source = target.parentElement.querySelector('.service-body img');
-    if (!source) return;
+    const source = target.parentElement.querySelector('.service-body img, .service-body video[poster]');
+    const url = source?.tagName === 'VIDEO' ? source.poster : source?.currentSrc || source?.src;
+    if (!url) return;
     const photo = new Image();
-    photo.src = source.currentSrc || source.src;
+    photo.src = url;
     try { await photo.decode(); } catch { return; }
     if (request !== revision) return;
     image.width = photo.naturalWidth;

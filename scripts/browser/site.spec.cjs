@@ -31,7 +31,17 @@ const test = base.extend({
 const menu = page => page.locator('.menu-toggle');
 const mobile = page => page.viewportSize().width <= 1000;
 const noOverflow = async page => {
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  const layout = await page.evaluate(() => ({
+    width: innerWidth,
+    documentWidth: document.documentElement.scrollWidth,
+    outside: document.documentElement.scrollWidth > innerWidth + 1
+      ? [...document.querySelectorAll('main *')].filter(element => {
+        const bounds = element.getBoundingClientRect();
+        return bounds.width > 0 && bounds.right > innerWidth + 1;
+      }).map(element => `${element.tagName}.${element.className}: ${element.getBoundingClientRect().right}`).slice(0, 15)
+      : [],
+  }));
+  expect(layout.documentWidth, JSON.stringify(layout)).toBeLessThanOrEqual(layout.width + 1);
 };
 const unlocked = async page => {
   await expect(page.locator('body')).not.toHaveClass(/menu-open/);
@@ -142,7 +152,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   const mediaRequests = [];
   page.on('request', request => { if (/\.mp4(?:\?|$)/.test(request.url())) mediaRequests.push(request.url()); });
   await page.goto('./#results');
-  const stories = page.locator('.video-story');
+  const stories = page.locator('#results .video-story');
   const first = page.locator('#andrey-finish-video');
   const second = page.locator('#andrey-coaching-video');
   for (const video of [first, second]) {
@@ -159,7 +169,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   }
   const compact = page.viewportSize().width <= 760;
   const trigger = index => stories.nth(index).locator('.video-play');
-  await expect(page.locator('figure.video-story')).toHaveCount(4);
+  await expect(page.locator('#results figure.video-story')).toHaveCount(4);
   await expect(first).toBeVisible();
   await expect(second).toBeVisible();
   await trigger(0).focus();
@@ -193,7 +203,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await expect(second).toBeFocused();
   const secondPlayer = await second.elementHandle();
   await page.setViewportSize({ width: compact ? 1440 : 390, height: 900 });
-  await expect(page.locator('video')).toHaveCount(4);
+  await expect(page.locator('#results video')).toHaveCount(4);
   expect(await second.evaluate((video, original) => video === original, secondPlayer)).toBe(true);
   await expect(second).toHaveJSProperty('paused', false);
   await expect(second).toBeFocused();
@@ -201,6 +211,39 @@ test('one action plays actual video, switches audio and keeps captions and focus
   // Native video keyboard shortcuts differ between Chromium and WebKit.
   await trigger(0).click();
   await expect(second).toHaveJSProperty('paused', true);
+  await noOverflow(page);
+});
+
+test('training warmup plays real silent media, pauses on closing and shares player control', { tag: '@video' }, async ({ page }) => {
+  await page.goto('./#training');
+  const service = page.locator('#personal-training');
+  await expect(service).toHaveJSProperty('open', false);
+  // A direct service link opens the same native disclosure.
+  await page.goto('./#personal-training');
+  await expect(service).toHaveJSProperty('open', true);
+  const video = service.locator('video');
+  const play = service.locator('.video-play');
+  await expect(video).toHaveAttribute('preload', 'none');
+  await expect(video).toHaveJSProperty('autoplay', false);
+  await expect(video).toHaveJSProperty('paused', true);
+  await play.focus();
+  await play.press('Enter');
+  await expect.poll(() => video.evaluate(player => !player.paused && player.currentTime > 0)).toBe(true);
+  await expect(video).toHaveJSProperty('controls', true);
+  await expect(video).toBeFocused();
+  await expect(video).toHaveJSProperty('videoWidth', 1024);
+  await expect(video).toHaveJSProperty('videoHeight', 1280);
+  expect(await video.evaluate(player => player.duration)).toBeCloseTo(20.4, 1);
+  await service.locator('summary').press('Enter');
+  await expect(service).toHaveJSProperty('open', false);
+  await expect(video).toHaveJSProperty('paused', true);
+  await service.locator('summary').press('Enter');
+  await expect(play).toHaveAccessibleName(/Продолжить/);
+  await play.click();
+  await expect(video).toHaveJSProperty('paused', false);
+  await page.locator('#andrey-review .video-play').first().click();
+  await expect.poll(() => page.locator('#andrey-finish-video').evaluate(player => !player.paused && player.currentTime > 0)).toBe(true);
+  await expect(video).toHaveJSProperty('paused', true);
   await noOverflow(page);
 });
 
@@ -784,24 +827,47 @@ test('320px with 200% text keeps the introduction, open sports, biography and se
   }
 });
 
-test('editorial and service photographs retain the full source frame across widths', { tag: '@layout' }, async ({ page }) => {
+test('editorial and service photographs preserve full frames and the approved team framing', { tag: '@layout' }, async ({ page }) => {
   await page.goto('./');
   await page.evaluate(async () => {
     document.querySelectorAll('details.route, details.service').forEach(details => { details.open = true; });
-    await Promise.all([...document.querySelectorAll('.route-content img, .service-body img, .channel-photo')].map(async image => {
+    await Promise.all([...document.querySelectorAll('.route-content img, .service-body img, .coach-statement img, .channel-photo')].map(async image => {
       image.loading = 'eager';
       await image.decode();
     }));
   });
   for (const width of [320, 760, 980, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    const cropped = await page.locator('.route-content img, .service-body img, .channel-photo').evaluateAll(images =>
+    const cropped = await page.locator('.route-content img, .service-body img, .coach-statement img, .channel-photo').evaluateAll(images =>
       images.filter(image => {
+        if (image.matches('.telegram-team-photo img')) return false;
         const style = getComputedStyle(image);
         const renderedRatio = parseFloat(style.width) / parseFloat(style.height);
         return !image.naturalWidth || Math.abs(renderedRatio - image.naturalWidth / image.naturalHeight) > .01;
       }).map(image => image.getAttribute('src')));
     expect(cropped, `photographs preserve their natural proportions at ${width}px`).toEqual([]);
+    // The owner-approved 4:3 crop removes sky above this one group photo.
+    // The source region containing all six people remains inside the frame.
+    const team = page.locator('.telegram-team-photo img');
+    await expect(team).toHaveCount(1);
+    await expect(team).toHaveAttribute('src', /assets\/images\/grom-relay-2026\.jpg/);
+    const frame = await team.evaluate(image => {
+      const style = getComputedStyle(image);
+      const width = parseFloat(style.width);
+      const height = parseFloat(style.height);
+      const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+      return {
+        fit: style.objectFit, position: style.objectPosition,
+        ratio: width / height, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
+        visibleTop: image.naturalHeight - height / scale,
+      };
+    });
+    expect(frame.fit).toBe('cover');
+    expect(frame.position).toBe('50% 100%');
+    expect(frame.ratio).toBeCloseTo(4 / 3, 2);
+    expect(frame.naturalWidth).toBe(600);
+    expect(frame.naturalHeight).toBe(800);
+    expect(frame.visibleTop).toBeLessThanOrEqual(375);
     await noOverflow(page);
   }
 });
@@ -822,7 +888,7 @@ test('native content, navigation, video controls and system theme work without J
     const service = page.locator('.service').first();
     await service.locator('summary').click();
     await expect(service.locator('.service-body')).toBeVisible();
-    await expect(page.locator('figure.video-story')).toHaveCount(4);
+    await expect(page.locator('figure.video-story')).toHaveCount(5);
     await expect(page.locator('details.video-story')).toHaveCount(0);
     await expect(page.locator('#andrey-coaching-video')).toBeVisible();
     await expect(page.locator('video').first()).toHaveAttribute('controls', '');

@@ -235,6 +235,11 @@
     });
     ['pause', 'ended', 'emptied'].forEach(event => video.addEventListener(event, syncPlay));
 
+    const service = element.closest('details.service');
+    service?.addEventListener('toggle', () => {
+      if (!service.open) pauseStory(story);
+    });
+
     syncPlay();
   });
 })();

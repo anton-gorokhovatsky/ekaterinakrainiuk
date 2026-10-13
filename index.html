@@ -32,10 +32,10 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2?v=2f175b8fc40e" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2?v=f8d71091110f" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=8f61af6cddcc">
-  <link rel="stylesheet" href="styles.css?v=a2bfe3917b8b">
+  <link rel="stylesheet" href="styles.css?v=7772952a9699">
   <link rel="stylesheet" href="tarot.css?v=7b20de649555">
-  <script src="script.js?v=95b3b4c2744e" defer></script>
-  <script src="video.js?v=ac9a882646aa" defer></script>
+  <script src="script.js?v=b7677c28f82f" defer></script>
+  <script src="video.js?v=4bf4de867d69" defer></script>
   <script src="tarot.js?v=60d5ca982e54" defer></script>
   <script src="channel.js?v=d039dc34f899" defer></script>
   <link rel="stylesheet" href="channel.css?v=7514abac8bce">
@@ -222,6 +222,21 @@
 <a class="story-cta link" href="https://t.me/ekatyulya"><span class="link-label">Хочу в седло</span> <svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg>
 </a>
 </div>
+<aside class="telegram-bike-guide" id="bike-flight" aria-labelledby="bike-flight-title">
+  <p class="eyebrow">Велосипед с собой</p>
+  <h3 id="bike-flight-title">А если на старт — самолётом?</h3>
+  <p>До покупки билета проверьте три вещи:</p>
+  <ul>
+    <li>входит ли велосипед в норму багажа;</li>
+    <li>нужно ли согласовать его провоз заранее;</li>
+    <li>какие ограничения действуют для веса и размеров чехла.</li>
+  </ul>
+  <p>Вместе с Аидой и другими велосипедистами собираем правила авиакомпаний и опыт перелётов в одной таблице. Условия меняются — перед покупкой сверяйте их с авиакомпанией.</p>
+  <div class="telegram-guide-links">
+    <a class="link" href="https://t.me/ekatyulyaslife/348"><span class="link-label">Моя памятка о перелётах</span></a>
+    <a class="link" href="https://docs.google.com/spreadsheets/d/1u7RGJuLdNDP76_54IYEoM6Bw2eDq8HJboq2_MQngbzk/edit"><span class="link-label">Таблица авиакомпаний</span></a>
+  </div>
+</aside>
 </div>
       </details>
       <details class="route route-run" id="run">
@@ -323,17 +338,43 @@
         <section class="training-options" aria-labelledby="training-options-title">
           <h3 class="training-group-title eyebrow" id="training-options-title">Занятия и консультации</h3>
           <div class="services">
-        <details class="service">
+        <details class="service" id="personal-training">
           <summary><h4 class="service-title">Персональная тренировка</h4><span class="service-purpose">Поработать над техникой вместе со мной</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
-          <div class="service-body"><img src="assets/images/run-session.webp" width="1200" height="900" loading="lazy" decoding="async" alt="Екатерина показывает беговое упражнение на стадионе"><div><p>Бег, плавание, велосипед, прохождение транзитных зон, общая и специальная физическая подготовка. Подойдёт, если хотите поработать над техникой под руководством тренера.</p><p class="service-note">Для спортсменов на сопровождении — 4000 ₽.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Договориться о тренировке в Telegram</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg></a></div></div>
+          <div class="service-body service-with-example">
+            <figure class="video-story warmup-story">
+              <div class="video-player">
+                <video id="warmup-video" controls playsinline preload="none" poster="assets/images/warmup-lunge-poster.jpg" width="1024" height="1280" aria-labelledby="warmup-caption" aria-describedby="warmup-description">
+                  <source src="assets/videos/warmup-lunge.mp4?v=674bb5bafa97" type="video/mp4">
+                  <a href="assets/videos/warmup-lunge.mp4?v=674bb5bafa97">Смотреть упражнение из разминки Кати</a>
+                </video>
+                <button class="video-play" type="button" aria-controls="warmup-video" aria-label="Смотреть видео «Выпады с поворотом корпуса»" hidden><span class="video-play-icon"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#player-play"/></svg></span></button>
+              </div>
+              <p class="video-status" role="status" hidden></p>
+              <figcaption><span class="video-story-title" id="warmup-caption"><span>Выпады с поворотом корпуса</span><small>Видео · 0:20 · без звука</small></span></figcaption>
+            </figure>
+            <div><p>Бег, плавание, велосипед, прохождение транзитных зон, общая и специальная физическая подготовка. Подойдёт, если хотите поработать над техникой под руководством тренера.</p><p class="service-note">Для спортсменов на сопровождении — 4000 ₽.</p>
+              <div class="telegram-observation warmup-note">
+                <p id="warmup-description">Перед бегом всегда разминаюсь. Здесь показываю выпады с поворотом корпуса. Делаю их спокойно, чтобы чувствовать мышцы и контролировать движение.</p>
+                <a class="text-link link" href="https://t.me/ekatyulyaslife/242"><span class="link-label">Вся разминка в Telegram</span></a>
+              </div><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Договориться о тренировке в Telegram</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg></a></div></div>
         </details>
         <details class="service">
           <summary><h4 class="service-title">Консультация</h4><span class="service-purpose">Разбор техники очно или онлайн</span><span class="service-price">5000 ₽ <small>/ 60–90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
           <div class="service-body"><img src="assets/images/swimming.webp" width="1080" height="720" loading="lazy" decoding="async" alt="Отработка техники плавания в бассейне"><div><p>Очно или онлайн разберём технику, в том числе по видео, и подберём упражнения для самостоятельных занятий. Ещё можно обсудить трассу, тактику гонки или общий план подготовки к выбранному старту.</p><p class="service-note">В такой план входят этапы подготовки, а не подробные задания на каждую тренировку. Он рассчитан на тех, кто уже знаком с микро- и макроциклами.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Обсудить консультацию в Telegram</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg></a></div></div>
         </details>
-        <details class="service">
+        <details class="service" id="group-training">
           <summary><h4 class="service-title">Групповая тренировка</h4><span class="service-purpose">В Москве: бег, велосипед и транзитные зоны</span><span class="service-price">2000 ₽ <small>/ 90 мин</small></span><span class="disclosure" aria-hidden="true"></span></summary>
-          <div class="service-body"><img src="assets/images/team-training.webp" width="1600" height="1200" loading="lazy" decoding="async" alt="Команда спортсменов с велосипедами после совместной тренировки"><div><p>Тренировка с моей командой: бег, велосипед и отработка транзитных зон. Летом тренируемся в Лужниках, зимой — в манеже на велотреке в Крылатском.</p><a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Узнать о ближайшей тренировке в Telegram</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg></a></div></div>
+          <div class="service-body service-with-example">
+            <figure class="telegram-team-photo">
+              <img src="assets/images/grom-relay-2026.jpg" width="600" height="800" loading="lazy" decoding="async" alt="Катя и участники команды вместе после эстафеты Grom Relay">
+              <figcaption>Grom Relay · Марьино<br>10 октября 2026</figcaption>
+            </figure>
+            <div><p>Тренировка с моей командой: бег, велосипед и отработка транзитных зон. Летом тренируемся в Лужниках, зимой — в манеже на велотреке в Крылатском.</p><div class="telegram-observation team-note">
+                <h5>Вместе — и на стартах</h5>
+                <p>Стараюсь каждый год собирать команду на Grom Relay. В октябре ребята бежали эстафету 5 × 4,2 км, а я вышла на один этап вне командного зачёта.</p>
+                <a class="text-link link" href="https://t.me/ekatyulyaslife/465"><span class="link-label">Как прошла наша эстафета</span></a>
+              </div>
+              <a class="text-link link" href="https://t.me/ekatyulya"><span class="link-label">Узнать о ближайшей тренировке в Telegram</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg></a></div></div>
         </details>
           </div>
         </section>
@@ -367,8 +408,8 @@
 <span>Ваша Катя.</span>
 </h2>
 <figure>
-<img src="assets/images/cycling.webp" width="1200" height="1200" loading="lazy" decoding="async" alt="Катя в велоформе с велосипедом и медалью">
-<figcaption>Сама тренируюсь.<br>Сама выхожу на старт.<br>И делюсь опытом.</figcaption>
+<img class="telegram-race-photo" src="assets/images/katya-race-2026.jpg" width="533" height="800" loading="lazy" decoding="async" alt="Катя бежит по трассе соревнований в триатлонной форме">
+<figcaption>Сама тренируюсь.<br>Сама выхожу на старт.<br>И делюсь опытом.<br><a class="link telegram-photo-source" href="https://t.me/ekatyulyaslife/283?single"><span class="link-label">Фото с гонки · февраль 2026</span></a></figcaption>
 </figure>
 </div>
       <div class="coach-bottom">
@@ -376,6 +417,11 @@
 <div class="coach-bio">
 <p>Я сертифицированный тренер по триатлону, плаванию и бегу.</p>
 <p>Я спортсменка-любительница. Прошла путь от первых тренировок до участия в двух чемпионатах мира по триатлону. Больше 12 лет занимаюсь циклическими видами спорта, а с 2019 года тренирую других.</p>
+<div class="telegram-coach-note">
+<h3>Мне тоже бывает непросто</h3>
+<p>Велосипед у меня сейчас — самый сильный вид. С бегом сложнее: иногда чувствую себя мешком. Два месяца бегала через «не хочу» — и втянулась. Теперь снова хочется выходить на тренировку )</p>
+<a class="link" href="https://t.me/ekatyulyaslife/451"><span class="link-label">Про моё «не хочу»</span></a>
+</div>
 <details class="bio-details">
 <summary><span class="disclosure-label">Квалификация и подход</span> <span class="disclosure" aria-hidden="true"></span>
 </summary>
@@ -546,6 +592,11 @@
               <svg class="link-icon result-entry-arrow" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-right"/></svg>
               <span class="result-entry-metric result-entry-after"><small>2025</small><span>1:12:35</span></span>
             </div>
+            <aside class="telegram-result-note" aria-labelledby="evgenia-preparation-title">
+              <h4 id="evgenia-preparation-title">Над чем работали</h4>
+              <p>С Женей работали над велосипедом, транзитками и плаванием. В 2025 году сняли <strong>4:59</strong> с результата прошлого года.</p>
+              <a class="link" href="https://t.me/ekatyulyaslife/46"><span class="link-label">Мой разбор после старта</span></a>
+            </aside>
             <div class="result-records">
               <div class="table-scroll" tabindex="0" role="region" aria-label="Результаты Евгении на Ironstar 1/8 Лужники">
                 <table>

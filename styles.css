@@ -548,7 +548,7 @@ details[open] > summary .disclosure::after { transform: none; transition-timing-
 .result-entry-metric { display: contents; }
 .result-entry-metric > * { grid-column: 1; }
 .result-entry-after > * { grid-column: 3; }
-.result-entry-times small { grid-row: 1; font: 400 var(--text-label)/var(--leading-small) var(--body); color: var(--muted); }
+.result-entry-times small { grid-row: 1; letter-spacing: normal; font: 400 var(--text-label)/var(--leading-small) var(--body); color: var(--muted); }
 .result-entry-metric > span { grid-row: 2; }
 .result-entry-arrow { grid-column: 2; grid-row: 2; color: var(--muted); }
 /* When text is enlarged, keep each time intact and stack the two seasons. */
@@ -915,4 +915,37 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
   details::details-content { transition: none !important; animation: none !important; }
+}
+
+/* Approved channel materials use the existing editorial roles and spacing. */
+.telegram-observation { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--line); }
+.telegram-observation h5,
+.telegram-result-note h4,
+.telegram-coach-note h3 { margin-bottom: var(--space-3); font: 600 var(--text-body)/var(--leading-heading) var(--body); letter-spacing: 0; }
+.telegram-observation p + p { margin-top: var(--space-3); }
+.warmup-note { margin-top: var(--space-4); padding-top: 0; border-top: 0; }
+.telegram-observation .text-link { font-size: var(--text-label); margin-top: var(--space-1); }
+.warmup-story video { aspect-ratio: 4 / 5; }
+.warmup-story .video-story-title small { white-space: normal; }
+.telegram-team-photo img { aspect-ratio: 4 / 3; object-fit: cover; object-position: center bottom; }
+.telegram-team-photo figcaption { margin-top: var(--space-2); font-size: var(--text-label); color: var(--muted); }
+.coach-statement .telegram-race-photo { width: 100%; max-width: 24rem; aspect-ratio: 533 / 800; object-fit: contain; }
+.telegram-photo-source { display: inline-block; margin-top: var(--space-3); }
+.telegram-coach-note { max-width: 48ch; margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid #fff5; }
+.telegram-coach-note > a { display: inline-block; margin-top: var(--space-3); font-size: var(--text-small); }
+.telegram-result-note { margin-top: var(--space-6); max-width: 58ch; font-size: var(--text-body); }
+.telegram-result-note > a { display: inline-block; margin-top: var(--space-3); font-size: var(--text-small); }
+.telegram-bike-guide { grid-column: 1 / -1; grid-row: 4; margin-top: var(--space-5); padding-top: var(--space-6); border-top: 1px solid #10121655; display: grid; grid-template-columns: var(--grid); gap: var(--space-3) var(--gap); }
+.telegram-bike-guide > .eyebrow { grid-column: 1 / span 5; grid-row: 1; }
+.telegram-bike-guide > h3 { grid-column: 1 / span 5; grid-row: 2 / span 3; max-width: 16ch; font: 600 var(--text-lead)/var(--leading-heading) var(--display); }
+.telegram-bike-guide > :is(p:not(.eyebrow), ul, .telegram-guide-links) { grid-column: 6 / -1; max-width: 62ch; font-size: var(--text-body); }
+.telegram-bike-guide ul { margin: 0; padding-left: 1.2em; }
+.telegram-bike-guide li + li { margin-top: var(--space-2); }
+.telegram-guide-links { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); padding-top: var(--space-2); }
+.telegram-guide-links > a { display: inline-flex; align-items: center; min-height: 2.75rem; }
+@media (max-width: 760px) {
+  .telegram-bike-guide { grid-column: 1; grid-row: auto; order: 4; display: block; margin-top: var(--space-3); }
+  .telegram-bike-guide > h3 { max-width: 20ch; margin-top: var(--space-3); }
+  .telegram-bike-guide > :is(p:not(.eyebrow), ul, .telegram-guide-links) { margin-top: var(--space-4); }
+  .telegram-coach-note { max-width: none; }
 }

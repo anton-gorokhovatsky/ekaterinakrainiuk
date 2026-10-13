@@ -39,6 +39,13 @@ function visit() {
         if (this.contains(document.activeElement)) document.activeElement = null;
       },
       contains(node) { return this === node || this.childNodes.some(child => child.contains(node)); },
+      closest(selector) {
+        for (let ancestor = this; ancestor; ancestor = ancestor.parentNode) {
+          if (selector === 'details.service' && ancestor.tagName === 'DETAILS' &&
+              ancestor.className.split(' ').includes('service')) return ancestor;
+        }
+        return null;
+      },
       querySelector(selector) {
         for (const child of this.childNodes) {
           if (child.selector === selector || child.tagName.toLowerCase() === selector ||
