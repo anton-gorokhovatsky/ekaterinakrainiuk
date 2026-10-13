@@ -250,7 +250,7 @@ summary::-webkit-details-marker { display: none; }
   .portals:has(.portal-run:hover) { grid-template-columns: .8fr .8fr 1.4fr; }
   .portal:hover img { transform: scale(1.035); }
 }
-.hero-after { display: flex; justify-content: space-between; align-items: last baseline; gap: var(--space-6); padding-block: var(--space-6) var(--space-14); font-size: var(--text-small); }
+.hero-after { display: flex; justify-content: space-between; align-items: first baseline; gap: var(--space-6); padding-block: var(--space-6) var(--space-14); font-size: var(--text-small); }
 .hero-after > p { color: var(--muted); }
 .hero-after > a { text-align: left; padding: var(--space-2) 0; }
 .hero-after strong { display: flex; align-items: center; justify-content: end; gap: .45em; font-size: var(--text-ui-title); font-weight: 500; }
@@ -815,7 +815,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .portal-verb { font-size: 14vw; margin-top: var(--space-3); padding-bottom: .1em; }
   .portal-bottom { font-size: var(--text-label); padding-top: var(--space-2); }
   .portal-index { font-size: var(--text-label); }
-  .hero-after { padding-block: var(--space-5) var(--space-10); align-items: start; flex-wrap: wrap; font-size: var(--text-label); }
+  .hero-after { padding-block: var(--space-5) var(--space-10); flex-wrap: wrap; font-size: var(--text-label); }
   .hero-after strong { font-size: var(--text-body); }
   .route > summary { padding: var(--space-5) var(--pad); grid-template-columns: 1.3rem minmax(0, 1fr) 1.3rem; gap: var(--space-3); }
   .route h2 { font-size: var(--text-lead); }
