@@ -681,10 +681,38 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .footer-next { grid-column: 8 / -1; min-width: 0; }
 .footer-next > p { font-size: var(--text-small); color: var(--muted); }
 .footer-contact { margin-top: var(--space-2); padding-block: var(--space-2); font-size: var(--text-lead); font-weight: 500; line-height: var(--leading-heading); }
-.footer-meta { margin-inline: var(--pad); padding: 0 0 var(--space-8); display: grid; grid-template-columns: 1fr auto auto; gap: var(--space-8); align-items: first baseline; color: var(--muted); font-size: var(--text-small); }
-.footer-identity { display: grid; gap: var(--space-1); }
-.footer-name { color: var(--ink); font-size: var(--text-small); }
-.footer-top { min-height: 2.75rem; padding: var(--space-2) 0; }
+.footer-meta { margin-inline: var(--pad); padding: 0 0 var(--space-8); display: grid; grid-template-columns: var(--grid); gap: var(--gap); align-items: start; color: var(--muted); font-size: var(--text-small); }
+.footer-identity { grid-column: 1 / span 7; display: grid; gap: var(--space-1); }
+.footer-name { color: var(--ink); font-size: var(--text-small); font-weight: 600; line-height: 1.25; }
+.footer-identity > :last-child { font-size: var(--text-label); line-height: 1.4; }
+.footer-signature {
+  grid-column: 8 / span 4;
+  --ag-signature-size: 6rem;
+  --ag-signature-name-size: var(--text-small);
+  --ag-signature-role-size: var(--text-label);
+  --ag-signature-gap: var(--space-4);
+  --ag-signature-ink: var(--ink);
+  --ag-signature-muted: var(--muted);
+  --ag-signature-accent: var(--accent);
+  --ag-signature-node-ink: var(--ink);
+  --ag-signature-arrow-size: .65em;
+  --ag-signature-arrow-gap: .25em;
+  --ag-signature-arrow-stroke: .08em;
+  min-width: 0;
+}
+.footer-signature:not(:defined) { display: block; max-width: 24rem; }
+.footer-signature:not(:defined) > .link { align-items: flex-start; min-height: 2.75rem; }
+.footer-top { grid-column: 12; justify-self: end; align-items: flex-start; min-height: 2.75rem; padding: 0; line-height: 1.25; }
+@media (max-width: 1000px) {
+  .footer-meta { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-6) var(--space-4); }
+  .footer-identity { grid-column: 1; }
+  .footer-signature { grid-column: 1 / -1; grid-row: 2; }
+  .footer-top { grid-column: 2; grid-row: 1; }
+}
+@media (max-width: 480px) {
+  .footer-meta { grid-template-columns: minmax(0, 1fr); }
+  .footer-top { grid-column: 1; grid-row: 3; justify-self: start; }
+}
 
 /* Interaction states change emphasis, never line weight or icon size. */
 a, button, summary, select { transition: color 180ms var(--ease-enter), background-color 180ms var(--ease-enter); }
@@ -909,8 +937,6 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .footer-invitation { grid-template-columns: 1fr; gap: var(--space-8); align-items: start; }
   .footer-heading { font-size: var(--text-display); }
   .footer-next { padding: 0; }
-  .footer-meta { grid-template-columns: 1fr auto; gap: var(--space-6) var(--space-4); font-size: var(--text-small); }
-  .footer-identity { grid-column: 1/-1; }
 }
 /* Match the smooth corner construction already used for the Tarot surfaces.
    Only the background is masked; quotation marks and focus remain unclipped. */
@@ -960,6 +986,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
 .telegram-guide-links { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); padding-top: var(--space-2); }
 .telegram-guide-links > a { display: inline-flex; align-items: center; min-height: 2.75rem; }
 @media (max-width: 760px) {
+  .coach-statement .telegram-race-photo { width: 94%; }
   .telegram-bike-guide { grid-column: 1; grid-row: auto; order: 4; display: block; margin-top: var(--space-3); }
   .telegram-bike-guide > h3 { max-width: 20ch; margin-top: var(--space-3); }
   .telegram-bike-guide > :is(p:not(.eyebrow), ul, .telegram-guide-links) { margin-top: var(--space-4); }
