@@ -764,7 +764,8 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 }
 .page-signature::part(role) { order: -1; }
 .page-signature::part(name) { font-weight: 500; }
-.page-signature::part(arrow), .page-signature[paused]::part(motion) { display: none; }
+/* The author chose continuous default motion without a separate footer control. */
+.page-signature::part(arrow), .page-signature::part(motion) { display: none; }
 .page-signature:not(:defined) { display: block; }
 .page-signature:not(:defined) > .link { min-block-size: 2.75rem; align-items: start; }
 @media (max-width: 760px) {
