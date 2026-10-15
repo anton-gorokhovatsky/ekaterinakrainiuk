@@ -688,8 +688,6 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .footer-identity > :last-child { font-size: var(--text-label); line-height: 1.4; }
 .footer-signature {
   grid-column: 8 / span 4;
-  position: relative;
-  padding-inline-end: 52px;
   --ag-signature-size: 6rem;
   --ag-signature-name-size: var(--text-small);
   --ag-signature-role-size: var(--text-label);
@@ -704,43 +702,14 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
   min-width: 0;
 }
 .footer-signature::part(credit) { flex-direction: row; align-items: flex-start; gap: .5rem var(--ag-signature-gap); inline-size: 100%; }
-.footer-signature::part(mark) { flex: 0 0 var(--ag-signature-size); }
+/* The SVG includes space above its arc. Align the visible cross with the name,
+   rather than aligning the empty top of its viewport with the text box. */
+.footer-signature::part(mark) { flex: 0 0 var(--ag-signature-size); margin-block-start: calc(var(--ag-signature-size) * -.12); }
 .footer-signature::part(text) { flex: 1 1 10rem; }
 .footer-signature::part(name) { font-weight: 500; }
-.footer-signature::part(motion) {
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline-end: 0;
-  display: grid;
-  place-items: center;
-  inline-size: 44px;
-  block-size: 44px;
-  min-block-size: 44px;
-  margin: 0;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 0;
-}
-/* Literal Tabler player-pause / player-play geometry from assets/icons/tabler.svg.
-   The native button keeps its dynamic accessible name and keyboard behavior. */
-.footer-signature::part(motion)::before {
-  content: "";
-  inline-size: min(1.25rem, 28px);
-  block-size: min(1.25rem, 28px);
-  background: currentColor;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12'/%3E%3Cpath d='M14 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-.footer-signature[paused]::part(motion)::before {
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 4v16l13 -8l-13 -8'/%3E%3C/svg%3E");
-}
-.footer-signature::part(motion):focus-visible { background: color-mix(in srgb, var(--ink) 8%, transparent); }
-@media (prefers-reduced-motion: reduce), (forced-colors: active) {
-  .footer-signature { padding-inline-end: 0; }
-}
-@media (hover: hover) and (pointer: fine) {
-  .footer-signature::part(motion):hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, transparent); }
-}
-.footer-signature:not(:defined) { display: block; max-width: 24rem; padding-inline-end: 0; }
+/* This footer uses a static mark; there is no motion to pause or resume. */
+.footer-signature[paused]::part(motion) { display: none; }
+.footer-signature:not(:defined) { display: block; max-width: 24rem; }
 .footer-signature:not(:defined) > .link { align-items: flex-start; min-height: 2.75rem; }
 .footer-top { grid-column: 12; justify-self: end; align-items: flex-start; min-inline-size: max-content; min-height: 2.75rem; padding: 0; line-height: 1.25; white-space: nowrap; }
 @media (max-width: 1279px) {
