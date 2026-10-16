@@ -29,18 +29,28 @@ const test = base.extend({
 });
 
 const menu = page => page.locator('.menu-toggle');
-test('weather softens photo entrances without blurring controls and clears on missing data', { tag: '@weather' }, async ({ page }) => {
+test('clear weather keeps photos sharp, rain softens them and missing data resets the effect', { tag: '@weather' }, async ({ page }) => {
   const { sample, sunDay } = require('../weather-fixture.cjs');
-  let valid = true;
+  let scenario = 'clear';
   await page.route('https://api.met.no/**', route => {
     const url = new URL(route.request().url());
     const data = sample(Date.now()).forecast;
     data.properties.timeseries[0].data.instant.details.relative_humidity = 95;
-    data.properties.timeseries[0].data.next_1_hours = { summary: { symbol_code: 'rain' }, details: { precipitation_amount: 2.4 } };
-    const body = !valid ? {} : url.pathname.includes('sunrise') ? sunDay(url.searchParams.get('date')) : data;
+    data.properties.timeseries[0].data.instant.details.cloud_area_fraction = scenario === 'clear' ? 0 : 100;
+    data.properties.timeseries[0].data.next_1_hours = { summary: { symbol_code: scenario === 'clear' ? 'clearsky_day' : 'rain' }, details: { precipitation_amount: scenario === 'clear' ? 0 : 2.4 } };
+    const body = scenario === 'missing' ? {} : url.pathname.includes('sunrise') ? sunDay(url.searchParams.get('date')) : data;
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
   });
   await page.goto('./');
+  await expect(page.locator('[data-weather-condition]')).toHaveText('ясно');
+  await expect.poll(() => page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-photo-blur'))).toBe('0px');
+  expect(await page.locator('.portal').evaluateAll(elements => elements.every(element => {
+    const layer = getComputedStyle(element, '::before');
+    return (layer.backdropFilter || layer.webkitBackdropFilter).includes('blur(0px)');
+  }))).toBe(true);
+  await page.evaluate(() => sessionStorage.removeItem('katya-met-norway-v1'));
+  scenario = 'rain';
+  await page.reload();
   await expect.poll(() => page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-photo-blur'))).toBe('4px');
   const portal = page.locator('.portal-water');
   expect(await portal.evaluate(element => getComputedStyle(element, '::before').backdropFilter || getComputedStyle(element, '::before').webkitBackdropFilter)).toContain('blur(4px)');
@@ -49,7 +59,7 @@ test('weather softens photo entrances without blurring controls and clears on mi
   await expect.poll(() => portal.evaluate(element => getComputedStyle(element, '::before').display)).toBe('none');
   await page.emulateMedia({ contrast: 'no-preference' });
   await page.evaluate(() => sessionStorage.removeItem('katya-met-norway-v1'));
-  valid = false;
+  scenario = 'missing';
   await page.reload();
   await expect(page.locator('[data-weather-condition]')).toHaveText('Нет свежих данных');
   await expect.poll(() => page.locator('html').evaluate(element => getComputedStyle(element).getPropertyValue('--cover-photo-blur').trim())).toBe('0px');

@@ -104,9 +104,9 @@
       const t = Math.max(0, Math.min(1, value));
       return t * t * (3 - 2 * t);
     };
-    // The approved dry/humid/rain covers are optical anchors, not a physical
-    // simulation: 65–85% humidity supplies the haze, rain adds at most 2.4 px.
-    const humid = Number.isFinite(current.humidity) ? smooth((current.humidity - 65) / 20) : 0;
+    // Clear/fair/partly cloudy skies stay sharp: humidity alone is not haze.
+    // In other conditions, 65–85% humidity adds haze; rain adds up to 2.4 px.
+    const humid = current.code > 2 && Number.isFinite(current.humidity) ? smooth((current.humidity - 65) / 20) : 0;
     const rain = current.wetPrecipitation && Number.isFinite(current.precipitation) ? smooth(current.precipitation / 2.4) : 0;
     return {
       blur: 1.6 * humid + 2.4 * rain,

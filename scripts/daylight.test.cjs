@@ -41,6 +41,13 @@ test('the accepted cover anchors stay dry, humid and rainy while missing or stal
   assert.equal(coverAtmosphere(readWeather(legacy, noon)).blur, 0);
   assert.equal(coverAtmosphere(readWeather(coverWeather(95, 2.4), noon + 4 * 3600000)), null);
 });
+test('clear and partly cloudy skies keep every photo effect neutral even at full humidity', () => {
+  for (const symbol of ['clearsky_day', 'clearsky_night', 'fair_day', 'fair_night', 'partlycloudy_day']) {
+    assert.deepEqual(coverAtmosphere(readWeather(coverWeather(100, 0, symbol), noon)), {
+      blur: 0, saturation: 1, haze: 0, halo: 0, haloOpacity: 0,
+    }, symbol);
+  }
+});
 test('snow and frost do not masquerade as liquid rain, including a snowy thunderstorm', () => {
   for (const symbol of ['snow', 'lightsnowshowers_night', 'heavysnowandthunder']) {
     const weather = readWeather(coverWeather(85, 20, symbol), noon);
