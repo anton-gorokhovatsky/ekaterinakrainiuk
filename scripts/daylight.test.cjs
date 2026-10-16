@@ -3,9 +3,11 @@ const assert = require('node:assert/strict');
 const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode } = require('../daylight.js');
 const noon = Date.parse('2026-09-26T09:00:00Z');
 const { sample, sunDay } = require('./weather-fixture.cjs');
-const coverWeather = (humidity, amount = 0, symbol = 'rain') => {
+const coverWeather = (humidity, amount = 0, symbol = 'rain', fog = 0) => {
   const data = sample();
   data.forecast.properties.timeseries[0].data.instant.details.relative_humidity = humidity;
+  data.forecast.properties.meta.units.fog_area_fraction = '%';
+  data.forecast.properties.timeseries[0].data.instant.details.fog_area_fraction = fog;
   data.forecast.properties.timeseries[0].data.next_1_hours = { summary: { symbol_code: symbol }, details: { precipitation_amount: amount } };
   return data;
 };
@@ -31,9 +33,12 @@ test('optional humidity and precipitation preserve genuine zeroes and validate t
   assert.equal(weather.precipitation, null);
   assert.equal(coverAtmosphere(weather).blur, 0);
 });
-test('the accepted cover anchors stay dry, humid and rainy while missing or stale data stay neutral', () => {
+test('dry photos stay neutral, humidity keeps details sharp and rain preserves the wet-glass anchor', () => {
   assert.equal(coverAtmosphere(readWeather(coverWeather(46), noon)).blur, 0);
-  assert.equal(coverAtmosphere(readWeather(coverWeather(85, 0, 'cloudy'), noon)).blur, 1.6);
+  const humid = coverAtmosphere(readWeather(coverWeather(85, 0, 'cloudy'), noon));
+  assert.equal(humid.blur, 0);
+  assert.equal(humid.haze, .06);
+  assert.equal(humid.saturation, .98);
   assert.equal(coverAtmosphere(readWeather(coverWeather(95, 2.4), noon)).blur, 4);
   const legacy = sample();
   delete legacy.forecast.properties.timeseries[0].data.instant.details.relative_humidity;
@@ -41,18 +46,44 @@ test('the accepted cover anchors stay dry, humid and rainy while missing or stal
   assert.equal(coverAtmosphere(readWeather(legacy, noon)).blur, 0);
   assert.equal(coverAtmosphere(readWeather(coverWeather(95, 2.4), noon + 4 * 3600000)), null);
 });
-test('clear and partly cloudy skies keep every photo effect neutral even at full humidity', () => {
+test('sunny humid air retains a light veil while photo details stay sharp', () => {
   for (const symbol of ['clearsky_day', 'clearsky_night', 'fair_day', 'fair_night', 'partlycloudy_day']) {
-    assert.deepEqual(coverAtmosphere(readWeather(coverWeather(100, 0, symbol), noon)), {
+    const humid = coverAtmosphere(readWeather(coverWeather(100, 0, symbol), noon));
+    assert.equal(humid.blur, 0, symbol);
+    assert.equal(humid.haze, .06, symbol);
+    assert.equal(humid.saturation, .98, symbol);
+    assert.deepEqual(coverAtmosphere(readWeather(coverWeather(46, 0, symbol), noon)), {
       blur: 0, saturation: 1, haze: 0, halo: 0, haloOpacity: 0,
     }, symbol);
   }
+});
+test('fog is separate from cloud cover and invalid optional fog data never invent a measurement', () => {
+  const sunnyFog = readWeather(coverWeather(46, 0, 'clearsky_day', 75), noon);
+  assert.equal(sunnyFog.code, 0);
+  assert.equal(sunnyFog.fogCover, 75);
+  assert.equal(coverAtmosphere(sunnyFog).blur, 0);
+  assert.equal(coverAtmosphere(sunnyFog).haze, .045);
+  assert.equal(readWeather(coverWeather(46), noon).fogCover, 0);
+  assert.equal(readWeather(sample(), noon).fogCover, null);
+  for (const fog of [null, undefined, '75', NaN, -1, 101]) {
+    const invalid = coverWeather(46, 0, 'clearsky_day');
+    invalid.forecast.properties.timeseries[0].data.instant.details.fog_area_fraction = fog;
+    const weather = readWeather(invalid, noon);
+    assert.equal(weather.fogCover, null);
+    assert.equal(weather.temperature, 15);
+    assert.equal(coverAtmosphere(weather).haze, 0);
+  }
+  const wrong = coverWeather(46, 0, 'clearsky_day', 75);
+  wrong.forecast.properties.meta.units.fog_area_fraction = 'fraction';
+  assert.equal(readWeather(wrong, noon).fogCover, null);
+  assert.equal(coverAtmosphere(readWeather(coverWeather(46, 0, 'fog'), noon)).haze, .06);
 });
 test('snow and frost do not masquerade as liquid rain, including a snowy thunderstorm', () => {
   for (const symbol of ['snow', 'lightsnowshowers_night', 'heavysnowandthunder']) {
     const weather = readWeather(coverWeather(85, 20, symbol), noon);
     assert.equal(weather.wetPrecipitation, false);
-    assert.equal(coverAtmosphere(weather).blur, 1.6);
+    assert.equal(coverAtmosphere(weather).blur, 0);
+    assert.equal(coverAtmosphere(weather).haze, .06);
   }
   for (const symbol of ['rain', 'lightrainshowers_night', 'heavyrainandthunder', 'sleet']) {
     assert.equal(coverAtmosphere(readWeather(coverWeather(85, 2.4, symbol), noon)).blur, 4);

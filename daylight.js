@@ -3,7 +3,7 @@
   'use strict';
   const HOUR = 60 * 60 * 1000;
   const MAX_AGE = 12 * HOUR; // The global forecast model is updated several times a day.
-  const CACHE_KEY = 'katya-met-norway-v1';
+  const CACHE_KEY = 'katya-met-norway-v2';
   const clock = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit' });
   const calendar = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' });
   const skyColours = { morning: '#ffc99b', day: '#a9dbe3', evening: '#ffb8d2', night: '#aaa5e8' };
@@ -87,13 +87,14 @@
     // Optional material inputs must not make an otherwise useful forecast fail.
     // Keep absent values distinct from a genuine 0% humidity or 0 mm of rain.
     const humidity = units.relative_humidity === '%' && Number.isFinite(current.relative_humidity) && current.relative_humidity >= 0 && current.relative_humidity <= 100 ? current.relative_humidity : null;
+    const fogCover = units.fog_area_fraction === '%' && Number.isFinite(current.fog_area_fraction) && current.fog_area_fraction >= 0 && current.fog_area_fraction <= 100 ? current.fog_area_fraction : null;
     const amount = nextHour?.details?.precipitation_amount;
     const precipitation = units.precipitation_amount === 'mm' && Number.isFinite(amount) && amount >= 0 ? amount : null;
     // Precipitation amount also includes snow. Only rain/sleet can strengthen
     // the wet-glass effect; snow retains the independent humidity response.
     const wetPrecipitation = /rain|sleet/.test(symbol);
     return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night,
-      humidity, precipitation, wetPrecipitation,
+      humidity, fogCover, precipitation, wetPrecipitation,
       skyTint: skyColour(skyColours, sunrise, sunset, now), skyPaper: skyColour(paperColours, sunrise, sunset, now),
       palette: Object.fromEntries(Object.entries(paletteColours).map(([role, colours]) =>
         [role, mixColour(skyColour(colours, sunrise, sunset, now), colours.cloud, current.cloud_area_fraction * .0018)])) };
@@ -104,16 +105,18 @@
       const t = Math.max(0, Math.min(1, value));
       return t * t * (3 - 2 * t);
     };
-    // Clear/fair/partly cloudy skies stay sharp: humidity alone is not haze.
-    // In other conditions, 65–85% humidity adds haze; rain adds up to 2.4 px.
-    const humid = current.code > 2 && Number.isFinite(current.humidity) ? smooth((current.humidity - 65) / 20) : 0;
+    // Sun and fog can coexist. Humidity/fog add a light veil without blurring
+    // photographic detail; only liquid precipitation softens the image.
+    const humid = Number.isFinite(current.humidity) ? smooth((current.humidity - 65) / 20) : 0;
+    const fog = Math.max(current.code === 45 ? 1 : 0, Number.isFinite(current.fogCover) ? current.fogCover / 100 : 0);
+    const veil = Math.max(humid, fog);
     const rain = current.wetPrecipitation && Number.isFinite(current.precipitation) ? smooth(current.precipitation / 2.4) : 0;
     return {
-      blur: 1.6 * humid + 2.4 * rain,
-      saturation: 1 - .09 * humid - .11 * rain,
-      haze: .06 * humid + .07 * rain,
-      halo: 2 * humid + 2 * rain,
-      haloOpacity: .3 * humid + .2 * rain
+      blur: (2.4 + 1.6 * humid) * rain,
+      saturation: 1 - .02 * veil - (.07 * humid + .11) * rain,
+      haze: .06 * veil + .07 * rain,
+      halo: 2 * veil + 2 * rain,
+      haloOpacity: .3 * veil + .2 * rain
     };
   }
   function atmosphere(current) {
@@ -308,7 +311,7 @@
       const base = 'https://api.met.no/weatherapi/';
       const location = 'lat=55.7558&lon=37.6173';
       const [forecast, ...sun] = await Promise.all([
-        request('forecast', `${base}locationforecast/2.0/compact?${location}`),
+        request('forecast', `${base}locationforecast/2.0/complete?${location}`),
         ...[today, tomorrow].map(day => request(day, `${base}sunrise/3.0/sun?${location}&date=${day}&offset=%2B03:00`))
       ]);
       const data = { forecast, sun };

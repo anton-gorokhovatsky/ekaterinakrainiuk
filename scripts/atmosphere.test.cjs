@@ -102,6 +102,7 @@ test('browser requests respect Expires and never refetch immutable sunrise data'
   } });
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(calls.length, 3);
+  assert.ok(calls[0].includes('/locationforecast/2.0/complete?'));
   assert.equal(page.text('weather-temperature'), '+15°');
   page.advance(45);
   await new Promise(resolve => setImmediate(resolve));
