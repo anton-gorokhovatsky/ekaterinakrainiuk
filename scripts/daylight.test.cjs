@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode } = require('../daylight.js');
+const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode, solarPosition, cardLighting } = require('../daylight.js');
 const noon = Date.parse('2026-09-26T09:00:00Z');
 const { sample, sunDay } = require('./weather-fixture.cjs');
 const coverWeather = (humidity, amount = 0, symbol = 'rain', fog = 0) => {
@@ -192,7 +192,11 @@ test('light changes continuously through dawn, sunset and the former phase bound
   const sunrise = Date.parse('2026-09-26T03:00:00Z');
   const sunset = Date.parse('2026-09-26T15:00:00Z');
   const channels = colour => [1, 3, 5].map(offset => parseInt(colour.slice(offset, offset + 2), 16));
-  const light = now => readWeather(sample(now), now);
+  const light = now => {
+    const data = sample(now);
+    data.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = 0;
+    return readWeather(data, now);
+  };
   const boundaries = [sunrise - 3600000, sunrise, sunrise + .12 * (sunset - sunrise),
     sunrise + .2 * (sunset - sunrise), sunrise + .8 * (sunset - sunrise),
     sunrise + .85 * (sunset - sunrise), sunset, sunset + 3600000];
@@ -245,7 +249,7 @@ test('every chapter and accent follows the sun and clouds without a boundary jum
     }
   }
 });
-test('editorial colour pairs keep readable contrast across the full day and cloud range', () => {
+test('editorial and footer colour pairs keep contrast through the day, clouds, fog, rain, snow and frost', () => {
   const luminance = hex => [1, 3, 5].map(offset => {
     const channel = parseInt(hex.slice(offset, offset + 2), 16) / 255;
     return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
@@ -254,20 +258,67 @@ test('editorial colour pairs keep readable contrast across the full day and clou
   const start = Date.parse('2026-09-26T00:00:00+03:00');
   for (let minutes = 0; minutes < 1440; minutes += 15) {
     for (const cloud of [0, 25, 50, 75, 100]) {
-      const now = start + minutes * 60000;
-      const data = sample(now);
-      data.forecast.properties.timeseries[0].data.instant.details.cloud_area_fraction = cloud;
-      const colours = readWeather(data, now).palette;
-      const pairs = [
-        ...['water', 'acid', 'peach', 'lavender', 'rose', 'paper'].map(role => [role, '#101216', colours[role]]),
-        ['coach body', '#ffffff', colours.cobalt], ['coach accent', colours.acid, colours.cobalt],
-        ['tarot secondary', '#51424b', colours.rose]
-      ];
-      for (const [role, ink, background] of pairs) {
-        assert.ok(contrast(ink, background) >= 4.5, `${role}: ${contrast(ink, background).toFixed(2)} at minute ${minutes}, cloud ${cloud}`);
+      for (const scene of ['dry', 'fog', 'rain', 'snow', 'frost']) {
+        const now = start + minutes * 60000;
+        const data = sample(now);
+        const frame = data.forecast.properties.timeseries[0].data;
+        data.forecast.properties.meta.units.fog_area_fraction = '%';
+        Object.assign(frame.instant.details, { cloud_area_fraction: cloud, fog_area_fraction: scene === 'fog' ? 100 : 0, air_temperature: scene === 'frost' ? -20 : 14.6 });
+        frame.next_1_hours.summary.symbol_code = scene === 'rain' ? 'rain' : scene === 'snow' ? 'snow' : 'clearsky_day';
+        frame.next_1_hours.details.precipitation_amount = scene === 'rain' ? 2.4 : 0;
+        const colours = readWeather(data, now).palette;
+        const pairs = [
+          ...['water', 'acid', 'peach', 'lavender', 'rose', 'paper'].map(role => [role, '#101216', colours[role]]),
+          ['coach body', '#ffffff', colours.cobalt], ['coach accent', colours.acid, colours.cobalt],
+          ['tarot secondary', '#51424b', colours.rose],
+          ['footer text', '#f4f3ee', colours.cobalt], ['footer credits', '#d2dafb', colours.cobalt],
+          ['card action', colours.cobalt, colours.paper]
+        ];
+        for (const [role, ink, background] of pairs) {
+          assert.ok(contrast(ink, background) >= 4.5, `${role}: ${contrast(ink, background).toFixed(2)} at minute ${minutes}, cloud ${cloud}, ${scene}`);
+        }
       }
     }
   }
+});
+test('solar position uses the date and Moscow coordinates, with the sun below the horizon at night', () => {
+  const morning = solarPosition(Date.parse('2026-10-19T05:00:00Z'));
+  const noonSun = solarPosition(Date.parse('2026-10-19T09:15:00Z'));
+  const evening = solarPosition(Date.parse('2026-10-19T13:00:00Z'));
+  assert.ok(morning.azimuth > 90 && morning.azimuth < 180);
+  assert.ok(Math.abs(noonSun.azimuth - 180) < 3);
+  assert.ok(evening.azimuth > 180 && evening.azimuth < 270);
+  assert.ok(noonSun.altitude > morning.altitude && noonSun.altitude > evening.altitude);
+  assert.ok(solarPosition(Date.parse('2026-10-19T21:00:00Z')).altitude < 0);
+  assert.ok(solarPosition(Date.parse('2026-06-21T09:15:00Z')).altitude > noonSun.altitude);
+  assert.deepEqual(solarPosition(Date.parse('2026-10-19T12:15:00+03:00')), noonSun);
+});
+test('cast shadows follow the solar direction and elevation, soften in fog and disappear at night', () => {
+  const scene = (time, fog = 0, cloud = 0) => {
+    const now = Date.parse(`2026-10-19T${time}:00+03:00`);
+    const data = sample(now);
+    data.sun = [sunDay('2026-10-19')];
+    data.forecast.properties.meta.units.fog_area_fraction = '%';
+    Object.assign(data.forecast.properties.timeseries[0].data.instant.details, { fog_area_fraction: fog, cloud_area_fraction: cloud });
+    return readWeather(data, now);
+  };
+  const morning = cardLighting(scene('09:00'));
+  const midday = cardLighting(scene('12:15'));
+  const evening = cardLighting(scene('16:00'));
+  assert.ok(morning.x > 0 && evening.x < 0);
+  assert.ok(Math.abs(midday.x) < 1);
+  assert.ok(Math.hypot(midday.x, midday.y) < Math.hypot(morning.x, morning.y));
+  for (const weather of [scene('12:15', 100), scene('12:15', 0, 100)]) {
+    const diffused = cardLighting(weather);
+    assert.ok(diffused.opacity < midday.opacity);
+    assert.ok(diffused.blur > midday.blur);
+    assert.ok(Math.abs(diffused.x) < Math.abs(midday.x));
+    assert.notEqual(weather.palette.cobalt, scene('12:15').palette.cobalt);
+  }
+  const night = cardLighting(scene('23:00'));
+  assert.equal(night.x, 0);
+  assert.equal(night.y, 2);
+  assert.equal(cardLighting(null), null);
 });
 test('calm air stays still and extreme wind cannot create a large or long animation', () => {
   const data = sample();

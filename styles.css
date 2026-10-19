@@ -115,7 +115,7 @@
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height, 5.5rem) - 1px); }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--text-body)/var(--leading-body) var(--body); -webkit-font-smoothing: antialiased; }
 /* Weather updates recolour the surfaces without affecting photos or layout. */
-.route-content, .coach, .contact, .channel-note, .tarot, .tarot-front { transition: background-color 900ms ease; }
+.route-content, .coach, .contact, .channel-note, .tarot, .tarot-front, .footer-closing, .footer-card { transition: background-color 900ms ease; }
 .coach h2 > span { transition: color 900ms ease; }
 html:has(body.menu-open) { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
@@ -696,7 +696,9 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
   border-radius: var(--space-2);
   background: var(--paper);
   color: #101216;
-  box-shadow: .4rem .5rem 0 #1739b6;
+  /* Contact stays close to the paper; the cast shadow shares Moscow's light. */
+  box-shadow: 0 1px 2px rgb(12 20 53 / .14),
+    var(--card-shadow-x, 0px) var(--card-shadow-y, 8px) var(--card-shadow-blur, 16px) rgb(12 20 53 / var(--card-shadow-opacity, .16));
   transform: rotate(-3deg);
   text-decoration: none;
   overflow-wrap: anywhere;

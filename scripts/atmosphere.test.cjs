@@ -71,6 +71,10 @@ test('the whole palette preserves the explicit theme and clears every stale colo
   const now = Date.parse('2026-09-26T09:00:00Z');
   const expected = require('../daylight.js').readWeather(require('./weather-fixture.cjs').sample(now), now).palette;
   for (const [role, colour] of Object.entries(expected)) assert.equal(page.material.get(`--${role}`), colour);
+  assert.match(page.material.get('--card-shadow-y'), /px$/);
+  const shadow = page.material.get('--card-shadow-x');
+  page.advance(5);
+  assert.notEqual(page.material.get('--card-shadow-x'), shadow);
   assert.equal(page.document.documentElement.dataset.theme, 'dark');
   assert.equal(page.text('weather-wind'), 'Ветер 4 м/с');
   page.enter();

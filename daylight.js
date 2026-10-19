@@ -19,6 +19,52 @@
     cobalt: { morning: '#364ccf', day: '#234ce8', evening: '#4543c4', night: '#293b88', cloud: '#425173' },
     paper: { morning: '#f6eee1', day: '#f4f3ee', evening: '#f4e7e8', night: '#e7e1ea', cloud: '#dde0e3' }
   };
+  const coldColours = { water: '#b6e0e8', acid: '#dbe9a1', peach: '#e8bbb3', lavender: '#c5ccec', rose: '#e5c3d2', cobalt: '#344b80', paper: '#edf4f5' };
+  const clamp = value => Math.max(0, Math.min(1, value));
+  const smooth = value => { const t = clamp(value); return t * t * (3 - 2 * t); };
+  function solarPosition(now, latitude = 55.7558, longitude = 37.6173) {
+    // NOAA's approximate solar equations, in UTC: no visitor location or request.
+    // https://gml.noaa.gov/grad/solcalc/solareqns.PDF
+    const date = new Date(now);
+    const year = date.getUTCFullYear();
+    const days = (Date.UTC(year + 1, 0, 1) - Date.UTC(year, 0, 1)) / (24 * HOUR);
+    const day = Math.floor((now - Date.UTC(year, 0, 1)) / (24 * HOUR)) + 1;
+    const hour = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+    const gamma = 2 * Math.PI / days * (day - 1 + (hour - 12) / 24);
+    const equation = 229.18 * (.000075 + .001868 * Math.cos(gamma) - .032077 * Math.sin(gamma) - .014615 * Math.cos(2 * gamma) - .040849 * Math.sin(2 * gamma));
+    const declination = .006918 - .399912 * Math.cos(gamma) + .070257 * Math.sin(gamma) - .006758 * Math.cos(2 * gamma) + .000907 * Math.sin(2 * gamma) - .002697 * Math.cos(3 * gamma) + .00148 * Math.sin(3 * gamma);
+    const radians = Math.PI / 180;
+    const lat = latitude * radians;
+    const angle = ((hour * 60 + equation + 4 * longitude) / 4 - 180) * radians;
+    const altitude = Math.asin(Math.sin(lat) * Math.sin(declination) + Math.cos(lat) * Math.cos(declination) * Math.cos(angle));
+    const azimuth = Math.atan2(Math.sin(angle), Math.cos(angle) * Math.sin(lat) - Math.tan(declination) * Math.cos(lat));
+    return { altitude: altitude / radians, azimuth: (azimuth / radians + 540) % 360 };
+  }
+  function lightConditions(current) {
+    const fog = Math.max(current.code === 45 ? 1 : 0, Number.isFinite(current.fogCover) ? current.fogCover / 100 : 0);
+    const rain = current.wetPrecipitation && Number.isFinite(current.precipitation) ? smooth(current.precipitation / 2.4) : 0;
+    // Forecast coverage is an artistic diffusion input, not optical transmission.
+    const diffusion = 1 - (1 - .95 * current.cloudCover / 100) * (1 - fog) * (1 - .7 * rain);
+    const cold = Math.max(current.code === 73 ? 1 : current.code === 68 ? .5 : 0, smooth(-current.temperature / 15));
+    return { diffusion, cold };
+  }
+  function cardLighting(current) {
+    if (!current) return null;
+    const { diffusion } = lightConditions(current);
+    const { altitude, azimuth } = current.sun;
+    const direct = current.night ? 0 : smooth(altitude / 8) * (1 - diffusion);
+    const angle = azimuth * Math.PI / 180;
+    // A card only a few pixels above the surface, capped near the horizon.
+    const reach = Math.min(22, 3 / Math.tan(Math.max(5, altitude) * Math.PI / 180));
+    // Screen convention: morning light from the left, noon above, evening right.
+    // The card keeps its authored tilt; only its shadow responds to the sun.
+    return {
+      x: direct ? reach * Math.sin(angle) * direct : 0,
+      y: 2 + reach * (.45 + .55 * Math.max(0, -Math.cos(angle))) * direct,
+      blur: 6 + 14 * diffusion + 4 * (1 - direct),
+      opacity: .025 + .145 * direct
+    };
+  }
   function mixColour(from, to, blend) {
     return '#' + [1, 3, 5].map(offset => {
       const a = parseInt(from.slice(offset, offset + 2), 16);
@@ -93,18 +139,17 @@
     // Precipitation amount also includes snow. Only rain/sleet can strengthen
     // the wet-glass effect; snow retains the independent humidity response.
     const wetPrecipitation = /rain|sleet/.test(symbol);
+    const light = lightConditions({ cloudCover: current.cloud_area_fraction, code, fogCover, precipitation, wetPrecipitation, temperature: current.air_temperature });
+    const diffuseColour = colour => mixColour(colour, '#bdc9d4', light.diffusion * .28);
     return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night,
-      humidity, fogCover, precipitation, wetPrecipitation,
-      skyTint: skyColour(skyColours, sunrise, sunset, now), skyPaper: skyColour(paperColours, sunrise, sunset, now),
+      humidity, fogCover, precipitation, wetPrecipitation, sun: solarPosition(now),
+      skyTint: mixColour(diffuseColour(skyColour(skyColours, sunrise, sunset, now)), '#c5e4ed', light.cold * .18),
+      skyPaper: mixColour(diffuseColour(skyColour(paperColours, sunrise, sunset, now)), '#edf4f5', light.cold * .18),
       palette: Object.fromEntries(Object.entries(paletteColours).map(([role, colours]) =>
-        [role, mixColour(skyColour(colours, sunrise, sunset, now), colours.cloud, current.cloud_area_fraction * .0018)])) };
+        [role, mixColour(mixColour(skyColour(colours, sunrise, sunset, now), colours.cloud, light.diffusion * .32), coldColours[role], light.cold * .18)])) };
   }
   function coverAtmosphere(current) {
     if (!current) return null;
-    const smooth = value => {
-      const t = Math.max(0, Math.min(1, value));
-      return t * t * (3 - 2 * t);
-    };
     // Sun and fog can coexist. Humidity/fog add a light veil without blurring
     // photographic detail; only liquid precipitation softens the image.
     const humid = Number.isFinite(current.humidity) ? smooth((current.humidity - 65) / 20) : 0;
@@ -159,7 +204,7 @@
     const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'дождь со снегом': 'snow', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
     return icons[conditions(code)] || 'cloud';
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode, solarPosition, cardLighting };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#daylight');
   if (!root) return;
@@ -169,6 +214,7 @@
   const glassProperties = ['--weather-tint', '--weather-tint-share', '--weather-opacity', '--weather-blur', '--weather-saturation'];
   const paletteProperties = Object.keys(paletteColours).map(role => `--${role}`);
   const coverProperties = ['--cover-photo-blur', '--cover-photo-saturation', '--cover-haze', '--cover-halo', '--cover-halo-opacity'];
+  const shadowProperties = ['--card-shadow-x', '--card-shadow-y', '--card-shadow-blur', '--card-shadow-opacity'];
   const deck = document.querySelector('.tarot-spread');
   const cards = deck ? [...deck.querySelectorAll('.tarot-card')] : [];
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -201,7 +247,7 @@
   function updateAtmosphere(current) {
     currentAtmosphere = atmosphere(current);
     if (!currentAtmosphere) {
-      [...glassProperties, ...paletteProperties, ...coverProperties].forEach(property => material.removeProperty(property));
+      [...glassProperties, ...paletteProperties, ...coverProperties, ...shadowProperties].forEach(property => material.removeProperty(property));
       stopBreeze();
       return;
     }
@@ -211,6 +257,10 @@
     const cover = coverAtmosphere(current);
     [cover.blur, cover.saturation, cover.haze, cover.halo, cover.haloOpacity].forEach((value, index) => {
       material.setProperty(coverProperties[index], `${Number(value.toFixed(3))}${index === 0 || index === 3 ? 'px' : ''}`);
+    });
+    const shadow = cardLighting(current);
+    [shadow.x, shadow.y, shadow.blur, shadow.opacity].forEach((value, index) => {
+      material.setProperty(shadowProperties[index], `${Number(value.toFixed(3))}${index < 3 ? 'px' : ''}`);
     });
     playBreeze();
   }

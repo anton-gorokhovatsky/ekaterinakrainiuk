@@ -47,6 +47,8 @@ test('sunny fog keeps photo detail sharp, rain softens it and missing data reset
   await expect(page.locator('[data-weather-condition]')).toHaveText('ясно');
   await expect.poll(() => page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-photo-blur'))).toBe('0px');
   await expect.poll(() => page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-haze'))).toBe('0.06');
+  const clearCobalt = await page.locator('.footer-closing').evaluate(element => getComputedStyle(element).backgroundColor);
+  expect(await page.locator('html').evaluate(element => element.style.getPropertyValue('--card-shadow-blur'))).toMatch(/px$/);
   expect(await page.locator('.portal').evaluateAll(elements => elements.every(element => {
     const layer = getComputedStyle(element, '::before');
     return (layer.backdropFilter || layer.webkitBackdropFilter).includes('blur(0px)');
@@ -56,6 +58,7 @@ test('sunny fog keeps photo detail sharp, rain softens it and missing data reset
   await page.reload();
   await expect(page.locator('[data-weather-condition]')).toHaveText('ясно');
   await expect.poll(() => page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-haze'))).toBe('0.045');
+  expect(await page.locator('.footer-closing').evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(clearCobalt);
   expect(await page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-photo-blur'))).toBe('0px');
   await page.evaluate(() => sessionStorage.removeItem('katya-met-norway-v2'));
   scenario = 'rain';
@@ -73,6 +76,7 @@ test('sunny fog keeps photo detail sharp, rain softens it and missing data reset
   await expect(page.locator('[data-weather-condition]')).toHaveText('Нет свежих данных');
   await expect.poll(() => page.locator('html').evaluate(element => getComputedStyle(element).getPropertyValue('--cover-photo-blur').trim())).toBe('0px');
   expect(await page.locator('html').evaluate(element => getComputedStyle(element).getPropertyValue('--cover-haze').trim())).toBe('0');
+  expect(await page.locator('html').evaluate(element => element.style.getPropertyValue('--card-shadow-blur'))).toBe('');
   await page.locator('.portal-water').click();
   await expect(page.locator('#water')).toHaveJSProperty('open', true);
 });
