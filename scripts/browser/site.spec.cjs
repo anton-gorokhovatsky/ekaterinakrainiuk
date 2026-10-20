@@ -56,7 +56,7 @@ test('sunny fog keeps photo detail sharp, rain softens it and missing data reset
   await page.evaluate(() => sessionStorage.removeItem('katya-met-norway-v2'));
   scenario = 'fog';
   await page.reload();
-  await expect(page.locator('[data-weather-condition]')).toHaveText('ясно');
+  await expect(page.locator('[data-weather-condition]')).toHaveText('ясно · туман');
   await expect.poll(() => page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-haze'))).toBe('0.045');
   expect(await page.locator('.footer-closing').evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(clearCobalt);
   expect(await page.locator('html').evaluate(element => element.style.getPropertyValue('--cover-photo-blur'))).toBe('0px');
@@ -73,7 +73,7 @@ test('sunny fog keeps photo detail sharp, rain softens it and missing data reset
   await page.evaluate(() => sessionStorage.removeItem('katya-met-norway-v2'));
   scenario = 'missing';
   await page.reload();
-  await expect(page.locator('[data-weather-condition]')).toHaveText('Нет свежих данных');
+  await expect(page.locator('[data-weather-condition]')).toHaveText('Нет свежих данных о погоде');
   await expect.poll(() => page.locator('html').evaluate(element => getComputedStyle(element).getPropertyValue('--cover-photo-blur').trim())).toBe('0px');
   expect(await page.locator('html').evaluate(element => getComputedStyle(element).getPropertyValue('--cover-haze').trim())).toBe('0');
   expect(await page.locator('html').evaluate(element => element.style.getPropertyValue('--card-shadow-blur'))).toBe('');

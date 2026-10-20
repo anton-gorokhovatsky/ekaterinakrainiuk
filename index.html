@@ -32,14 +32,14 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2?v=2f175b8fc40e" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2?v=f8d71091110f" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=8f61af6cddcc">
-  <link rel="stylesheet" href="styles.css?v=11cd9dfc8d84">
+  <link rel="stylesheet" href="styles.css?v=2d99405bc84b">
   <link rel="stylesheet" href="tarot.css?v=7b20de649555">
   <script src="script.js?v=b7677c28f82f" defer></script>
   <script src="video.js?v=4bf4de867d69" defer></script>
   <script src="tarot.js?v=60d5ca982e54" defer></script>
   <script src="channel.js?v=d039dc34f899" defer></script>
   <link rel="stylesheet" href="channel.css?v=7514abac8bce">
-  <script src="daylight.js?v=46867514061b" defer></script>
+  <script src="daylight.js?v=dacffd8caa47" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
       (function(m,e,t,r,i,k,a){
@@ -657,31 +657,49 @@
     <div class="livebar">
       <details class="daylight" id="daylight">
         <summary><svg class="daylight-mark" viewBox="0 0 24 24" aria-hidden="true"><use data-weather-icon href="assets/icons/tabler.svg?v=c08f6282ed7f#cloud"/></svg><span class="disclosure-label">За окном в Москве</span><span class="daylight-summary-end"><span data-weather-summary>Здесь мы тренируемся</span><span class="disclosure daylight-expand" aria-hidden="true"></span></span></summary>
-        <div class="daylight-panel">
-          <div class="daylight-copy">
-            <span class="eyebrow">Москва <time data-daylight-clock></time></span>
-            <div class="weather-reading">
-              <span class="weather-temperature" data-weather-temperature>—</span>
-              <div class="weather-description">
-                <span class="weather-condition" data-weather-condition>Погода за окном</span>
-                <span class="weather-wind" data-weather-wind></span>
+        <div class="daylight-panel weather-system">
+          <div class="weather-system-main" data-weather-live hidden>
+            <div class="weather-overview">
+              <p class="weather-context">Москва <time data-daylight-clock></time></p>
+              <div class="weather-current"><strong data-weather-temperature>—</strong><span data-weather-condition>Загружаем погоду</span></div>
+              <dl class="weather-metrics">
+                <div><dt>Ощущается</dt><dd data-weather-feels>—</dd></div>
+                <div><dt>Ветер</dt><dd data-weather-wind>—</dd></div>
+                <div><dt>Влажность</dt><dd data-weather-humidity>—</dd></div>
+                <div class="weather-precip"><dt class="sr-only">Осадки в ближайший час</dt><dd data-weather-precip></dd></div>
+              </dl>
+            </div>
+            <div class="solar-cycle">
+              <div class="cycle-heading">
+                <p class="solar-countdown"><span data-cycle-target-label>До заката</span><strong data-cycle-remaining>—</strong></p>
+                <p class="cycle-dates" data-cycle-dates></p>
               </div>
+              <div data-cycle-drawing>
+                <div class="cycle-durations"><p>День <span data-cycle-day-duration>—</span></p><p>Ночь <span data-cycle-night-duration>—</span></p></div>
+                <div class="cycle-chart">
+                  <svg viewBox="0 0 640 224" role="img" aria-labelledby="cycle-title cycle-description">
+                    <title id="cycle-title">От восхода до следующего восхода</title>
+                    <desc id="cycle-description" data-cycle-description>Ход светового дня и следующей ночи.</desc>
+                    <path class="cycle-day-area" data-cycle-day-area/>
+                    <path class="cycle-night-area" data-cycle-night-area/>
+                    <path class="cycle-horizon" d="M16 100 H624"/>
+                    <path class="cycle-horizon" d="M16 94 V106 M624 94 V106"/>
+                    <path class="cycle-horizon" data-cycle-sunset-tick/>
+                    <path class="cycle-path" data-cycle-path/>
+                    <path class="cycle-trail" data-cycle-trail/>
+                    <path class="cycle-guide" data-cycle-guide/>
+                    <g class="cycle-position" data-cycle-position><path class="cycle-dot-ring" d="M0 0h.01"/><path class="cycle-dot" d="M0 0h.01"/><path class="cycle-dot-core" d="M0 0h.01"/></g>
+                  </svg>
+                  <p class="cycle-now">Сейчас <time data-cycle-now>—</time></p>
+                </div>
+                <div class="cycle-events"><p><span>Восход</span><time data-cycle-start>—</time></p><p><span>Закат</span><time data-cycle-sunset>—</time></p><p><span>Следующий восход</span><time data-cycle-end>—</time></p></div>
+              </div>
+              <p class="weather-context" data-cycle-unavailable hidden>Нет данных о полном цикле восходов.</p>
             </div>
-          </div>
-          <div class="daylight-scene">
-            <p class="daylight-heading"><span data-daylight-label>Световой день</span><strong data-daylight-remaining>—</strong></p>
-            <div class="daylight-track">
-              <svg class="daylight-arc" viewBox="0 0 400 88" aria-hidden="true">
-                <path d="M16 70 Q200 -22 384 70" class="sun-path"/>
-                <path data-sun-trail d="M16 70 Q200 -22 384 70" class="sun-trail"/>
-                <g data-sun-position transform="translate(200 24)"><circle r="18" class="sun-halo"/><svg x="-12" y="-12" width="24" height="24" viewBox="0 0 24 24"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#sun"/></svg></g>
-              </svg>
-              <div class="daylight-times"><span>Восход<strong data-sunrise>—</strong></span><span>Закат<strong data-sunset>—</strong></span></div>
-            </div>
-            <p class="daylight-night"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#moon"/></svg><span data-next-sunrise></span></p>
           </div>
           <div class="weather-footnote">
-            <p class="weather-detail" data-weather-detail>Погода появится, когда загрузятся данные.</p>
+            <noscript><p>Для загрузки погоды нужен JavaScript. <a class="link" href="https://www.yr.no/en"><span class="link-label">Прогноз на Yr</span></a></p></noscript>
+            <p class="weather-detail" data-weather-detail hidden>Погода появится, когда загрузятся данные.</p>
             <p class="weather-source"><a href="https://www.met.no/en" class="link"><span class="link-label">MET Norway</span><svg class="link-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-up-right"/></svg></a><span><a class="link" href="https://creativecommons.org/licenses/by/4.0/"><span class="link-label">CC BY 4.0</span></a> · значения округлены</span></p>
           </div>
         </div>

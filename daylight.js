@@ -133,6 +133,7 @@
     // Optional material inputs must not make an otherwise useful forecast fail.
     // Keep absent values distinct from a genuine 0% humidity or 0 mm of rain.
     const humidity = units.relative_humidity === '%' && Number.isFinite(current.relative_humidity) && current.relative_humidity >= 0 && current.relative_humidity <= 100 ? current.relative_humidity : null;
+    const apparentTemperature = units.apparent_air_temperature === 'celsius' && Number.isFinite(current.apparent_air_temperature) ? current.apparent_air_temperature : null;
     const fogCover = units.fog_area_fraction === '%' && Number.isFinite(current.fog_area_fraction) && current.fog_area_fraction >= 0 && current.fog_area_fraction <= 100 ? current.fog_area_fraction : null;
     const amount = nextHour?.details?.precipitation_amount;
     const precipitation = units.precipitation_amount === 'mm' && Number.isFinite(amount) && amount >= 0 ? amount : null;
@@ -142,7 +143,7 @@
     const light = lightConditions({ cloudCover: current.cloud_area_fraction, code, fogCover, precipitation, wetPrecipitation, temperature: current.air_temperature });
     const diffuseColour = colour => mixColour(colour, '#bdc9d4', light.diffusion * .28);
     return { temperature: Math.round(current.air_temperature), wind: current.wind_speed, cloudCover: current.cloud_area_fraction, code, observed, updated, sunrise, sunset, nextSunrise, progress, phase, night,
-      humidity, fogCover, precipitation, wetPrecipitation, sun: solarPosition(now),
+      humidity, apparentTemperature, fogCover, precipitation, wetPrecipitation, sun: solarPosition(now),
       skyTint: mixColour(diffuseColour(skyColour(skyColours, sunrise, sunset, now)), '#c5e4ed', light.cold * .18),
       skyPaper: mixColour(diffuseColour(skyColour(paperColours, sunrise, sunset, now)), '#edf4f5', light.cold * .18),
       palette: Object.fromEntries(Object.entries(paletteColours).map(([role, colours]) =>
@@ -181,11 +182,8 @@
   function daylightWindow(current, now = Date.now()) {
     if (!current) return { label: 'Световой день', value: 'Нет данных' };
     const target = current.night ? current.nextSunrise : current.sunset;
-    if (!Number.isFinite(target) || target <= now) return { label: 'Световой день', value: 'Завершён' };
-    const minutes = Math.ceil((target - now) / 60000);
-    const hours = Math.floor(minutes / 60);
-    const value = hours ? `${hours} ч ${String(minutes % 60).padStart(2, '0')} мин` : `${minutes} мин`;
-    return { label: current.night ? 'До рассвета' : 'До заката', value };
+    const label = current.night ? 'До восхода' : 'До заката';
+    return { label, value: Number.isFinite(target) && target > now ? durationText(target - now) : 'Нет данных о восходе' };
   }
   function conditions(code) {
     if (code === 0) return 'ясно';
@@ -204,7 +202,48 @@
     const icons = { 'ясно': night ? 'moon' : 'sun', 'переменная облачность': night ? 'cloudy-night' : 'partly-cloudy', 'пасмурно': 'cloud', 'туман': 'fog', 'морось': 'rain', 'дождь': 'rain', 'дождь со снегом': 'snow', 'снег': 'snow', 'ливень': 'rain', 'снегопад': 'snow', 'гроза': 'storm' };
     return icons[conditions(code)] || 'cloud';
   }
-  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode, solarPosition, cardLighting };
+  function solarCycle(days, now) {
+    if (!Array.isArray(days) || !Number.isFinite(now)) return null;
+    const events = days.map(day => ({
+      rise: Date.parse(day?.properties?.sunrise?.time),
+      set: Date.parse(day?.properties?.sunset?.time)
+    })).filter(day => Number.isFinite(day.rise) && Number.isFinite(day.set) && day.set > day.rise)
+      .sort((a, b) => a.rise - b.rise);
+    const start = events.filter(day => day.rise <= now).at(-1);
+    if (!start) return null;
+    const next = events.find(day => day.rise > start.rise);
+    if (!next || start.set >= next.rise || now >= next.rise || next.rise - start.rise > 26 * HOUR) return null;
+    const length = next.rise - start.rise;
+    const night = now >= start.set;
+    const from = night ? start.set : start.rise;
+    const to = night ? next.rise : start.set;
+    return { start: start.rise, sunset: start.set, end: next.rise, night,
+      dayShare: (start.set - start.rise) / length,
+      progress: (now - start.rise) / length,
+      phaseProgress: (now - from) / (to - from),
+      dayDuration: start.set - start.rise, nightDuration: next.rise - start.set,
+      remaining: to - now };
+  }
+  function cycleGeometry(cycle) {
+    const start = 16, end = 624, horizon = 100;
+    const split = start + (end - start) * cycle.dayShare;
+    const day = `M${start} ${horizon} Q${(start + split) / 2} -60 ${split} ${horizon}`;
+    const night = `M${split} ${horizon} Q${(split + end) / 2} 260 ${end} ${horizon}`;
+    const p = cycle.phaseProgress;
+    const from = cycle.night ? split : start;
+    const to = cycle.night ? end : split;
+    const direction = cycle.night ? 1 : -1;
+    const x = start + (end - start) * cycle.progress;
+    const y = horizon + direction * 320 * p * (1 - p);
+    const part = `M${from} ${horizon} Q${from + (to - from) * p / 2} ${horizon + direction * 160 * p} ${x} ${y}`;
+    return { day, night, split, x, y, trail: cycle.night ? day + ' ' + part : part };
+  }
+  function durationText(milliseconds) {
+    const minutes = Math.max(0, Math.ceil(milliseconds / 60000));
+    const hours = Math.floor(minutes / 60), rest = minutes % 60;
+    return hours ? `${hours} ч${rest ? ` ${rest} мин` : ''}` : `${rest} мин`;
+  }
+  if (typeof module !== 'undefined' && module.exports) module.exports = { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode, solarPosition, cardLighting, solarCycle, cycleGeometry, durationText };
   if (typeof document === 'undefined') return;
   const root = document.querySelector('#daylight');
   if (!root) return;
@@ -289,41 +328,62 @@
     const current = weather && readWeather(weather, now);
     updateAtmosphere(current);
     root.toggleAttribute('data-weather-ready', Boolean(current));
+    root.toggleAttribute('data-night', Boolean(current?.night));
+    get('weather-live').hidden = false;
+    get('weather-detail').hidden = false;
     get('daylight-clock').textContent = clock.format(now);
-    const light = daylightWindow(current, now);
-    get('daylight-label').textContent = light.label;
-    get('daylight-remaining').textContent = light.value;
-    get('next-sunrise').textContent = current?.night && Number.isFinite(current.nextSunrise) ? `Солнце взойдёт в ${clock.format(current.nextSunrise)}.` : '';
+    get('daylight-clock').setAttribute('datetime', new Date(now).toISOString());
+    const cycle = current && solarCycle(weather.sun, now);
+    get('cycle-drawing').hidden = !cycle;
+    get('cycle-unavailable').hidden = !current || Boolean(cycle);
+    if (!cycle) get('cycle-dates').textContent = '';
     if (!current) {
       get('weather-icon').setAttribute('href', 'assets/icons/tabler.svg?v=c08f6282ed7f#cloud');
       get('weather-summary').textContent = `${clock.format(now)} · московское время`;
-      get('sun-position').style.visibility = 'hidden';
-      get('sunrise').textContent = '—';
-      get('sunset').textContent = '—';
       get('weather-temperature').textContent = '—';
-      get('weather-condition').textContent = unavailable || weather ? 'Нет свежих данных' : 'Загружаем погоду';
-      get('weather-wind').textContent = '';
-      root.removeAttribute('data-night');
-      if (weather) get('weather-detail').textContent = 'Не удалось обновить погоду. Часы показывают московское время.';
+      get('weather-condition').textContent = unavailable || weather ? 'Нет свежих данных о погоде' : 'Загружаем погоду';
+      for (const hook of ['weather-feels', 'weather-wind', 'weather-humidity', 'weather-precip']) get(hook).textContent = '';
+      get('weather-detail').textContent = unavailable || weather ? 'Не удалось обновить погоду. Часы показывают московское время.' : 'Погода появится, когда загрузятся данные.';
       environment.style.removeProperty('--daylight-paper');
       return;
     }
-    get('sun-position').style.visibility = '';
-    get('sun-position').setAttribute('transform', `translate(${16 + 368 * current.progress} ${70 - 184 * current.progress * (1 - current.progress)})`);
-    // Exact sub-curve of the day arc, ending at the current sun marker.
-    const p = current.progress;
-    get('sun-trail').setAttribute('d', `M16 70 Q${16 + 184 * p} ${70 - 92 * p} ${16 + 368 * p} ${70 - 184 * p * (1 - p)}`);
-    root.toggleAttribute('data-night', current.night);
-    get('weather-icon').setAttribute('href', `assets/icons/tabler.svg?v=c08f6282ed7f#${iconSymbols[weatherIcon(current.code, current.night)]}`);
-    environment.style.setProperty('--daylight-paper', `color-mix(in srgb, ${current.skyPaper} ${100 - .24 * current.cloudCover}%, #bcc7d5)`);
-    get('sunrise').textContent = clock.format(current.sunrise);
-    get('sunset').textContent = clock.format(current.sunset);
     const temp = `${current.temperature > 0 ? '+' : current.temperature < 0 ? '−' : ''}${Math.abs(current.temperature)}°`;
     get('weather-temperature').textContent = temp;
-    get('weather-condition').textContent = conditions(current.code);
-    get('weather-summary').textContent = `${clock.format(now)} · ${temp} · ${conditions(current.code)}`;
-    get('weather-wind').textContent = `Ветер ${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с`;
-    get('weather-detail').textContent = `Прогноз на ${clock.format(current.observed)}`;
+    get('weather-condition').textContent = conditions(current.code) + (current.fogCover > 0 && current.code !== 45 ? ' · туман' : '');
+    get('weather-summary').textContent = `${clock.format(now)} · ${temp} · ${get('weather-condition').textContent}`;
+    get('weather-icon').setAttribute('href', `assets/icons/tabler.svg?v=c08f6282ed7f#${iconSymbols[weatherIcon(current.code, current.night)]}`);
+    environment.style.setProperty('--daylight-paper', `color-mix(in srgb, ${current.skyPaper} ${100 - .24 * current.cloudCover}%, #bcc7d5)`);
+    get('weather-wind').textContent = `${current.wind.toLocaleString('ru-RU', { maximumFractionDigits: 1 })} м/с`;
+    get('weather-humidity').textContent = Number.isFinite(current.humidity) ? `${Math.round(current.humidity)}%` : '—';
+    get('weather-precip').textContent = current.precipitation === null ? 'Нет данных об осадках в ближайший час' : current.precipitation === 0 ? 'Без осадков в ближайший час' : `${current.precipitation.toLocaleString('ru-RU')} мм осадков в ближайший час`;
+    const rounded = Math.round(current.apparentTemperature);
+    get('weather-feels').textContent = Number.isFinite(current.apparentTemperature) ? `${rounded > 0 ? '+' : rounded < 0 ? '−' : ''}${Math.abs(rounded)}°` : '—';
+    const date = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', day: 'numeric', month: 'long' });
+    get('weather-detail').textContent = `Прогноз на ${clock.format(current.observed)} · ${date.format(current.observed)}`;
+    const light = daylightWindow(current, now);
+    get('cycle-target-label').textContent = light.label;
+    get('cycle-remaining').textContent = light.value;
+    if (!cycle) return;
+    const geometry = cycleGeometry(cycle);
+    const canvas = get('cycle-drawing');
+    canvas.style.setProperty('--day-share', `${cycle.dayShare * 100}%`);
+    canvas.style.setProperty('--event-share', `${cycle.dayShare * 100}%`);
+    canvas.style.setProperty('--now-x', `${geometry.x / 640 * 100}%`);
+    get('cycle-dates').textContent = date.formatRange(cycle.start, cycle.end);
+    get('cycle-day-duration').textContent = durationText(cycle.dayDuration);
+    get('cycle-night-duration').textContent = durationText(cycle.nightDuration);
+    get('cycle-day-area').setAttribute('d', geometry.day + ' Z');
+    get('cycle-night-area').setAttribute('d', geometry.night + ' Z');
+    get('cycle-path').setAttribute('d', geometry.day + ' ' + geometry.night);
+    get('cycle-trail').setAttribute('d', geometry.trail);
+    get('cycle-guide').setAttribute('d', `M${geometry.x} ${geometry.y + 10} V202`);
+    get('cycle-position').setAttribute('transform', `translate(${geometry.x} ${geometry.y})`);
+    get('cycle-sunset-tick').setAttribute('d', `M${geometry.split} 94 V106`);
+    for (const [hook, time] of [['cycle-start', cycle.start], ['cycle-sunset', cycle.sunset], ['cycle-end', cycle.end], ['cycle-now', now]]) {
+      get(hook).textContent = clock.format(time);
+      get(hook).setAttribute('datetime', new Date(time).toISOString());
+    }
+    get('cycle-description').textContent = `${date.formatRange(cycle.start, cycle.end)}. Восход ${clock.format(cycle.start)}, закат ${clock.format(cycle.sunset)}, следующий восход ${clock.format(cycle.end)}. Сейчас ${clock.format(now)}. День длится ${durationText(cycle.dayDuration)}, ночь ${durationText(cycle.nightDuration)}. Горизонтальная шкала равномерна по времени; дуги условно различают светлое и тёмное время, это не высота Солнца.`;
   }
   async function refresh() {
     if (pending || document.hidden || Date.now() - lastAttempt < 15 * 60 * 1000) return;
@@ -332,10 +392,11 @@
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     try {
+      const yesterday = calendar.format(Date.now() - 24 * HOUR);
       const today = calendar.format(Date.now());
       const tomorrow = calendar.format(Date.now() + 24 * HOUR);
       // Sunrise is immutable for a given date; only the forecast needs revalidation.
-      for (const key of Object.keys(cache)) if (!['forecast', today, tomorrow].includes(key)) delete cache[key];
+      for (const key of Object.keys(cache)) if (!['forecast', yesterday, today, tomorrow].includes(key)) delete cache[key];
       const request = async (key, url) => {
         const entry = cache[key];
         if (entry?.data && (key !== 'forecast' || entry.expires > Date.now())) return entry.data;
@@ -365,7 +426,15 @@
         ...[today, tomorrow].map(day => request(day, `${base}sunrise/3.0/sun?${location}&date=${day}&offset=%2B03:00`))
       ]);
       const data = { forecast, sun };
-      if (!readWeather(data)) throw new Error('Weather is stale or incomplete');
+      const current = readWeather(data);
+      if (!current) throw new Error('Weather is stale or incomplete');
+      // Before sunrise the displayed cycle began yesterday. Missing history
+      // hides only the graph; it must not discard an otherwise useful forecast.
+      if (Date.now() < current.sunrise) {
+        try {
+          sun.unshift(await request(yesterday, `${base}sunrise/3.0/sun?${location}&date=${yesterday}&offset=%2B03:00`));
+        } catch { /* Keep today's weather and countdown if history is unavailable. */ }
+      }
       weather = data;
       unavailable = false;
       try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch { /* Storage is optional. */ }

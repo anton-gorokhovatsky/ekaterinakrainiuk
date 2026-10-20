@@ -5,8 +5,8 @@ const { resolve } = require('node:path');
 const { runInNewContext } = require('node:vm');
 
 const source = readFileSync(resolve(__dirname, '../daylight.js'), 'utf8');
-function visit({ reduced = false, cachedWeather = true, weatherChange = () => {}, request = async () => ({ ok: false }) } = {}) {
-  let now = Date.parse('2026-09-26T09:00:00Z');
+function visit({ reduced = false, cachedWeather = true, at = '2026-09-26T09:00:00Z', weatherChange = () => {}, request = async () => ({ ok: false }) } = {}) {
+  let now = Date.parse(at);
   const events = {}, material = new Map(), nodes = new Map(), animations = [];
   const node = () => ({ textContent: '', style: { setProperty() {}, removeProperty() {} }, setAttribute() {} });
   const root = { ...node(), toggleAttribute() {}, removeAttribute() {}, querySelector: selector => {
@@ -42,6 +42,7 @@ function visit({ reduced = false, cachedWeather = true, weatherChange = () => {}
   });
   return { document, deck, material, animations,
     text: name => nodes.get(`[data-${name}]`)?.textContent,
+    hidden: name => nodes.get(`[data-${name}]`)?.hidden,
     advance: minutes => { now += minutes * 60000; events.tick(); },
     enter: () => events.intersection([{ isIntersecting: true, intersectionRatio: .5 }]),
     leave: () => events.intersection([{ isIntersecting: false, intersectionRatio: 0 }]),
@@ -76,7 +77,7 @@ test('the whole palette preserves the explicit theme and clears every stale colo
   page.advance(5);
   assert.notEqual(page.material.get('--card-shadow-x'), shadow);
   assert.equal(page.document.documentElement.dataset.theme, 'dark');
-  assert.equal(page.text('weather-wind'), 'Ветер 4 м/с');
+  assert.equal(page.text('weather-wind'), '4 м/с');
   page.enter();
   page.expire();
   assert.equal(page.material.size, 0);
@@ -89,7 +90,7 @@ test('API failures leave a useful clock and do not apply weather effects', async
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(page.material.size, 0);
   assert.equal(page.text('weather-temperature'), '—');
-  assert.equal(page.text('weather-condition'), 'Нет свежих данных');
+  assert.equal(page.text('weather-condition'), 'Нет свежих данных о погоде');
   assert.match(page.text('weather-summary'), /московское время/);
   assert.match(page.text('weather-detail'), /Не удалось обновить/);
 });
@@ -125,6 +126,26 @@ test('rate limiting backs off instead of retrying every polling interval', async
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(calls, 3);
   assert.equal(page.material.size, 0);
+});
+test('before sunrise only the cycle needs yesterday; failed history preserves fresh weather', async () => {
+  const { sample, sunDay } = require('./weather-fixture.cjs');
+  const at = '2026-09-26T02:00:00Z';
+  for (const historyAvailable of [true, false]) {
+    const days = [];
+    const page = visit({ at, cachedWeather: false, request: async url => {
+      const day = new URL(url).searchParams.get('date');
+      if (day) days.push(day);
+      if (day === '2026-09-25' && !historyAvailable) throw new Error('history offline');
+      return { ok: true, headers: { get: () => null }, json: async () => day ? sunDay(day) : sample(Date.parse(at)).forecast };
+    } });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(days, ['2026-09-26', '2026-09-27', '2026-09-25']);
+    assert.equal(page.text('weather-temperature'), '+15°');
+    assert.equal(page.text('cycle-remaining'), '1 ч');
+    assert.equal(page.hidden('cycle-drawing'), !historyAvailable);
+    assert.equal(page.hidden('cycle-unavailable'), historyAvailable);
+    if (historyAvailable) assert.equal(page.text('cycle-start'), '06:00');
+  }
 });
 test('the deck gets one bounded gust per entrance, never a recurring idle animation', () => {
   const page = visit();

@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode, solarPosition, cardLighting } = require('../daylight.js');
+const { readWeather, daylightWindow, conditions, weatherIcon, atmosphere, coverAtmosphere, conditionCode, solarPosition, cardLighting, solarCycle, cycleGeometry, durationText } = require('../daylight.js');
 const noon = Date.parse('2026-09-26T09:00:00Z');
 const { sample, sunDay } = require('./weather-fixture.cjs');
 const coverWeather = (humidity, amount = 0, symbol = 'rain', fog = 0) => {
@@ -136,16 +136,60 @@ test('sun arc is bounded and night has its own state', () => {
 });
 test('daylight countdown switches to the next sunrise at sunset', () => {
   const early = Date.parse('2026-09-26T02:00:00Z');
-  assert.deepEqual(daylightWindow(readWeather(sample(early), early), early), { label: 'До рассвета', value: '1 ч 00 мин' });
-  assert.deepEqual(daylightWindow(readWeather(sample(), noon), noon), { label: 'До заката', value: '6 ч 00 мин' });
+  assert.deepEqual(daylightWindow(readWeather(sample(early), early), early), { label: 'До восхода', value: '1 ч' });
+  assert.deepEqual(daylightWindow(readWeather(sample(), noon), noon), { label: 'До заката', value: '6 ч' });
   const lastMinute = Date.parse('2026-09-26T14:59:30Z');
   assert.equal(daylightWindow(readWeather(sample(lastMinute), lastMinute), lastMinute).value, '1 мин');
   const sunset = Date.parse('2026-09-26T15:00:00Z');
   const twoDays = sample(sunset);
   twoDays.sun.push(sunDay('2026-09-27'));
-  assert.deepEqual(daylightWindow(readWeather(twoDays, sunset), sunset), { label: 'До рассвета', value: '12 ч 00 мин' });
-  assert.deepEqual(daylightWindow(readWeather(sample(sunset), sunset), sunset), { label: 'Световой день', value: 'Завершён' });
+  assert.deepEqual(daylightWindow(readWeather(twoDays, sunset), sunset), { label: 'До восхода', value: '12 ч' });
+  assert.deepEqual(daylightWindow(readWeather(sample(sunset), sunset), sunset), { label: 'До восхода', value: 'Нет данных о восходе' });
   assert.deepEqual(daylightWindow(null), { label: 'Световой день', value: 'Нет данных' });
+});
+test('apparent temperature remains optional and never turns missing data into zero', () => {
+  for (const value of [0, -2.4, 12.3]) {
+    const data = sample();
+    data.forecast.properties.timeseries[0].data.instant.details.apparent_air_temperature = value;
+    assert.equal(readWeather(data, noon).apparentTemperature, value);
+  }
+  for (const value of [null, undefined, '4', Infinity, NaN]) {
+    const data = sample();
+    data.forecast.properties.timeseries[0].data.instant.details.apparent_air_temperature = value;
+    assert.equal(readWeather(data, noon).apparentTemperature, null);
+  }
+  const wrongUnit = sample();
+  wrongUnit.forecast.properties.meta.units.apparent_air_temperature = 'fahrenheit';
+  assert.equal(readWeather(wrongUnit, noon).apparentTemperature, null);
+});
+test('the solar cycle spans the actual unequal day and night, including midnight', () => {
+  const days = [sunDay('2026-10-20'), sunDay('2026-10-21'), sunDay('2026-10-22')];
+  days[0].properties.sunrise.time = '2026-10-20T07:10:00+03:00';
+  days[0].properties.sunset.time = '2026-10-20T17:17:00+03:00';
+  days[1].properties.sunrise.time = '2026-10-21T07:12:00+03:00';
+  const at = value => Date.parse(value);
+  const day = solarCycle(days, at('2026-10-20T12:00:00+03:00'));
+  assert.equal(day.dayDuration, (10 * 60 + 7) * 60000);
+  assert.equal(day.nightDuration, (13 * 60 + 55) * 60000);
+  assert.ok(day.dayShare < .5);
+  assert.equal(day.night, false);
+  for (const time of ['2026-10-20T23:00:00+03:00', '2026-10-21T00:00:00+03:00', '2026-10-21T06:00:00+03:00']) {
+    const night = solarCycle(days, at(time));
+    assert.equal(night.start, day.start);
+    assert.equal(night.end, day.end);
+    assert.equal(night.night, true);
+    assert.ok(cycleGeometry(night).y > 100);
+  }
+  const sunset = solarCycle(days, day.sunset);
+  assert.equal(sunset.night, true);
+  assert.equal(cycleGeometry(sunset).y, 100);
+  const next = solarCycle(days, day.end);
+  assert.equal(next.start, day.end);
+  assert.equal(next.progress, 0);
+  assert.equal(next.night, false);
+  assert.equal(solarCycle(days.slice(1), at('2026-10-21T06:00:00+03:00')), null);
+  assert.equal(solarCycle(days.slice(0, 1), at('2026-10-20T12:00:00+03:00')), null);
+  assert.equal(durationText(59 * 60000 + 1000), '1 ч');
 });
 test('weather words distinguish sun, rain, snow and storms', () => {
   assert.equal(conditions(0), 'ясно');
