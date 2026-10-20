@@ -996,7 +996,7 @@ test('reviews keep text readable across widths and at 200%', { tag: '@layout' },
     [...section.querySelectorAll('h2, h3, p, blockquote, .result-entry-times, .video-story-title')]
       .filter(element => element.getClientRects().length && element.scrollWidth > element.clientWidth + 1)
       .map(element => element.textContent.trim()));
-  for (const width of [320, 760, 980, 1440]) {
+  for (const width of [320, 760, 761, 980, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await overflowingReviewText(), `review text fits at ${width}px`).toEqual([]);
     const frame = await page.locator('#andrey-finish-video').boundingBox();
@@ -1004,6 +1004,10 @@ test('reviews keep text readable across widths and at 200%', { tag: '@layout' },
     expect(next.x, `the next story sits beside the current one at ${width}px`).toBeGreaterThan(frame.x + frame.width);
     expect(next.y + next.height, `story frames share a bottom edge at ${width}px`).toBeCloseTo(frame.y + frame.height, 0);
     expect(next.x + next.width, `the next story fits on screen at ${width}px`).toBeLessThanOrEqual(width);
+    if (width > 760) {
+      const intro = await page.locator('.andrey-intro').boundingBox();
+      expect(frame.y, `the main story stays aligned with the author at ${width}px`).toBeCloseTo(intro.y, 0);
+    }
   }
   await page.setViewportSize({ width: 320, height: 900 });
   await page.addStyleTag({ content: ':root { font-size: 200%; }' });

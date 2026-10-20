@@ -1154,7 +1154,7 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   text-align: left;
 }
 .andrey-continuation-toggle > img {
-  width: 4.5rem;
+  width: clamp(3rem, 5vw, 4.5rem);
   max-width: 72px;
   height: auto;
   aspect-ratio: 9 / 16;
