@@ -220,9 +220,12 @@ test('one action plays actual video, switches audio and keeps captions and focus
   }
   const compact = page.viewportSize().width <= 760;
   const trigger = index => stories.nth(index).locator('.video-play');
+  const switchVideo = page.locator('.andrey-continuation-toggle');
   await expect(page.locator('#results figure.video-story')).toHaveCount(4);
   await expect(first).toBeVisible();
-  await expect(second).toBeVisible();
+  await expect(second).toBeHidden();
+  await expect(switchVideo).toContainText('Как прошёл заплыв');
+  const firstFrame = await first.boundingBox();
   await trigger(0).focus();
   await trigger(0).press('Enter');
   await expect.poll(() => first.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
@@ -235,21 +238,29 @@ test('one action plays actual video, switches audio and keeps captions and focus
   await expect(first).toHaveJSProperty('videoWidth', 720);
   await expect(first).toHaveJSProperty('videoHeight', 1280);
   if (!compact) {
-    await trigger(1).hover();
+    await switchVideo.hover();
     await test.info().attach('andrey-poster-hover', {
       body: await page.locator('#andrey-review').screenshot(), contentType: 'image/png',
     });
   }
-  await trigger(1).click();
+  await switchVideo.click();
   await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
+  await expect(second).toBeFocused();
+  await expect(first).toBeHidden();
+  await expect(switchVideo).toContainText('Сразу после финиша');
+  const secondFrame = await second.boundingBox();
+  expect(secondFrame.x).toBeCloseTo(firstFrame.x, 0);
+  expect(secondFrame.width).toBeCloseTo(firstFrame.width, 0);
+  expect(secondFrame.height).toBeCloseTo(firstFrame.height, 0);
   await expect(first).toHaveJSProperty('paused', true);
   await expect(first).toHaveJSProperty('controls', true);
-  // Switching through the visible poster pauses the other real player.
-  // Native video keyboard shortcuts differ between Chromium and WebKit.
-  await trigger(0).click();
+  const firstPosition = await first.evaluate(video => video.currentTime);
+  await switchVideo.click();
   await expect(second).toHaveJSProperty('paused', true);
-  await expect(trigger(1)).toBeVisible();
-  await trigger(1).press('Enter');
+  await expect(second).toBeHidden();
+  await expect.poll(() => first.evaluate((video, position) => !video.paused && video.currentTime >= position, firstPosition)).toBe(true);
+  await expect(switchVideo).toContainText('Как прошёл заплыв');
+  await switchVideo.press('Enter');
   await expect.poll(() => second.evaluate(video => !video.paused && video.currentTime > 0)).toBe(true);
   await expect(second).toBeFocused();
   const secondPlayer = await second.elementHandle();
@@ -258,9 +269,7 @@ test('one action plays actual video, switches audio and keeps captions and focus
   expect(await second.evaluate((video, original) => video === original, secondPlayer)).toBe(true);
   await expect(second).toHaveJSProperty('paused', false);
   await expect(second).toBeFocused();
-  // Switching through the visible poster pauses the other real player.
-  // Native video keyboard shortcuts differ between Chromium and WebKit.
-  await trigger(0).click();
+  await switchVideo.click();
   await expect(second).toHaveJSProperty('paused', true);
   await noOverflow(page);
 });
@@ -878,7 +887,7 @@ test('320px with 200% text keeps the introduction, open sports, biography and se
   }
 });
 
-test('editorial and service photographs preserve full frames and the approved team framing', { tag: '@layout' }, async ({ page }) => {
+test('editorial photographs preserve full frames and the two owner-requested crops', { tag: '@layout' }, async ({ page }) => {
   await page.goto('./');
   await page.evaluate(async () => {
     document.querySelectorAll('details.route, details.service').forEach(details => { details.open = true; });
@@ -891,7 +900,7 @@ test('editorial and service photographs preserve full frames and the approved te
     await page.setViewportSize({ width, height: 900 });
     const cropped = await page.locator('.route-content img, .service-body img, .coach-statement img, .channel-photo').evaluateAll(images =>
       images.filter(image => {
-        if (image.matches('.telegram-team-photo img')) return false;
+        if (image.matches('.telegram-team-photo img, .channel-photo-frame img')) return false;
         const style = getComputedStyle(image);
         const renderedRatio = parseFloat(style.width) / parseFloat(style.height);
         return !image.naturalWidth || Math.abs(renderedRatio - image.naturalWidth / image.naturalHeight) > .01;
@@ -919,6 +928,24 @@ test('editorial and service photographs preserve full frames and the approved te
     expect(frame.naturalWidth).toBe(600);
     expect(frame.naturalHeight).toBe(800);
     expect(frame.visibleTop).toBeLessThanOrEqual(375);
+    // The supplied portrait intentionally crops the table at left; the face and
+    // hands were checked in the rendered frame, in both desktop and phone views.
+    const portrait = page.locator('.channel-photo-frame');
+    const portraitFrame = await portrait.evaluate(element => {
+      const image = element.querySelector('img');
+      const box = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        ratio: element.offsetWidth / element.offsetHeight,
+        overflow: style.overflow,
+        loaded: image.complete && image.naturalWidth === 1200 && image.naturalHeight === 1800,
+        visible: box.width > 0 && box.height > 0,
+      };
+    });
+    expect(portraitFrame.loaded).toBe(true);
+    expect(portraitFrame.visible).toBe(true);
+    expect(portraitFrame.ratio).toBeCloseTo(2 / 3, 2);
+    expect(portraitFrame.overflow).toBe('hidden');
     await noOverflow(page);
   }
 });
@@ -942,6 +969,7 @@ test('native content, navigation, video controls and system theme work without J
     await expect(page.locator('figure.video-story')).toHaveCount(5);
     await expect(page.locator('details.video-story')).toHaveCount(0);
     await expect(page.locator('#andrey-coaching-video')).toBeVisible();
+    await expect(page.locator('.andrey-continuation-toggle')).toBeHidden();
     await expect(page.locator('video').first()).toHaveAttribute('controls', '');
     for (const id of ['maria-lukyanova-limassol', 'vyacheslav-lyukshin-zavidovo']) {
       await expect(page.locator(`#${id}-video`)).toHaveAttribute('controls', '');

@@ -243,3 +243,41 @@
     syncPlay();
   });
 })();
+
+(() => {
+  const stage = document.querySelector('.andrey-video-stage');
+  if (!stage) return;
+  const frames = [...stage.querySelectorAll('.video-story')];
+  const button = stage.querySelector('.andrey-continuation-toggle');
+  const label = button.querySelector('.link-label');
+  const detail = button.querySelector('small');
+  const thumbnail = button.querySelector('img');
+  let current = 0;
+  const clips = frames.map(frame => ({
+    frame,
+    video: frame.querySelector('video'),
+    poster: frame.querySelector('.video-play'),
+    title: frame.querySelector('.video-story-title > span').textContent,
+    duration: frame.querySelector('.video-story-title small').textContent.replace('Видео · ', ''),
+  }));
+  if (clips.length !== 2) return;
+
+  button.addEventListener('click', () => {
+    const previous = clips[current];
+    previous.video.pause();
+    previous.frame.hidden = true;
+    current = 1 - current;
+    const selected = clips[current];
+    selected.frame.hidden = false;
+    label.textContent = previous.title;
+    detail.textContent = `${current ? 'Реакция на финише' : 'Рассказ Андрея'} · ${previous.duration}`;
+    thumbnail.src = previous.video.poster;
+    // Reuse the existing player in this user activation: one click starts it,
+    // with the same captions, error/retry handling and soundtrack coordination.
+    selected.poster.focus({ preventScroll: true });
+    selected.poster.click();
+    selected.video.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+  });
+  clips[1].frame.hidden = true;
+  button.hidden = false;
+})();

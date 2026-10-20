@@ -32,13 +32,13 @@
   <link rel="preload" href="assets/fonts/golostext-cyrillic.woff2?v=2f175b8fc40e" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/golostext-latin.woff2?v=f8d71091110f" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="themes.css?v=8f61af6cddcc">
-  <link rel="stylesheet" href="styles.css?v=2d99405bc84b">
+  <link rel="stylesheet" href="styles.css?v=7193d95bc9c2">
   <link rel="stylesheet" href="tarot.css?v=7b20de649555">
   <script src="script.js?v=b7677c28f82f" defer></script>
-  <script src="video.js?v=4bf4de867d69" defer></script>
+  <script src="video.js?v=c0f4b1ab5c08" defer></script>
   <script src="tarot.js?v=60d5ca982e54" defer></script>
   <script src="channel.js?v=d039dc34f899" defer></script>
-  <link rel="stylesheet" href="channel.css?v=7514abac8bce">
+  <link rel="stylesheet" href="channel.css?v=c27d1a73bc26">
   <script src="daylight.js?v=dacffd8caa47" defer></script>
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
@@ -441,8 +441,20 @@
         <h2 id="results-title">После финиша.</h2>
       </div>
       <div class="results-cases">
-        <article class="video-review" id="andrey-review" tabindex="-1" aria-labelledby="andrey-review-title">
-          <div class="video-review-media">
+        <article class="andrey-review" id="andrey-review" tabindex="-1" aria-labelledby="andrey-review-title">
+          <header class="andrey-intro">
+            <div class="andrey-person">
+              <h3 class="review-name" id="andrey-review-title">Андрей Филиппов</h3>
+              <a class="link review-profile" href="https://www.instagram.com/phil.philippov/"><span class="link-label">@phil.philippov</span></a>
+            </div>
+            <p class="andrey-place"><strong><span class="ordinal">1-е</span> место</strong><span><span class="result-category">в группе <span class="age-group">М20–29</span></span></span></p>
+            <div class="andrey-race">
+              <p>SWIMSTAR · 1 миля · <strong class="andrey-time">29:59</strong></p>
+              <p class="andrey-event">Сириус · <time datetime="2026-10-02">2 октября 2026 года</time></p>
+              <a class="link review-source" href="https://iron-star.com/local/results/download/497690?locale=ru"><span class="link-label">Сертификат Андрея (PDF)</span></a>
+            </div>
+          </header>
+          <div class="andrey-video-stage" id="andrey-video-stage">
             <figure class="video-story video-story-featured">
               <div class="video-player">
                 <video id="andrey-finish-video" controls playsinline preload="none" poster="assets/images/andrey-filippov-finish.webp" width="720" height="1280" aria-labelledby="andrey-review-title andrey-finish-caption">
@@ -471,19 +483,17 @@
                 <span class="video-story-title" id="andrey-coaching-caption"><span>Как прошёл заплыв</span><small>Видео · 0:46</small></span>
               </figcaption>
             </figure>
+              <button class="andrey-continuation-toggle" type="button" aria-controls="andrey-video-stage" hidden>
+                <img src="assets/images/andrey-filippov-coaching.webp" width="720" height="1280" alt="" loading="lazy">
+                <span class="andrey-continuation-label">
+                  <span class="andrey-continuation-action"><span class="link-label">Как прошёл заплыв</span><svg class="andrey-continuation-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#player-play"/></svg></span>
+                  <small>Рассказ Андрея · 0:46</small>
+                </span>
+              </button>
           </div>
-          <div class="video-review-copy">
-            <blockquote class="video-review-quote"><p class="hanging-text"><span class="hanging-mark">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга»</p></blockquote>
-            <div class="video-review-result">
-              <h3 class="review-name" id="andrey-review-title">Андрей Филиппов</h3>
-              <a class="text-link link review-profile" href="https://www.instagram.com/phil.philippov/"><span class="link-label">@phil.philippov</span></a>
-              <p class="video-review-facts">
-                <strong class="video-review-time">29:59</strong>
-                <span><strong>1-е место</strong> в группе <span class="age-group">М20–29</span></span>
-              </p>
-              <p class="video-review-event">SWIMSTAR · 1 миля · Сириус · <time datetime="2026-10-02">2 октября 2026 года</time></p>
-              <a class="link review-source" href="https://iron-star.com/local/results/download/497690?locale=ru"><span class="link-label">Сертификат Андрея (PDF)</span></a>
-            </div>
+          <div class="andrey-story-copy">
+            <blockquote class="video-review-quote andrey-quote"><p class="hanging-text"><span class="hanging-mark">«</span>Катя, спасибо! Обожаю тебя. Это всё твоя заслуга»</p></blockquote>
+
           </div>
         </article>
         <article class="round-review" id="maria-review" tabindex="-1" aria-labelledby="maria-lukyanova-limassol-title">
@@ -515,7 +525,7 @@
           <div class="round-review-copy">
             <div>
               <h3 class="review-name" id="maria-lukyanova-limassol-title">Мария Лукьянова</h3>
-              <p class="review-context">Limassol Triathlon · спринт · Кипр · <time datetime="2026-10-04">4 октября 2026 года</time></p>
+              <p class="review-context"><span class="review-context-line">Limassol Triathlon · спринт</span><span class="review-context-line">Кипр · <time datetime="2026-10-04">4 октября 2026 года</time></span></p>
             </div>
             <blockquote class="round-review-quote"><p class="hanging-text"><span class="hanging-mark">«</span>Катя, ты чё наделала?»</p></blockquote>
             <div class="round-review-facts">
@@ -524,7 +534,7 @@
                 <svg class="link-icon result-entry-arrow" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><use href="assets/icons/tabler.svg?v=c08f6282ed7f#arrow-right"/></svg>
                 <span class="result-entry-metric result-entry-after"><small>2026</small><span>1:20:01</span></span>
               </div>
-              <p><strong>1-е место</strong> в группе <span class="age-group">Ж20–34</span> и <strong>2-е среди женщин</strong>.</p>
+              <p><strong><span class="ordinal">1-е</span> место</strong> <span class="result-category">в группе <span class="age-group">Ж20–34</span></span> и <strong><span class="ordinal">2-е</span> среди женщин</strong>.</p>
               <p>750 м плавания, 20 км велосипеда и 5 км бега.</p>
               <div class="round-review-sources">
                 <a class="link" href="https://www.racetecresults.com/myresults.aspx?CId=17067&amp;RId=148&amp;EId=8&amp;AId=30711"><span class="link-label">Протокол Марии 2025</span></a>
@@ -532,7 +542,7 @@
               </div>
               <details class="review-full"><summary><span class="review-expand">Текст видео Марии</span><span class="review-collapse">Свернуть текст видео</span></summary><div class="review-transcript"><p>Катя, ты чё наделала? Скажи мне, пожалуйста. Я вторая в абсолюте, первая возрастная. Я проплыла по минуте сорок восемь. Минуте сорок восемь. Я выплыла там где-то, типа, в топе. Сейчас посмотрю какая, но ребята говорят третья. Среди всех. Первая девочка. Ты чё делаешь? [Неразборчивая реплика.]</p></div></details>
             </div>
-            <p class="round-review-note">Денис Лукьянов — 1:15:01 и 5-е место в группе <span class="age-group">М20–34</span>. <a class="link" href="https://www.racetecresults.com/myresults.aspx?uid=17067-154-8-32309&amp;g=1&amp;c=2"><span class="link-label">Протокол Дениса</span></a></p>
+            <p class="round-review-note">Денис Лукьянов — 1:15:01 и <span class="ordinal">5-е</span> место <span class="result-category">в группе <span class="age-group">М20–34</span>.</span> <a class="link" href="https://www.racetecresults.com/myresults.aspx?uid=17067-154-8-32309&amp;g=1&amp;c=2"><span class="link-label">Протокол Дениса</span></a></p>
           </div>
         </article>
         <article class="round-review" id="vyacheslav-review" tabindex="-1" aria-labelledby="vyacheslav-lyukshin-zavidovo-title">
@@ -564,11 +574,11 @@
           <div class="round-review-copy">
             <div>
               <h3 class="review-name" id="vyacheslav-lyukshin-zavidovo-title">Вячеслав Люкшин</h3>
-              <p class="review-context">IRONSTAR 1/4 · Завидово · <time datetime="2026-08-30">30 августа 2026 года</time></p>
+              <p class="review-context"><span class="review-context-line">IRONSTAR 1/4</span><span class="review-context-line">Завидово · <time datetime="2026-08-30">30 августа 2026 года</time></span></p>
             </div>
             <blockquote class="round-review-quote"><p class="hanging-text"><span class="hanging-mark">«</span>Хотелось сделать всё в удовольствие, и действительно так и получилось»</p></blockquote>
             <div class="round-review-facts">
-              <p class="video-review-facts"><strong class="video-review-time">2:17:02</strong><span><strong>6-е место</strong> в группе <span class="age-group">М30–34</span></span></p>
+              <p class="video-review-facts"><strong class="video-review-time">2:17:02</strong><span><strong><span class="ordinal">6-е</span> место</strong> <span class="result-category">в группе <span class="age-group">М30–34</span></span></span></p>
               <p>1 км плавания, 41 км велосипеда и 10 км бега.</p>
               <a class="link review-source" href="https://iron-star.com/results/ironstar-1-4-zavidovo-2026"><span class="link-label">Протокол Вячеслава</span></a>
               <details class="review-full"><summary><span class="review-expand">Текст видео Вячеслава</span><span class="review-collapse">Свернуть текст видео</span></summary><div class="review-transcript"><p>Хочу тебе записать кружок, сказать большое спасибо, потому что вот я только обработал этот старт, и, ну, я честно немного в шоке от своей формы, потому что планов никаких не было. Хотелось сделать всё в удовольствие, и действительно так и получилось.</p><p>На велосипеде абсолютный азарт. На беге до каких-то, до страданий даже не дошло. В конце удалось прибавить и чувствовал себя хорошо. Наверное, можно было быстрее, но это не имело смысла, потому что цель была, как мне кажется, другая.</p><p>Но тем не менее результат офигенный, и большое тебе спасибо. Ты отличный тренер. Не знаю, что у тебя там за магия, но ты плюс связка с Hotline — это точно рабочая схема. Спасибо. [Неразборчиво.]</p></div></details>
@@ -642,7 +652,7 @@
     </section>
       <aside class="channel-note" id="channel" aria-labelledby="channel-title">
         <div class="channel-visual">
-          <img class="channel-photo" src="assets/images/telegram-channel.jpg" width="320" height="320" loading="lazy" decoding="async" alt="Чёрно-белый портрет Кати из её Telegram-канала">
+          <div class="channel-photo-frame"><img class="channel-photo" src="assets/images/telegram-channel-original.jpg" width="1200" height="1800" loading="lazy" decoding="async" alt="Чёрно-белый портрет Кати у кирпичной стены"></div>
         </div>
         <div class="channel-body">
           <span class="channel-kicker">Мой Telegram-канал</span>

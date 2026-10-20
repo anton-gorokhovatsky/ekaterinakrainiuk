@@ -8,7 +8,7 @@ const source = readFileSync(resolve(__dirname, '../video.js'), 'utf8');
 
 function visit() {
   const roots = [];
-  const document = { activeElement: null };
+  const document = { activeElement: null, querySelector: () => null };
   const element = properties => {
     const listeners = new Map();
     return {
