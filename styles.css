@@ -616,40 +616,45 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .contact-links { grid-column: 8 / -1; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); font-size: var(--text-small); }
 .contact-links a { min-height: 2.75rem; }
 .livebar { padding: 0 var(--pad); }
+/* Keep the endpoint marker visible without disabling vertical disclosure clipping. */
+details.daylight::details-content { overflow-x: visible; }
 .daylight summary { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-5) 0; font-size: var(--text-label); }
 .daylight-mark { width: 1.5rem; height: 1.5rem; stroke-width: 1.5; flex: 0 0 auto; }
 .daylight-summary-end { display: flex; align-items: center; gap: var(--space-3); margin-left: auto; }
 [data-weather-summary] { color: var(--muted); }
 .daylight .disclosure { width: .875rem; height: .875rem; }
 .daylight[open] .daylight-summary-end > [data-weather-summary] { display: none; }
-.daylight-panel.weather-system { --weather-ink: var(--ink); --weather-muted: var(--muted); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); padding: var(--space-4) 0 var(--space-6); margin-bottom: 0; background: transparent; }
-.weather-system-main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start; gap: var(--space-6) var(--gap); }
+.daylight-panel.weather-system { --weather-ink: var(--ink); --weather-muted: var(--muted); container: weather-composition / inline-size; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); padding: var(--space-5) 0 var(--space-6); margin-bottom: 0; background: transparent; }
+.weather-system-main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: first baseline; gap: var(--space-6) var(--gap); }
 .weather-overview { grid-column: 1 / span 4; min-inline-size: 0; }
 .weather-context { color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); }
 .weather-overview > .weather-context { font-size: var(--text-small); }
 .weather-context time { margin-inline-start: var(--space-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.weather-current { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); margin-top: var(--space-2); }
-.weather-current > strong { font-size: clamp(2.25rem, 3vw, 2.75rem); line-height: 1.15; font-weight: 600; letter-spacing: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.weather-current > span { font-size: var(--text-small); line-height: var(--leading-small); }
+.weather-current { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); margin-top: var(--space-3); }
+.weather-current > strong { font-size: clamp(3rem, 4.5vw, 4rem); line-height: 1; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.weather-current > span { font-size: var(--text-body); line-height: var(--leading-small); }
 .weather-current > span::first-letter { text-transform: uppercase; }
-.weather-metrics { display: grid; gap: var(--space-1); margin: var(--space-4) 0 0; font-size: var(--text-small); line-height: var(--leading-small); }
+.weather-metrics { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-2) var(--space-4); max-inline-size: 25rem; margin: var(--space-5) 0 0; font-size: var(--text-small); line-height: var(--leading-small); }
 .weather-metrics > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); }
+.weather-metrics > div:not(.weather-precip) { display: contents; }
 .weather-metrics dt { color: var(--muted); }
-.weather-metrics dd { margin: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.weather-metrics .weather-precip { margin-top: var(--space-2); color: var(--muted); font-size: var(--text-label); }
-.weather-metrics .weather-precip dd { white-space: normal; }
-.solar-cycle { grid-column: 5 / -1; min-inline-size: 0; inline-size: min(100%, 46rem); container: solar-cycle / inline-size; }
+.weather-metrics dd { color: var(--ink); margin: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.weather-metrics .weather-precip { grid-column: 1 / -1; margin-top: var(--space-2); color: var(--muted); font-size: var(--text-label); }
+.weather-metrics .weather-precip dd { color: var(--muted); white-space: normal; }
+.solar-cycle { grid-column: 5 / -1; min-inline-size: 0; inline-size: min(100%, 46rem); }
+[data-cycle-drawing] { container: solar-cycle / inline-size; }
 .cycle-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-1) var(--space-5); }
-.solar-countdown { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); color: var(--muted); font-size: var(--text-small); line-height: var(--leading-small); }
-.solar-countdown strong { color: var(--ink); font-size: var(--text-small); font-weight: 600; font-variant-numeric: tabular-nums; }
-.cycle-dates { color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); }
-.cycle-durations { display: grid; grid-template-columns: var(--day-share, 42%) minmax(0, 1fr); margin-top: var(--space-5); padding-inline: 2.5%; color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); }
+.solar-countdown { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); color: var(--muted); font-size: var(--text-small); line-height: var(--leading-small); }
+.solar-countdown strong { color: var(--ink); font-size: var(--text-action); line-height: 1.2; letter-spacing: -.015em; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cycle-dates { color: var(--muted); font-size: var(--text-small); line-height: var(--leading-small); }
+.cycle-durations { display: grid; grid-template-columns: var(--day-share, 42%) minmax(0, 1fr); margin-top: var(--space-5); padding-inline: 0; color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); }
 .cycle-durations > p { display: flex; flex-wrap: wrap; gap: 0 var(--space-2); padding-inline-end: var(--space-2); }
 .cycle-durations span { white-space: nowrap; font-variant-numeric: tabular-nums; }
-.cycle-chart { position: relative; inline-size: 100%; min-inline-size: 0; margin-top: var(--space-2); padding-block-end: calc(1.4em + .5rem); font-size: var(--text-label); }
-.cycle-chart svg { display: block; inline-size: 100%; block-size: auto; overflow: visible; }
-.cycle-day-area { fill: var(--acid); fill-opacity: .3; }
-.cycle-night-area { fill: var(--lavender); fill-opacity: .45; }
+.cycle-chart { position: relative; inline-size: 100%; min-inline-size: 0; margin-top: var(--space-1); padding-block-end: calc(1.4em + .125rem); font-size: var(--text-label); }
+.cycle-chart svg { display: block; inline-size: 100%; block-size: clamp(7rem, 10vw, 9rem); overflow: visible; }
+.cycle-day-area { fill: var(--acid); fill-opacity: .18; }
+.cycle-night-area { fill: var(--lavender); fill-opacity: .25; }
+[data-cycle-sunset-tick] { display: none; }
 .cycle-horizon, .cycle-guide { fill: none; stroke: currentColor; stroke-width: 1; stroke-opacity: .28; vector-effect: non-scaling-stroke; }
 .cycle-path, .cycle-trail { fill: none; stroke: currentColor; vector-effect: non-scaling-stroke; }
 .cycle-path { stroke-width: 1.5; stroke-dasharray: 2 5; stroke-opacity: .65; }
@@ -658,14 +663,14 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .cycle-dot-ring { stroke: var(--ink); stroke-width: 14; }
 .cycle-dot { stroke: var(--acid); stroke-width: 12; }
 .cycle-dot-core { stroke: #101216; stroke-width: 3; }
-.cycle-now { position: absolute; bottom: 0; left: clamp(3.5rem, var(--now-x, 50%), calc(100% - 3.5rem)); transform: translateX(-50%); color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); white-space: nowrap; }
+.cycle-now { position: absolute; bottom: 0; left: clamp(3.5rem, calc((var(--now-x, 50%) - 2.5%) / .95), calc(100% - 3.5rem)); transform: translateX(-50%); color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); white-space: nowrap; }
 .cycle-now time { color: var(--ink); font-variant-numeric: tabular-nums; }
-.cycle-events { display: grid; grid-template-columns: var(--event-share, 42%) minmax(0, 1fr); align-items: stretch; margin-top: var(--space-4); padding-inline: 2.5%; color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); }
+.cycle-events { display: grid; grid-template-columns: var(--event-share, 42%) minmax(0, 1fr); align-items: stretch; margin-top: var(--space-3); padding-inline: 0; color: var(--muted); font-size: var(--text-label); line-height: var(--leading-small); }
 .cycle-events p { grid-row: 1; display: grid; grid-template-rows: 1fr auto; gap: var(--space-1); }
 .cycle-events p:first-child { grid-column: 1; justify-self: start; }
-.cycle-events p:nth-child(2) { grid-column: 2; justify-self: start; transform: translateX(-50%); text-align: center; }
+.cycle-events p:nth-child(2) { grid-column: 2; justify-self: start; text-align: start; }
 .cycle-events p:last-child { grid-column: 2; justify-self: end; text-align: end; }
-.cycle-events time { color: var(--ink); font-size: var(--text-small); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cycle-events time { color: var(--ink); font-size: var(--text-small); font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .weather-system .weather-footnote { grid-column: 1; grid-row: auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-5); color: var(--muted); font-size: var(--text-label); }
 .weather-system .weather-source { gap: var(--space-1) var(--space-4); }
 .weather-system [hidden] { display: none; }
@@ -680,9 +685,82 @@ tbody { font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 @media (max-width: 760px) {
   .weather-system-main { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
   .weather-overview, .solar-cycle { grid-column: 1; }
-  .weather-metrics { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); margin-top: var(--space-3); font-size: var(--text-label); }
+  .weather-current > strong { font-size: 3rem; }
+  .weather-metrics { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: var(--space-4); font-size: var(--text-label); }
+  .weather-metrics > div:not(.weather-precip) { display: flex; }
+  .solar-countdown { display: grid; gap: var(--space-2); }
+  .solar-countdown strong { font-size: var(--text-ui-title); }
+  .cycle-dates { font-size: var(--text-label); }
+  .cycle-durations { margin-top: var(--space-4); }
+  .cycle-chart svg { block-size: 7rem; }
   .weather-metrics .weather-precip { flex-basis: 100%; margin: 0; }
 }
+@container weather-composition (max-width: 42rem) {
+  .weather-system-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: var(--space-6);
+  }
+
+  .weather-overview,
+  .solar-cycle {
+    display: block;
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .weather-current {
+    margin-top: var(--space-3);
+  }
+
+  .weather-current > strong {
+    font-size: 3rem;
+  }
+
+  .weather-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .weather-metrics > div:not(.weather-precip) {
+    display: flex;
+  }
+
+  .weather-metrics .weather-precip {
+    flex-basis: 100%;
+    margin-top: 0;
+  }
+
+  .cycle-heading {
+    display: flex;
+    align-items: baseline;
+  }
+
+  .solar-countdown {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .solar-countdown > strong {
+    font-size: var(--text-ui-title);
+  }
+
+  .cycle-dates {
+    font-size: var(--text-label);
+  }
+
+  .cycle-durations {
+    margin-top: var(--space-4);
+  }
+
+  .cycle-chart svg {
+    block-size: 7rem;
+  }
+}
+
 @media (forced-colors: active) {
   .cycle-day-area, .cycle-night-area { fill: Canvas; }
   .cycle-dot { stroke: Canvas; }
@@ -1001,12 +1079,12 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .contact-channels { grid-row: auto; margin-top: var(--space-2); }
   .contact-main { margin-top: var(--space-2); }
   .contact-links { gap: var(--space-1) var(--space-5); font-size: var(--text-small); }
-  .daylight summary { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) 1rem; gap: var(--space-1) var(--space-2); font-size: var(--text-label); }
-  .daylight-mark { grid-column: 1; grid-row: 1; }
-  .daylight .disclosure-label { grid-column: 2; grid-row: 1; }
+  .daylight summary { --summary-first-line: max(1.5rem, 1lh); display: grid; align-items: start; grid-template-columns: 1.5rem minmax(0, 1fr) 1rem; gap: var(--space-1) var(--space-2); font-size: var(--text-label); }
+  .daylight-mark { grid-column: 1; grid-row: 1; margin-block-start: calc((var(--summary-first-line) - 1.5rem) / 2); }
+  .daylight .disclosure-label { grid-column: 2; grid-row: 1; padding-block-start: calc((var(--summary-first-line) - 1lh) / 2); }
   .daylight-summary-end { display: contents; }
   [data-weather-summary] { grid-column: 2; grid-row: 2; font-size: var(--text-label); }
-  .daylight-expand { grid-column: 3; grid-row: 1 / 3; }
+  .daylight-expand { grid-column: 3; grid-row: 1; margin-block-start: calc((var(--summary-first-line) - .875rem) / 2); }
 
 }
 /* Match the smooth corner construction already used for the Tarot surfaces.

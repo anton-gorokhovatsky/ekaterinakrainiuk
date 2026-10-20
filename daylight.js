@@ -227,15 +227,34 @@
   function cycleGeometry(cycle) {
     const start = 16, end = 624, horizon = 100;
     const split = start + (end - start) * cycle.dayShare;
-    const day = `M${start} ${horizon} Q${(start + split) / 2} -60 ${split} ${horizon}`;
-    const night = `M${split} ${horizon} Q${(split + end) / 2} 260 ${end} ${horizon}`;
-    const p = cycle.phaseProgress;
-    const from = cycle.night ? split : start;
-    const to = cycle.night ? end : split;
-    const direction = cycle.night ? 1 : -1;
+    // Shared handles give both phases the same tangent at sunset.
+    // The peaks stay 80 units from the horizon; time still determines x uniformly.
+    const handle = Math.min(split - start, end - split) / 3;
+    const arc = (from, to, direction) => [
+      { x: from, y: horizon },
+      { x: from + handle, y: horizon + direction * 320 / 3 },
+      { x: to - handle, y: horizon + direction * 320 / 3 },
+      { x: to, y: horizon }
+    ];
+    const path = points => `M${points[0].x} ${points[0].y} C${points.slice(1).map(point => `${point.x} ${point.y}`).join(' ')}`;
+    const dayArc = arc(start, split, -1), nightArc = arc(split, end, 1);
+    const day = path(dayArc), night = path(nightArc);
+    const active = cycle.night ? nightArc : dayArc;
     const x = start + (end - start) * cycle.progress;
-    const y = horizon + direction * 320 * p * (1 - p);
-    const part = `M${from} ${horizon} Q${from + (to - from) * p / 2} ${horizon + direction * 160 * p} ${x} ${y}`;
+    // Recover the curve parameter from the time coordinate, not from arc length.
+    let low = 0, high = 1;
+    for (let i = 0; i < 32; i++) {
+      const t = (low + high) / 2, u = 1 - t;
+      const position = u ** 3 * active[0].x + 3 * u ** 2 * t * active[1].x
+        + 3 * u * t ** 2 * active[2].x + t ** 3 * active[3].x;
+      if (position < x) low = t; else high = t;
+    }
+    const t = cycle.phaseProgress <= 0 ? 0 : cycle.phaseProgress >= 1 ? 1 : (low + high) / 2;
+    const mix = (a, b) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+    const a = mix(active[0], active[1]), b = mix(active[1], active[2]), c = mix(active[2], active[3]);
+    const d = mix(a, b), e = mix(b, c), point = mix(d, e);
+    const y = point.y;
+    const part = path([active[0], a, d, { x, y }]);
     return { day, night, split, x, y, trail: cycle.night ? day + ' ' + part : part };
   }
   function durationText(milliseconds) {

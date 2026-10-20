@@ -191,6 +191,32 @@ test('the solar cycle spans the actual unequal day and night, including midnight
   assert.equal(solarCycle(days.slice(0, 1), at('2026-10-20T12:00:00+03:00')), null);
   assert.equal(durationText(59 * 60000 + 1000), '1 ч');
 });
+test('cycle geometry keeps time uniform and crosses sunset smoothly for unequal days', () => {
+  for (const dayShare of [.1, .25, 607 / 1442, .5, .75, .9]) {
+    const at = progress => cycleGeometry({
+      dayShare, progress, night: progress >= dayShare,
+      phaseProgress: progress < dayShare ? progress / dayShare : (progress - dayShare) / (1 - dayShare)
+    });
+    const sunset = at(dayShare);
+    assert.equal(sunset.y, 100);
+    const day = sunset.day.match(/[-\d.e+]+/g).map(Number);
+    const night = sunset.night.match(/[-\d.e+]+/g).map(Number);
+    const incoming = (day[7] - day[5]) / (day[6] - day[4]);
+    const outgoing = (night[3] - night[1]) / (night[2] - night[0]);
+    assert.ok(Math.abs(incoming - outgoing) < 1e-10, 'No corner at sunset');
+    for (const progress of [0, dayShare / 2, dayShare, (1 + dayShare) / 2, 1]) {
+      const point = at(progress);
+      assert.equal(point.x, 16 + 608 * progress);
+      assert.ok(point.y >= 20 - 1e-8 && point.y <= 180 + 1e-8);
+      const trailEnd = point.trail.match(/[-\d.e+]+/g).slice(-2).map(Number);
+      assert.deepEqual(trailEnd, [point.x, point.y]);
+    }
+    assert.equal(at(0).y, 100);
+    assert.equal(at(1).y, 100);
+    assert.ok(Math.abs(at(dayShare / 2).y - 20) < 1e-8);
+    assert.ok(Math.abs(at((1 + dayShare) / 2).y - 180) < 1e-8);
+  }
+});
 test('weather words distinguish sun, rain, snow and storms', () => {
   assert.equal(conditions(0), 'ясно');
   assert.equal(conditions(61), 'дождь');
