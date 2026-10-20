@@ -248,9 +248,10 @@
   const stage = document.querySelector('.andrey-video-stage');
   if (!stage) return;
   const frames = [...stage.querySelectorAll('.video-story')];
-  const button = stage.querySelector('.andrey-continuation-toggle');
+  const button = stage.closest('.andrey-review').querySelector('.andrey-continuation-toggle');
   const label = button.querySelector('.link-label');
-  const detail = button.querySelector('small');
+  const detailKind = button.querySelector('.andrey-continuation-kind');
+  const detailDuration = button.querySelector('.andrey-continuation-duration');
   const thumbnail = button.querySelector('img');
   let current = 0;
   const clips = frames.map(frame => ({
@@ -270,7 +271,8 @@
     const selected = clips[current];
     selected.frame.hidden = false;
     label.textContent = previous.title;
-    detail.textContent = `${current ? 'Реакция на финише' : 'Рассказ Андрея'} · ${previous.duration}`;
+    detailKind.textContent = `${current ? 'Реакция на финише' : 'Рассказ Андрея'} · `;
+    detailDuration.textContent = previous.duration;
     thumbnail.src = previous.video.poster;
     // Reuse the existing player in this user activation: one click starts it,
     // with the same captions, error/retry handling and soundtrack coordination.
@@ -279,5 +281,6 @@
     selected.video.scrollIntoView({ block: 'nearest', behavior: 'instant' });
   });
   clips[1].frame.hidden = true;
+  stage.closest('.andrey-review').classList.add('has-story-switch');
   button.hidden = false;
 })();

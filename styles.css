@@ -1087,22 +1087,22 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
 .andrey-person .review-profile { color: var(--muted); }
 .andrey-place {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-1);
   margin-top: var(--space-6);
-  font-size: var(--text-ui-title);
-  line-height: var(--leading-heading);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
 }
 .andrey-place > strong {
-  font-size: var(--text-stat);
-  font-weight: 650;
-  line-height: var(--leading-display);
-  letter-spacing: -.04em;
+  font-size: var(--text-result);
+  font-weight: 600;
+  line-height: var(--leading-heading);
+  letter-spacing: -.02em;
 }
 .andrey-race {
   display: grid;
   justify-items: start;
   gap: var(--space-1);
-  margin-top: var(--space-6);
+  margin-top: var(--space-4);
   font-size: var(--text-small);
   line-height: var(--leading-body);
 }
@@ -1154,8 +1154,8 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   text-align: left;
 }
 .andrey-continuation-toggle > img {
-  width: 3rem;
-  max-width: 48px;
+  width: 4.5rem;
+  max-width: 72px;
   height: auto;
   aspect-ratio: 9 / 16;
   object-fit: contain;
@@ -1188,6 +1188,40 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   outline: 2px solid var(--ink);
   outline-offset: 5px;
 }
+/* The next story shares the current frame's bottom edge. Captions have their
+   own row, so changing their length cannot move the preview off that edge. */
+.andrey-review.has-story-switch {
+  grid-template-rows: max-content max-content minmax(min-content, 1fr) auto auto;
+  row-gap: 0;
+}
+.has-story-switch .andrey-video-stage,
+.has-story-switch .andrey-video-stage > .video-story { display: contents; }
+.has-story-switch .andrey-video-stage .video-player {
+  grid-column: 1 / span 4;
+  grid-row: 1 / 4;
+  align-self: end;
+  width: 100%;
+  max-width: 22rem;
+}
+.has-story-switch .andrey-video-stage figcaption {
+  grid-column: 1 / span 4;
+  grid-row: 4;
+  max-width: 22rem;
+}
+.has-story-switch .andrey-video-stage .video-status {
+  grid-column: 1 / span 4;
+  grid-row: 5;
+}
+.has-story-switch .andrey-story-copy { margin-top: var(--space-8); }
+.has-story-switch > .andrey-continuation-toggle {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  align-self: end;
+  justify-self: start;
+  margin-top: var(--space-8);
+  /* The main frame uses four of twelve columns, capped at 22rem. */
+  margin-left: calc(min(22rem, (100% - 2 * var(--gap)) / 3) + var(--gap));
+}
 @media (hover: hover) and (pointer: fine) {
   .andrey-continuation-toggle:hover .link-label { text-decoration-color: currentColor; }
 }
@@ -1202,13 +1236,56 @@ summary:focus-visible .disclosure { background: var(--acid); color: #101216; box
   .andrey-review { grid-template-rows: auto; row-gap: var(--space-6); }
   .andrey-intro, .andrey-video-stage, .andrey-story-copy { grid-column: 1; grid-row: auto; }
   .andrey-person { display: grid; gap: var(--space-1); }
-  .andrey-place { margin-top: var(--space-4); gap: var(--space-1); font-size: var(--text-body); }
-  .andrey-place > strong { font-size: clamp(2.75rem, 12vw, 3.5rem); }
+  .andrey-place { margin-top: var(--space-4); }
   .andrey-race { margin-top: var(--space-4); }
   .andrey-video-stage { max-width: 22rem; }
   .andrey-video-stage .video-story > figcaption { margin-top: var(--space-1); }
   .andrey-story-copy { gap: var(--space-6); }
   .andrey-quote { max-width: 25ch; font-size: var(--text-lead); line-height: var(--leading-lead); }
+  .andrey-review.has-story-switch {
+    grid-template-columns: minmax(0, 22rem) min(4.5rem, 72px);
+    grid-template-rows: auto auto auto auto auto;
+    column-gap: var(--space-4);
+    row-gap: 0;
+  }
+  .has-story-switch .andrey-intro { grid-column: 1 / -1; grid-row: 1; margin-bottom: var(--space-6); }
+  .has-story-switch .andrey-video-stage .video-player { grid-column: 1; grid-row: 2; }
+  .has-story-switch .andrey-video-stage figcaption { grid-column: 1; grid-row: 3; }
+  .has-story-switch .video-story-title small { white-space: normal; }
+  .has-story-switch .andrey-video-stage .video-status { grid-column: 1; grid-row: 4; }
+  .has-story-switch .andrey-story-copy { grid-column: 1 / -1; grid-row: 5; margin-top: var(--space-6); }
+  .has-story-switch > .andrey-continuation-toggle {
+    grid-column: 2;
+    grid-row: 2 / 4;
+    align-self: stretch;
+    justify-self: stretch;
+    display: grid;
+    grid-template-rows: subgrid;
+    gap: 0;
+    margin: 0;
+    min-height: 0;
+  }
+  .has-story-switch .andrey-continuation-toggle > img {
+    grid-row: 1;
+    align-self: end;
+    width: 100%;
+    max-width: none;
+  }
+  .has-story-switch .andrey-continuation-label {
+    grid-row: 2;
+    align-self: start;
+    margin-top: var(--space-3);
+    padding-bottom: var(--space-2);
+    font-size: var(--text-label);
+  }
+  .has-story-switch .andrey-continuation-action { display: block; }
+  .has-story-switch .andrey-continuation-icon,
+  .has-story-switch .andrey-continuation-kind { display: none; }
+  .has-story-switch .andrey-continuation-toggle:focus-visible { outline: none; }
+  .has-story-switch .andrey-continuation-toggle:focus-visible > img {
+    outline: 2px solid var(--ink);
+    outline-offset: 5px;
+  }
 }
 
 /* The same evidence should read alike across all the athletes' stories. */

@@ -999,6 +999,11 @@ test('reviews keep text readable across widths and at 200%', { tag: '@layout' },
   for (const width of [320, 760, 980, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await overflowingReviewText(), `review text fits at ${width}px`).toEqual([]);
+    const frame = await page.locator('#andrey-finish-video').boundingBox();
+    const next = await page.locator('.andrey-continuation-toggle img').boundingBox();
+    expect(next.x, `the next story sits beside the current one at ${width}px`).toBeGreaterThan(frame.x + frame.width);
+    expect(next.y + next.height, `story frames share a bottom edge at ${width}px`).toBeCloseTo(frame.y + frame.height, 0);
+    expect(next.x + next.width, `the next story fits on screen at ${width}px`).toBeLessThanOrEqual(width);
   }
   await page.setViewportSize({ width: 320, height: 900 });
   await page.addStyleTag({ content: ':root { font-size: 200%; }' });
